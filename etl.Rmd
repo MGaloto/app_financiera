@@ -64,15 +64,16 @@ colnames(MELI) = c("precio","fecha", "volumen")
 ```{r}
 
 getRawData = function(accion){
+  
   raw_data = as.data.frame(
-  getSymbols(
-    accion , 
-    src = 'yahoo', 
-    auto.assign = F, 
-    from = "2001-01-02", 
-    to = Sys.Date(), 
-    periodicity = "daily"
-    )
+    getSymbols(
+      accion , 
+      src = 'yahoo', 
+      auto.assign = F, 
+      from = "2001-01-02", 
+      to = Sys.Date(), 
+      periodicity = "daily"
+      )
   )
   
   raw_data$Fecha <- as.Date(row.names(raw_data))
@@ -320,11 +321,13 @@ crear_dataframe <- function(acciones) {
 
 
 
-acciones <- c("MELI", "AAPL", "TSLA", "NVDA", "AMZN", "MSFT", "KO", "BABA")
+acciones <- c("MELI", "AAPL", "TSLA", "NVDA", "AMZN", "MSFT", "KO", "BABA", "DIS", "COIN", "VIST",  "WMT", "PBR", "MCD", "AAL", "JPM", "GOLD", "YPF", "ABNB")
 resultado <- crear_dataframe(acciones)
 
 
 
+
+write.csv(resultado, "archivo.csv", row.names = FALSE)
 
 ```
 

@@ -1,0 +1,169 @@
+---
+title: "App Financiera"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    theme: yeti
+    
+
+
+---
+
+<style>
+
+.navbar-inverse {
+    background-color: #000000;
+    border-color: #5d5d5d;
+}
+
+.navbar-inverse .navbar-nav>li>a:focus {
+    color: #f3f3f3;
+    background-color: transparent;
+}
+
+.navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:hover, .navbar-inverse .navbar-nav>.active>a:focus {
+    color: #ffffff;
+    background-color: transparent;
+}
+
+.chart-stage-flex {
+  overflow: scroll !important;
+}
+
+
+</style>
+
+
+
+
+
+```{r setup, include=FALSE}
+
+library(flexdashboard)
+library(dplyr)
+library(tidyverse)
+library(lubridate)
+library(rlang)
+library(shiny)
+library(DT)
+
+
+fecha_hoy <- Sys.Date()
+today <- as.Date(format(with_tz(fecha_hoy, tz = "America/Argentina/Buenos_Aires"), "%Y-%m-%d"))
+
+
+
+valuebox = function(porcentaje, name, mensaje, color, font) {
+  valueBox(
+    value = tags$p(paste0(porcentaje, ' %'),
+                   style = color), 
+    icon = "fa-line-chart",
+    caption = tags$p(paste0(mensaje, ' variacion Interanual: ',str_to_title(gsub("_", " ", name))), 
+                     style = font),
+    color =  color)
+  
+}
+
+
+
+resultado <- read.csv("archivo.csv")
+
+
+```
+
+
+
+
+
+
+
+Panel General {data-orientation=rows}
+=====================================
+
+**Ultima actualización con datos del `r today`**
+
+
+
+Row  {data-height=125}
+-----------------------------------------------------------------------
+
+### ***EMAE interanual***
+
+
+
+
+```{r}
+
+
+
+valuebox(1, name= "EMAE",mensaje = "EMAE", color="rgb(232, 221, 64)", font="font-size: 100%; color: #291e1e")
+
+```
+
+
+
+
+### ***Mayor suba interanual.***
+
+
+```{r}
+
+
+valuebox(1, name= "a", mensaje = "Mayor" , color="#800000", font="font-size: 100%; color: #ffffff")
+
+```
+
+
+### ***Menor suba interanual.***
+
+
+```{r}
+
+valuebox(1, name= "b", mensaje = "Menor",color="#a61425", font="font-size: 100%; color: #ffffff")
+
+```
+
+
+Row 
+-----------------------------------------------------------------------
+
+### ***Panel de Datos***
+
+
+```{r}
+
+brksVariacion <- quantile(resultado$Variacion, probs = seq(.05, .95, .05), na.rm = TRUE)
+ramp <- colorRampPalette(c("#f52f2f", "#3bf557"))
+clrsVariacion <- ramp(length(brksVariacion)+1)
+
+datatable(
+  resultado %>% 
+    select(Especie, Variacion, InterAnual, DiasUltMax, TrendActual), 
+  options = list(
+        scrollY="100vh",
+        scrollCollapse = FALSE
+      )) %>% 
+  formatStyle(
+    'InterAnual',
+    backgroundColor = styleInterval(c(0,50,100), c('#858f86','#91bd98', '#68de79','#3bf557'))
+  )  %>%
+  formatStyle(
+    'DiasUltMax',
+    background = styleColorBar(resultado$DiasUltMax, '#93badb'),
+    backgroundSize = '100% 90%',
+    backgroundRepeat = 'no-repeat',
+    backgroundPosition = 'center'
+  ) %>%
+  formatStyle(
+    'Variacion',
+    backgroundColor = styleInterval(brksVariacion, clrsVariacion)
+    ) %>%
+  formatStyle(
+    'TrendActual',
+    backgroundColor = styleEqual(c("Alza","Baja"),c("#3bf557",  "#f52f2f"))
+    )
+
+```
+
+
+
