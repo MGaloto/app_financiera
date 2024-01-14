@@ -1,0 +1,345 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-01-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(corrplot) 
+library(quantmod)
+library(highcharter)
+library(tidyr)
+library(ggplot2)
+library(readr)  
+library(dplyr) 
+library(plotly)
+library(crayon) 
+library(modeest)
+library(readxl)
+library(ggthemes)
+library(reshape)
+library(dplyr)
+library(lubridate)
+```
+
+```{r}
+fecha_hoy <- Sys.Date()
+today <- as.Date(format(with_tz(fecha_hoy, tz = "America/Argentina/Buenos_Aires"), "%Y-%m-%d"))
+
+```
+
+
+```{r}
+
+MELI=as.data.frame(
+  getSymbols(
+    "MELI" , src = 'yahoo', auto.assign = F, from = "2001-01-02", to = Sys.Date(), periodicity = "daily"
+    )
+  )
+
+MELI$Fecha <- as.Date(row.names(MELI))
+  
+colnames(MELI) = c("Open", "High", "Low", "Close", "Volumen", "Ajustado", "Fecha")
+
+MELI = MELI %>% select("Ajustado", "Fecha", "Volumen")
+
+rownames(MELI) = 1:nrow(MELI)
+
+row_ultimo_maximo = which.max(MELI[['Ajustado']])
+
+distancia_ultimo_maximo = nrow(MELI) - row_ultimo_maximo
+
+
+colnames(MELI) = c("precio","fecha", "volumen")
+
+
+```
+
+
+
+```{r}
+
+getRawData = function(accion){
+  raw_data = as.data.frame(
+  getSymbols(
+    accion , 
+    src = 'yahoo', 
+    auto.assign = F, 
+    from = "2001-01-02", 
+    to = Sys.Date(), 
+    periodicity = "daily"
+    )
+  )
+  
+  raw_data$Fecha <- as.Date(row.names(raw_data))
+  
+  colnames(raw_data) = c("Open", "High", "Low", "Close", "Volumen", "Ajustado", "Fecha")
+  
+  raw_data = raw_data %>% select("Ajustado", "Fecha", "Volumen")
+  
+  rownames(raw_data) = 1:nrow(raw_data)
+  
+  colnames(raw_data) = c("precio","fecha", "volumen")
+  
+  return(raw_data)
+}
+
+```
+
+# order data
+
+```{r}
+
+getOrder = function(data){
+  return(data[order(data$fecha), ])
+}
+
+
+```
+
+
+# Variacion
+
+```{r}
+
+getVariation = function(data) {
+  ultimo_precio <- data$precio[nrow(data)]
+  anteultimo_precio <- data$precio[nrow(data) - 1]
+  variacion <- round(((ultimo_precio - anteultimo_precio) / anteultimo_precio) * 100,2)
+  return(variacion)
+}
+
+```
+
+# Retorno InterAnual
+
+```{r}
+
+getVariationInterAnual = function(data) {
+  ultimo_precio <- data$precio[nrow(data)]
+  anteultimo_precio <- data$precio[nrow(data) - 365]
+  variacion <- round(((ultimo_precio - anteultimo_precio) / anteultimo_precio) * 100,2)
+  return(variacion)
+}
+
+```
+
+
+# Fecha Ultimo Maximio
+
+
+```{r}
+
+getFechaUltimoMaximo = function(data){
+  fila_max_precio <- which.max(data$precio)
+  fecha_max_precio <- data$fecha[fila_max_precio]
+  return(fecha_max_precio)
+}
+
+
+```
+# Dias Ultimo Maximio
+
+```{r}
+
+
+getDiasUtimoMaximo = function(fecha_ultimo_maximo, fecha_hoy) {
+  return(as.integer(fecha_hoy - fecha_ultimo_maximo))
+}
+
+
+```
+# variacion ultmo maximo
+
+
+```{r}
+
+getVariationUltimoMaximo = function(data) {
+  precio_actual = data$precio[nrow(data)]
+  ultimo_maximio = max(data$precio)
+  variacion = round(((ultimo_maximio - precio_actual) / precio_actual) * 100,2)
+  return(variacion)
+}
+
+```
+
+
+# ultimo volumen
+
+```{r}
+
+getUltVolumen = function(data) {
+  volumen_actual = data$volumen[nrow(data)]
+  return(volumen_actual)
+}
+
+```
+
+
+# cv anual
+
+```{r}
+
+getAnualVariationCoeff = function(data) {
+  data <- tail(data, 365)
+  cv <- round(sd(data$precio) / mean(data$precio) * 100, 2)
+  return(cv)
+}
+
+```
+# tendencias
+
+
+
+```{r}
+
+getHistoricTrend = function(data) {
+  model <- lm(precio ~ fecha, data = data)
+  pendiente <- round(coef(model)[2],2)
+  return(pendiente)
+}
+
+getTrend365Days = function(data) {
+  data <- tail(data, 365)
+  model <- lm(precio ~ fecha, data = data)
+  pendiente <- round(coef(model)[2],2)
+  return(pendiente)
+}
+
+  
+getTrend150Days = function(data) {
+  data <- tail(data, 150)
+  model <- lm(precio ~ fecha, data = data)
+  pendiente <- round(coef(model)[2],2)
+  return(pendiente)
+}
+  
+
+getTrend90Days = function(data) {
+  data <- tail(data, 90)
+  model <- lm(precio ~ fecha, data = data)
+  pendiente <- round(coef(model)[2],2)
+  return(pendiente)
+}
+  
+  
+getTrend60Days = function(data) {
+  data <- tail(data, 60)
+  model <- lm(precio ~ fecha, data = data)
+  pendiente <- round(coef(model)[2],2)
+  return(pendiente)
+}
+
+
+pend365days =getTrend365Days(MELI)
+pend150days = getTrend150Days(MELI)
+pend90days = getTrend90Days(MELI)
+pend60days =getTrend60Days(MELI)
+vector <- c(pend365days, pend150days, pend90days, pend60days)
+
+getAnalisisTrend = function(vector) {
+  todos_mayor_a_cero <- all(vector > 0)
+  if (todos_mayor_a_cero == TRUE) {
+    result <- "Alza"
+  } else {
+    result <- "Baja"
+  }
+  return(result)
+}
+
+
+```
+
+
+# DataFrame
+
+```{r}
+
+
+
+
+getData = function(data, vector_trends, especie) {
+  
+  data <- getOrder(data)
+  fecha_ultimo_maximo <- getFechaUltimoMaximo(data)
+  
+  df <- data.frame(
+    Especie = especie,
+    Variacion = getVariation(data),
+    InterAnual = getVariationInterAnual(data),
+    PorcentajeRespectoAlMax = getVariationUltimoMaximo(data),
+    DiasUltMax = getDiasUtimoMaximo(
+      fecha_ultimo_maximo, today
+      ),
+    FechaUltMax = fecha_ultimo_maximo,
+    TrendActual = getAnalisisTrend(vector_trends),
+    TrendUltYear = getTrend365Days(data),
+    CvAnual = getAnualVariationCoeff(data)
+
+  )
+  
+  rownames(df) = 1
+  
+  return(df)
+}
+
+
+
+```
+
+
+
+```{r}
+
+
+crear_dataframe <- function(acciones) {
+  dataframe_final <- data.frame()
+
+  for (accion in acciones) {
+    print(accion)
+    raw_data = getRawData(accion)
+
+    vector_trends = c(
+      getTrend365Days(raw_data), 
+      getTrend150Days(raw_data), 
+      getTrend90Days(raw_data), 
+      getTrend60Days(raw_data)
+      )
+    
+    data = getData(raw_data, vector_trends, accion)
+
+    dataframe_final <- rbind(dataframe_final, data)
+  }
+  rownames(dataframe_final) <- NULL
+  return(dataframe_final)
+}
+
+
+
+acciones <- c("MELI", "AAPL", "TSLA", "NVDA", "AMZN", "MSFT", "KO", "BABA")
+resultado <- crear_dataframe(acciones)
+
+
+
+
+```
+
+
+
+
+```{r}
+
+
+ggplot(MELI, aes(x = fecha, y = precio)) +
+  geom_line() +
+  labs(title = "meli",
+       x = "Fecha",
+       y = "Valor")
+
+
+```
+
