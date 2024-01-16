@@ -1,8 +1,0 @@
-"0",""
-"0","getVariation = function(data) {"
-"0","  ultimo_precio <- data$precio[nrow(data)]"
-"0","  anteultimo_precio <- data$precio[nrow(data) - 1]"
-"0","  variacion <- round(((ultimo_precio - anteultimo_precio) / anteultimo_precio) * 100,2)"
-"0","  return(variacion)"
-"0","}"
-"0",""
