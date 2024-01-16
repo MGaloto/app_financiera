@@ -125,7 +125,7 @@ getAnualVariationCoeff = function(data) {
   data30 <- data[(nrow(data)-30):nrow(data), ]
   cv30 <- round(sd(data30$precio) / mean(data30$precio) * 100, 2)
   return(
-    mean(cv365 + cv150 + cv90 + cv60 + cv30)
+    round(mean(cv365 + cv150 + cv90 + cv60 + cv30),2)
   )
 }
 

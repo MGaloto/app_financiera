@@ -87,7 +87,7 @@ datatable(
     pageLength = -1,
         scrollY="100vh",
         scrollCollapse = FALSE
-      )) %>% 
+      ),rownames = FALSE) %>% 
   formatStyle(
     'InterAnual',
     backgroundColor = styleInterval(c(0,50,100), c('#de1028','#91bd98', '#68de79','#3bf557'))
