@@ -45,7 +45,7 @@ getRawData = function(accion){
       accion , 
       src = 'yahoo', 
       auto.assign = F, 
-      from = "2021-01-01", 
+      from = "2002-01-01", 
       to = Sys.Date(), 
       periodicity = "daily"
     )
@@ -205,7 +205,7 @@ getAnalisisTrend = function(vector) {
 
 
 
-getData = function(data, vector_trends, especie) {
+getData = function(data, vector_trends, especie, accion_completa) {
   
   data <- getOrder(data)
   
@@ -213,6 +213,7 @@ getData = function(data, vector_trends, especie) {
   
   df <- data.frame(
     Especie = especie,
+    Nombre = accion_completa,
     Variacion = getVariation(data),
     InterAnual = getVariationInterAnual(data),
     PorcentajeRespectoAlMax = getVariationUltimoMaximo(data),
@@ -781,8 +782,9 @@ datos <- list(
 crear_dataframe <- function(acciones) {
   dataframe_final <- data.frame()
   
-  for (accion in acciones) {
+  for (accion in names(acciones)) {
     print(accion)
+    accion_completa = acciones[[accion]]
     
     tryCatch({
       raw_data = getRawData(accion)
@@ -792,7 +794,7 @@ crear_dataframe <- function(acciones) {
         getTrend90Days(raw_data), 
         getTrend60Days(raw_data)
       )
-      data = getData(raw_data, vector_trends, accion)
+      data = getData(raw_data, vector_trends, accion, accion_completa)
       
       dataframe_final <- rbind(dataframe_final, data)
       
@@ -811,6 +813,6 @@ acciones <- c("MELI", "AAPL", "TSLA", "NVDA", "AMZN", "MSFT", "KO", "BABA", "DIS
 
 
 
-resultado <- crear_dataframe(names(datos))
+resultado <- crear_dataframe(datos)
 
 
