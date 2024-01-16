@@ -116,3 +116,25 @@ datatable(
 
 
 
+
+Referencias {data-orientation=rows}
+=====================================
+
+
+**Calculo de las columnas**
+
+
+* Variacion: Cambio porcentual respecto al dia anterior.
+
+* InterAnual: Cambio porcentual respecto al precio hace 365 días.
+
+* DiasUltMax: Cantidad de dias que pasaron desde su ultimo maximo.
+
+* TrendActual: Para este calculo se realizaron 4 regresiones lineales obteniendo de cada una de ellas la pendiente. Los periodos son para los ultimos 60 dias, del dia 60 al 90, del 90 al 150 y del 150 al 365. Si la pendiente de las 4 regresiones es positiva la etiqueta sera 1 - Alza. Si tres son positivas la etiqueta es 2 - Alza Media.
+
+* CoefVariationPromedioAnual: Se utilizo el promedio del coeficiente de variacion para los mismos 4 periodos mencionados en la variable anterior.
+
+* TrendUltYear: Se utilizo la pendiente de los ultimos 365 dias.
+
+
+
