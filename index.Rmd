@@ -82,7 +82,7 @@ clrsVariacion <- ramp(length(brksVariacion)+1)
 
 datatable(
   resultado %>% 
-    select(Especie, Nombre,Variacion, InterAnual, DiasUltMax, TrendActual, CoefVariationPromedioAnual, TrendUltYear), 
+    select(Especie, Nombre,Variacion, Cierre, InterAnual, DiasUltMax, UltimoPrecioMaximo, TrendActual, CoefVariationPromedioAnual, TrendUltYear, Volumen), 
   options = list(
     pageLength = -1,
         scrollY="100vh",
