@@ -814,7 +814,3 @@ acciones <- c("MELI", "AAPL", "TSLA", "NVDA", "AMZN", "MSFT", "KO", "BABA", "DIS
 resultado <- crear_dataframe(acciones)
 
 
-<<<<<<< HEAD
-=======
-write.csv(resultado, "archivo.csv", row.names = FALSE)
->>>>>>> 976902b95f0783d7182f0c93afe41f67b97d5d1b
