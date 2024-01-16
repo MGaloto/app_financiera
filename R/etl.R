@@ -113,12 +113,12 @@ getUltVolumen = function(data) {
 }
 
 getCierre = function(data) {
-  ultimo_precio <- tail(data$precio, 1)
+  ultimo_precio <- round(tail(data$precio, 1),2)
   return(ultimo_precio)
 }
 
 getUltimoPrecioMaximo = function(data) {
-  precio_maximo <- max(data$precio)
+  precio_maximo <- round(max(data$precio),2)
   return(precio_maximo)
 }
 
