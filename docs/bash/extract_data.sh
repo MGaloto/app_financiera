@@ -11,8 +11,6 @@ else
     echo "${LGREEN}Git user.email is: $2${LGREEN}"
 fi
 
-Rscript R/etl.R
-echo "${LGREEN}Ok ETL${LGREEN}"
 
 Rscript -e "rmarkdown::render_site()"
 echo "${LGREEN}Ok Render Site${LGREEN}"
