@@ -811,6 +811,6 @@ acciones <- c("MELI", "AAPL", "TSLA", "NVDA", "AMZN", "MSFT", "KO", "BABA", "DIS
 
 
 
-resultado <- crear_dataframe(acciones)
+resultado <- crear_dataframe(names(datos))
 
 
