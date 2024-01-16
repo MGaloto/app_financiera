@@ -1,14 +1,5 @@
----
-title: "Untitled"
-output: html_document
-date: "2024-01-12"
----
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
-```{r}
 
 library(quantmod)
 library(readr)  
@@ -19,16 +10,10 @@ library(lubridate)
 library(tidyverse)
 
 
-```
 
-```{r}
+
 fecha_hoy <- Sys.Date()
 today <- as.Date(format(with_tz(fecha_hoy, tz = "America/Argentina/Buenos_Aires"), "%Y-%m-%d"))
-
-```
-
-
-```{r}
 
 # MELI=na.omit(as.data.frame(
 #   getSymbols(
@@ -52,11 +37,6 @@ today <- as.Date(format(with_tz(fecha_hoy, tz = "America/Argentina/Buenos_Aires"
 # colnames(MELI) = c("precio","fecha", "volumen")
 
 
-```
-
-
-
-```{r}
 
 getRawData = function(accion){
   
@@ -68,7 +48,7 @@ getRawData = function(accion){
       from = "2021-01-01", 
       to = Sys.Date(), 
       periodicity = "daily"
-      )
+    )
   )
   
   raw_data$Fecha <- as.Date(row.names(raw_data))
@@ -84,23 +64,12 @@ getRawData = function(accion){
   return(na.omit(raw_data))
 }
 
-```
-
-# order data
-
-```{r}
 
 getOrder = function(data){
   return(data[order(data$fecha), ])
 }
 
 
-```
-
-
-# Variacion
-
-```{r}
 
 getVariation = function(data) {
   ultimo_precio <- data$precio[nrow(data)]
@@ -109,11 +78,6 @@ getVariation = function(data) {
   return(variacion)
 }
 
-```
-
-# Retorno InterAnual
-
-```{r}
 
 getVariationInterAnual = function(data) {
   ultimo_precio <- data$precio[nrow(data)]
@@ -122,14 +86,6 @@ getVariationInterAnual = function(data) {
   return(variacion)
 }
 
-```
-
-
-# Fecha Ultimo Maximio
-
-
-```{r}
-
 getFechaUltimoMaximo = function(data){
   fila_max_precio <- which.max(data$precio)
   fecha_max_precio <- data$fecha[fila_max_precio]
@@ -137,22 +93,11 @@ getFechaUltimoMaximo = function(data){
 }
 
 
-```
-# Dias Ultimo Maximio
-
-```{r}
-
 
 getDiasUtimoMaximo = function(fecha_ultimo_maximo, fecha_hoy) {
   return(as.integer(fecha_hoy - fecha_ultimo_maximo))
 }
 
-
-```
-# variacion ultmo maximo
-
-
-```{r}
 
 getVariationUltimoMaximo = function(data) {
   precio_actual = data$precio[nrow(data)]
@@ -161,24 +106,12 @@ getVariationUltimoMaximo = function(data) {
   return(variacion)
 }
 
-```
-
-
-# ultimo volumen
-
-```{r}
 
 getUltVolumen = function(data) {
   volumen_actual = data$volumen[nrow(data)]
   return(volumen_actual)
 }
 
-```
-
-
-# cv anual
-
-```{r}
 
 getAnualVariationCoeff = function(data) {
   data365 <- data[(nrow(data)-365):nrow(data)-150, ]
@@ -196,13 +129,6 @@ getAnualVariationCoeff = function(data) {
   )
 }
 
-```
-# tendencias
-
-
-
-```{r}
-
 getHistoricTrend = function(data) {
   model <- lm(precio ~ fecha, data = data)
   pendiente <- round(coef(model)[2],2)
@@ -216,14 +142,14 @@ getTrend365Days = function(data) {
   return(pendiente)
 }
 
-  
+
 getTrend150Days = function(data) {
   data <- tail(data, 150)
   model <- lm(precio ~ fecha, data = data)
   pendiente <- round(coef(model)[2],2)
   return(pendiente)
 }
-  
+
 
 getTrend90Days = function(data) {
   data <- tail(data, 90)
@@ -231,8 +157,8 @@ getTrend90Days = function(data) {
   pendiente <- round(coef(model)[2],2)
   return(pendiente)
 }
-  
-  
+
+
 getTrend60Days = function(data) {
   data <- tail(data, 60)
   model <- lm(precio ~ fecha, data = data)
@@ -256,7 +182,7 @@ getAnalisisTrend = function(vector) {
       positivos[count] = v
     }
   }
-    
+  
   negativos = na.omit(negativos)
   positivos = na.omit(positivos)
   
@@ -273,17 +199,8 @@ getAnalisisTrend = function(vector) {
   }
   
   return(result)
-
+  
 }
-
-
-
-```
-
-
-# DataFrame
-
-```{r}
 
 
 
@@ -301,12 +218,12 @@ getData = function(data, vector_trends, especie) {
     PorcentajeRespectoAlMax = getVariationUltimoMaximo(data),
     DiasUltMax = getDiasUtimoMaximo(
       fecha_ultimo_maximo, today
-      ),
+    ),
     FechaUltMax = fecha_ultimo_maximo,
     TrendActual = getAnalisisTrend(vector_trends),
     TrendUltYear = getTrend365Days(data),
     CoefVariationPromedioAnual = getAnualVariationCoeff(data)
-
+    
   )
   
   rownames(df) = 1
@@ -315,10 +232,6 @@ getData = function(data, vector_trends, especie) {
 }
 
 
-
-```
-
-```{r}
 
 
 datos <- list(
@@ -864,15 +777,10 @@ datos <- list(
 #   "ZM" = "Zoom Video Comm...",
 #   "ZMD" = "Zoom Video Comm...")
 
-```
-
-
-```{r}
-
 
 crear_dataframe <- function(acciones) {
   dataframe_final <- data.frame()
-
+  
   for (accion in acciones) {
     print(accion)
     
@@ -885,9 +793,9 @@ crear_dataframe <- function(acciones) {
         getTrend60Days(raw_data)
       )
       data = getData(raw_data, vector_trends, accion)
-
+      
       dataframe_final <- rbind(dataframe_final, data)
-
+      
     }, error = function(e) {
       cat("Error en la acción:", accion, "\n")
       cat("Mensaje de error:", conditionMessage(e), "\n")
@@ -907,12 +815,3 @@ resultado <- crear_dataframe(acciones)
 
 
 write.csv(resultado, "archivo.csv", row.names = FALSE)
-
-```
-
-
-
-
-
-
-
