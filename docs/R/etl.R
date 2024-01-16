@@ -112,6 +112,17 @@ getUltVolumen = function(data) {
   return(volumen_actual)
 }
 
+getCierre = function(data) {
+  ultimo_precio <- tail(data$precio, 1)
+  return(ultimo_precio)
+}
+
+getUltimoPrecioMaximo = function(data) {
+  precio_maximo <- max(data$precio)
+  return(precio_maximo)
+}
+
+
 
 getAnualVariationCoeff = function(data) {
   data365 <- data[(nrow(data)-365):nrow(data)-150, ]
@@ -214,7 +225,10 @@ getData = function(data, vector_trends, especie, accion_completa) {
   df <- data.frame(
     Especie = especie,
     Nombre = accion_completa,
+    Cierre = getCierre(data),
+    UltimoPrecioMaximo = getUltimoPrecioMaximo(data),
     Variacion = getVariation(data),
+    Volumen = getUltVolumen(data),
     InterAnual = getVariationInterAnual(data),
     PorcentajeRespectoAlMax = getVariationUltimoMaximo(data),
     DiasUltMax = getDiasUtimoMaximo(
