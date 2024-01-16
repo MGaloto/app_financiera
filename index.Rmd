@@ -50,12 +50,11 @@ library(DT)
 
 fecha_hoy <- Sys.Date()
 today <- as.Date(format(with_tz(fecha_hoy, tz = "America/Argentina/Buenos_Aires"), "%Y-%m-%d"))
-
 todayhms <- format(with_tz(Sys.time(), tzone = "America/Argentina/Buenos_Aires"), "%Y-%m-%d %H:%M:%S")
 
+source("R/etl.R")
 
-
-resultado <- read.csv("R/archivo.csv")
+#resultado <- read.csv("R/archivo.csv")
 
 
 ```
