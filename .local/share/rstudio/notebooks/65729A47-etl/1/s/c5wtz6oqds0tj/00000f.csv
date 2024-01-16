@@ -1,8 +1,0 @@
-"0",""
-"0","getFechaUltimoMaximo = function(data){"
-"0","  fila_max_precio <- which.max(data$precio)"
-"0","  fecha_max_precio <- data$fecha[fila_max_precio]"
-"0","  return(fecha_max_precio)"
-"0","}"
-"0",""
-"0",""

@@ -1,7 +1,0 @@
-"0",""
-"0",""
-"0","getDiasUtimoMaximo = function(fecha_ultimo_maximo, fecha_hoy) {"
-"0","  return(as.integer(fecha_hoy - fecha_ultimo_maximo))"
-"0","}"
-"0",""
-"0",""

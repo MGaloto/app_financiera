@@ -1,6 +1,0 @@
-"0",""
-"0","getUltVolumen = function(data) {"
-"0","  volumen_actual = data$volumen[nrow(data)]"
-"0","  return(volumen_actual)"
-"0","}"
-"0",""

@@ -1,6 +1,0 @@
-"0",""
-"0","getOrder = function(data){"
-"0","  return(data[order(data$fecha), ])"
-"0","}"
-"0",""
-"0",""
