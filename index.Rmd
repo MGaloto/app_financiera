@@ -51,27 +51,14 @@ library(DT)
 fecha_hoy <- Sys.Date()
 today <- as.Date(format(with_tz(fecha_hoy, tz = "America/Argentina/Buenos_Aires"), "%Y-%m-%d"))
 
-
-
-valuebox = function(porcentaje, name, mensaje, color, font) {
-  valueBox(
-    value = tags$p(paste0(porcentaje, ' %'),
-                   style = color), 
-    icon = "fa-line-chart",
-    caption = tags$p(paste0(mensaje, ' variacion Interanual: ',str_to_title(gsub("_", " ", name))), 
-                     style = font),
-    color =  color)
-  
-}
+todayhms <- format(with_tz(Sys.time(), tzone = "America/Argentina/Buenos_Aires"), "%Y-%m-%d %H:%M:%S")
 
 
 
-resultado <- read.csv("archivo.csv")
+resultado <- read.csv("R/archivo.csv")
 
 
 ```
-
-
 
 
 
@@ -80,54 +67,12 @@ resultado <- read.csv("archivo.csv")
 Panel General {data-orientation=rows}
 =====================================
 
-**Ultima actualización con datos del `r today`**
+**Ultima actualización `r todayhms`**
 
-
-
-Row  {data-height=125}
------------------------------------------------------------------------
-
-### ***EMAE interanual***
-
-
-
-
-```{r}
-
-
-
-valuebox(1, name= "EMAE",mensaje = "EMAE", color="rgb(232, 221, 64)", font="font-size: 100%; color: #291e1e")
-
-```
-
-
-
-
-### ***Mayor suba interanual.***
-
-
-```{r}
-
-
-valuebox(1, name= "a", mensaje = "Mayor" , color="#800000", font="font-size: 100%; color: #ffffff")
-
-```
-
-
-### ***Menor suba interanual.***
-
-
-```{r}
-
-valuebox(1, name= "b", mensaje = "Menor",color="#a61425", font="font-size: 100%; color: #ffffff")
-
-```
 
 
 Row 
 -----------------------------------------------------------------------
-
-### ***Panel de Datos***
 
 
 ```{r}
@@ -138,8 +83,9 @@ clrsVariacion <- ramp(length(brksVariacion)+1)
 
 datatable(
   resultado %>% 
-    select(Especie, Variacion, InterAnual, DiasUltMax, TrendActual, CoefVariationPromedioAnual), 
+    select(Especie, Variacion, InterAnual, DiasUltMax, TrendActual, CoefVariationPromedioAnual, TrendUltYear), 
   options = list(
+    pageLength = -1,
         scrollY="100vh",
         scrollCollapse = FALSE
       )) %>% 

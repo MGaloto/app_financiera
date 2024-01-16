@@ -1,0 +1,8 @@
+"0",""
+"0","getVariationUltimoMaximo = function(data) {"
+"0","  precio_actual = data$precio[nrow(data)]"
+"0","  ultimo_maximio = max(data$precio)"
+"0","  variacion = round(((ultimo_maximio - precio_actual) / precio_actual) * 100,2)"
+"0","  return(variacion)"
+"0","}"
+"0",""

@@ -1,0 +1,1376 @@
+0:FHN = "First Horizon Corporation",
+0:FITB = "Fifth Third Bancorp",
+0:GFI = "Gold Fields Limited",
+0:GILD = "Gilead Sciences, Inc.",
+0:GM = "General Motors Company",
+0:GOLD = "Barrick Gold Corporation",
+0:GOOG = "Alphabet Inc.",
+0:GOOGL = "Alphabet Inc.",
+0:GPS = "The Gap, Inc.",
+0:GRAB = "Grab Holdings Limited",
+0:GRFS = "Grifols, S.A.",
+0:HAL = "Halliburton Company",
+0:HBAN = "Huntington Bancshares Incorporated",
+0:HL = "Hecla Mining Company",
+0:HOOD = "Robinhood Markets, Inc.",
+0:HPE = "Hewlett Packard Enterprise Company",
+0:HPQ = "HP Inc.",
+0:HST = "Host Hotels & Resorts, Inc.",
+0:HTZ = "Hertz Global Holdings, Inc.",
+0:IBN = "ICICI Bank Limited",
+0:IMGN = "ImmunoGen, Inc.",
+0:INFY = "Infosys Limited",
+0:INTC = "Intel Corporation",
+0:IQ = "iQIYI, Inc.",
+0:ITUB = "Itaú Unibanco Holding S.A.",
+0:JCI = "Johnson Controls International plc",
+0:JD = "JD.com, Inc.",
+0:JNPR = "Juniper Networks, Inc.",
+0:JPM = "JPMorgan Chase & Co.",
+0:KDP = "Keurig Dr Pepper Inc.",
+0:KEY = "KeyCorp",
+0:KGC = "Kinross Gold Corporation",
+0:KIM = "Kimco Realty Corporation",
+0:KMI = "Kinder Morgan, Inc.",
+0:KO = "The Coca-Cola Company",
+0:KSS = "Kohl's Corporation",
+0:KVUE = "Kenvue Inc.",
+0:LCID = "Lucid Group, Inc.",
+0:LI = "Li Auto Inc.",
+0:LUV = "Southwest Airlines Co.",
+0:LYFT = "Lyft, Inc.",
+0:LYG = "Lloyds Banking Group plc",
+0:M = "Macy's, Inc.",
+0:MARA = "Marathon Digital Holdings, Inc.",
+0:MBLY = "Mobileye Global Inc.",
+0:MDT = "Medtronic plc",
+0:META = "Meta Platforms, Inc.",
+0:MO = "Altria Group, Inc.",
+0:MOS = "The Mosaic Company",
+0:MPW = "Medical Properties Trust, Inc.",
+0:MRK = "Merck & Co., Inc.",
+0:MRO = "Marathon Oil Corporation",
+0:MRVL = "Marvell Technology, Inc.",
+0:MS = "Morgan Stanley",
+0:MSFT = "Microsoft Corporation",
+0:MU = "Micron Technology, Inc.",
+0:NCLH = "Norwegian Cruise Line Holdings Ltd.",
+0:NEE = "NextEra Energy, Inc.",
+0:NEM = "Newmont Corporation",
+0:NFLX = "Netflix, Inc.",
+0:NIO = "NIO Inc.",
+0:NKE = "NIKE, Inc.",
+0:NMR = "Nomura Holdings, Inc.",
+0:NOK = "Nokia Oyj",
+0:NOV = "NOV Inc.",
+0:NU = "Nu Holdings Ltd.",
+0:NVDA = "NVIDIA Corporation",
+0:NXE = "NexGen Energy Ltd.",
+0:NYCB = "New York Community Bancorp, Inc.",
+0:O = "Realty Income Corporation",
+0:ON = "ON Semiconductor Corporation",
+0:OPEN = "Opendoor Technologies Inc.",
+0:ORCL = "Oracle Corporation",
+0:OSCR = "Oscar Health, Inc.",
+0:OXY = "Occidental Petroleum Corporation",
+0:PARA = "Paramount Global",
+0:PATH = "UiPath Inc.",
+0:PBR = "Petróleo Brasileiro S.A. - Petrobras",
+0:PCG = "PG&E Corporation",
+0:PDD = "PDD Holdings Inc.",
+0:PEAK = "Healthpeak Properties, Inc.",
+0:PENN = "PENN Entertainment, Inc.",
+0:PFE = "Pfizer Inc.",
+0:PG = "The Procter & Gamble Company",
+0:PLTR = "Palantir Technologies Inc.",
+0:PLUG = "Plug Power Inc.",
+0:PR = "Permian Resources Corporation",
+0:PSNY = "Polestar Automotive Holding UK PLC",
+0:PTON = "Peloton Interactive, Inc.",
+0:PYPL = "PayPal Holdings, Inc.",
+0:QCOM = "QUALCOMM Incorporated",
+0:QS = "QuantumScape Corporation",
+0:RBLX = "Roblox Corporation",
+0:RCM = "R1 RCM Inc.",
+0:RF = "Regions Financial Corporation",
+0:RIG = "Transocean Ltd.",
+0:RIOT = "Riot Platforms, Inc.",
+0:RIVN = "Rivian Automotive, Inc.",
+0:RTX = "RTX Corporation",
+0:RUN = "Sunrun Inc.",
+0:RXRX = "Recursion Pharmaceuticals, Inc.",
+0:S = "SentinelOne, Inc.",
+0:SATS = "EchoStar Corporation",
+0:SBSW = "Sibanye Stillwater Limited",
+0:SBUX = "Starbucks Corporation",
+0:SCHW = "The Charles Schwab Corporation",
+0:SE = "Sea Limited",
+0:SHOP = "Shopify Inc.",
+0:SIRI = "Sirius XM Holdings Inc.",
+0:SLB = "Schlumberger Limited",
+0:SNAP = "Snap Inc.",
+0:SOFI = "SoFi Technologies, Inc.",
+0:SQ = "Block, Inc.",
+0:SWN = "Southwestern Energy Company",
+0:SYF = "Synchrony Financial",
+0:T = "AT&T Inc.",
+0:TEVA = "Teva Pharmaceutical Industries Limited",
+0:TFC = "Truist Financial Corporation",
+0:TGTX = "TG Therapeutics, Inc.",
+0:TME = "Tencent Music Entertainment Group",
+0:TOST = "Toast, Inc.",
+0:TSLA = "Tesla, Inc.",
+0:TSM = "Taiwan Semiconductor Manufacturing Company Limited",
+0:TTD = "The Trade Desk, Inc.",
+0:U = "Unity Software Inc.",
+0:UAA = "Under Armour, Inc.",
+0:UAL = "United Airlines Holdings, Inc.",
+0:UBER = "Uber Technologies, Inc.",
+0:UEC = "Uranium Energy Corp.",
+0:UNH = "UnitedHealth Group Incorporated",
+0:UPST = "Upstart Holdings, Inc.",
+0:USB = "U.S. Bancorp",
+0:VALE = "Vale S.A.",
+0:VFC = "V.F. Corporation",
+0:VOD = "Vodafone Group Public Limited Company",
+0:VTRS = "Viatris Inc.",
+0:VZ = "Verizon Communications Inc.",
+0:WBA = "Walgreens Boots Alliance, Inc.",
+0:WBD = "Warner Bros. Discovery, Inc.",
+0:WFC = "Wells Fargo & Company",
+0:WIT = "Wipro Limited",
+0:WMB = "The Williams Companies, Inc.",
+0:XOM = "Exxon Mobil Corporation",
+0:XPEV = "XPeng Inc.",
+0:YPF = "YPF",
+0:ZI = "ZoomInfo Technologies Inc."
+0:)
+0:cedears  <- c(
+0:"AAL" = "AMERICAN AIRLIN...",
+0:"AAPL" = "Apple",
+0:"AAPLC" = "Apple",
+0:"AAPLD" = "Apple",
+0:"ABBV" = "AbbVie Inc.",
+0:"ABBVD" = "Abbvie Inc.",
+0:"ABEV" = "Ambev",
+0:"ABNB" = "Airbnb, Inc.",
+0:"ABT" = "Abbott Laborato...",
+0:"ABTD" = "Abbott Laborato...",
+0:"ADBE" = "Adobe Systems I...",
+0:"ADGO" = "Adecoagro",
+0:"ADI" = "Analog Devices",
+0:"AEM" = "Agnico Eagle Mi...",
+0:"AIG" = "American Intern...",
+0:"AKO.B" = "EMBOTELLADORA A...",
+0:"AMAT" = "Applied Materials",
+0:"AMD" = "Advanced Micro ...",
+0:"AMDD" = "Advanced Micro ...",
+0:"AMGN" = "Amgen",
+0:"AMX" = "America Movil",
+0:"AMXD" = "America Movil",
+0:"AMZN" = "Amazon",
+0:"AMZNC" = "Amazon",
+0:"AMZND" = "Amazon",
+0:"AOCAD" = "Aluminum Corpor...",
+0:"ARCO" = "Arcos Dorados H...",
+0:"AUY" = "Yamana Gold Inc.",
+0:"AVGO" = "Broadcom Inc.",
+0:"AVGOD" = "Broadcom Inc.",
+0:"AVY" = "Avery Dennison",
+0:"AXP" = "American Express",
+0:"AXPD" = "American Express",
+0:"AZN" = "Astrazeneca",
+0:"AZND" = "Astrazeneca",
+0:"BA" = "Boeing",
+0:"BA.C" = "Bank of America",
+0:"BA.CD" = "Bank of America",
+0:"BABA" = "Alibaba Group",
+0:"BABAC" = "Alibaba Group",
+0:"BABAD" = "Alibaba Group",
+0:"BAD" = "Boeing",
+0:"BB" = "Blackberry",
+0:"BBD" = "Banco Bradesco ...",
+0:"BBDC" = "Banco Bradesco ...",
+0:"BBDD" = "Banco Bradesco ...",
+0:"BBV" = "Banco Bilbao Vi...",
+0:"BCS" = "Barclays",
+0:"BHP" = "BHP Billiton Ltd.",
+0:"BIDU" = "Baidu",
+0:"BIDUD" = "Baidu",
+0:"BIIB" = "Biogen Inc.",
+0:"BIOX" = "Bioceres Crop S...",
+0:"BIOXD" = "Bioceres Crop S...",
+0:"BITF" = "Bitfarms Ltd.",
+0:"BK" = "Bank of New Yor...",
+0:"BMY" = "Bristol-Myers S...",
+0:"BNG" = "Bunge Limited",
+0:"BP" = "BP",
+0:"BPD" = "BP",
+0:"BRFS" = "BRF S.A.",
+0:"BRKB" = "Berkshire Hathaway",
+0:"BRKBD" = "Berkshire Hathaway",
+0:"BSBR" = "Banco Santander...",
+0:"C" = "Citigroup",
+0:"C.D" = "Citigroup",
+0:"CAAP" = "Corporación Amé...",
+0:"CAH" = "Cardinal Health",
+0:"CAHD" = "Cardinal Health",
+0:"CAR" = "Avis Budget Gro...",
+0:"CAT" = "Caterpillar",
+0:"CATD" = "Caterpillar",
+0:"CDE" = "Coeur Mining",
+0:"CL" = "Colgate-Palmolive",
+0:"COIN" = "COINBASE GLOBAL...",
+0:"COST" = "Costco Wholesale",
+0:"CRM" = "Salesforce.com ...",
+0:"CS" = "Credit Suisse G...",
+0:"CSCO" = "Cisco Systems",
+0:"CSCOD" = "Cisco Systems",
+0:"CVX" = "Chevron",
+0:"CVXD" = "Chevron",
+0:"CX" = "Cemex",
+0:"DD" = "Dupont Corporation",
+0:"DE" = "Deere",
+0:"DEO" = "CEDEAR DIAGEO PL",
+0:"DESP" = "Despegar",
+0:"DESPD" = "Despegar",
+0:"DISN" = "The Walt Disney...",
+0:"DISND" = "The Walt Disney...",
+0:"DOCU" = "DocuSign Inc.",
+0:"DOCUD" = "Docusign Inc",
+0:"DOW" = "Dow Inc.",
+0:"EA" = "ELECTRONIC ARTS...",
+0:"EBAY" = "eBay",
+0:"EBAYD" = "eBay",
+0:"EBR" = "Centrais Elétri...",
+0:"EFX" = "Equifax Inc.",
+0:"EFXD" = "Equifax Inc.",
+0:"ERIC" = "LM Ericsson Tel...",
+0:"ERJ" = "Embraer S.A.",
+0:"ERJD" = "Embraer S.A.",
+0:"ETSY" = "Etsy Inc.",
+0:"ETSYD" = "Etsy Inc",
+0:"F" = "Ford Motor Company",
+0:"FCX" = "Freeport-Mcmora...",
+0:"FDX" = "FedEx",
+0:"FDXD" = "FedEx",
+0:"FMX" = "Femsa",
+0:"FMXD" = "Femsa",
+0:"FSLR" = "First Solar",
+0:"GE" = "General Electric",
+0:"GEC" = "General Electric",
+0:"GFI" = "Gold Fields",
+0:"GGB" = "Gerdau",
+0:"GILD" = "Gilead Sciences",
+0:"GILDC" = "Gilead Sciences",
+0:"GILDD" = "Gilead Sciences",
+0:"GLOB" = "Globant",
+0:"GLOBD" = "Globant",
+0:"GLW" = "Corning",
+0:"GM" = "General Motors Co.",
+0:"GOGLD" = "Google",
+0:"GOLD" = "Barrick Gold",
+0:"GOLDC" = "Barrick Gold",
+0:"GOLDD" = "Barrick Gold",
+0:"GOOGL" = "Google",
+0:"GPRK" = "Geopark Ltd.",
+0:"GRMN" = "Garmin LTD.",
+0:"GS" = "Goldman Sachs",
+0:"GSD" = "Goldman Sachs",
+0:"GSK" = "GlaxoSmithKline",
+0:"GSKC" = "GlaxoSmithKline",
+0:"GSKD" = "GlaxoSmithKline",
+0:"HAL" = "Halliburton Co.",
+0:"HD" = "Home Depot",
+0:"HL" = "Hecla Mining",
+0:"HMC" = "Honda Motor",
+0:"HMY" = "Harmony Gold",
+0:"HMYD" = "Harmony Gold",
+0:"HOG" = "Harley Davidson",
+0:"HON" = "Honeywell Inter...",
+0:"HPQ" = "Hewlett-Packard",
+0:"HSBC" = "Hsbc Holdings",
+0:"HSY" = "Hershey",
+0:"HUT" = "Hut 8 Mining Corp.",
+0:"HWM" = "Howmet Aerospace",
+0:"HWMD" = "Howmet Aerospace",
+0:"IBM" = "Ibm",
+0:"IBMD" = "IBM",
+0:"INTC" = "Intel",
+0:"INTCD" = "Intel",
+0:"IP" = "International P...",
+0:"ITUB" = "Banco Itaú Unib...",
+0:"ITUBD" = "Banco Itaú Unib...",
+0:"JD" = "Jd.Com",
+0:"JMIA" = "Jumia Technolog...",
+0:"JNJ" = "Johnson & Johnson",
+0:"JNJC" = "Johnson & Johnson",
+0:"JNJD" = "Johnson & Johnson",
+0:"JPM" = "Jpmorgan Chase ...",
+0:"JPMD" = "JPMorgan Chase ...",
+0:"KMB" = "Kimberly-Clark",
+0:"KMBC" = "Kimberly-Clark",
+0:"KO" = "The Coca-Cola C...",
+0:"KOC" = "The Coca-Cola C...",
+0:"KOD" = "The Coca-Cola C...",
+0:"LLY" = "Eli Lilly",
+0:"LMT" = "Lockheed Martin",
+0:"LMTD" = "Lockheed Martin",
+0:"LRCX" = "LAM RESEARCH CORP.",
+0:"LVS" = "Las Vegas Sands",
+0:"LYG" = "Lloyds Banking ...",
+0:"MA" = "Mastercard Inc.",
+0:"MAD" = "Mastercard",
+0:"MCD" = "McDonald's",
+0:"MCDD" = "Mcdonald's",
+0:"MDT" = "Medtronic",
+0:"MELI" = "MercadoLibre",
+0:"MELIC" = "MercadoLibre",
+0:"MELID" = "MercadoLibre",
+0:"META" = "Meta Platforms Inc",
+0:"METAC" = "Meta Platforms Inc",
+0:"METAD" = "Meta Platforms Inc",
+0:"MFG" = "MIZUHO FINANCIA...",
+0:"MMC" = "Marsh & McLennan",
+0:"MMM" = "3M",
+0:"MMMD" = "3M",
+0:"MO" = "Altria Group",
+0:"MOD" = "Altria Group",
+0:"MOS" = "The Mosaic Co",
+0:"MRK" = "Merck",
+0:"MRKD" = "Merck",
+0:"MSFT" = "Microsoft",
+0:"MSFTC" = "Microsoft",
+0:"MSFTD" = "Microsoft",
+0:"MSI" = "Motorola",
+0:"MSTR" = "MicroStrategy I...",
+0:"MU" = "Micron Technolo...",
+0:"NEM" = "Newmont Mining ...",
+0:"NEMD" = "Newmont Mining ...",
+0:"NFLX" = "Netflix",
+0:"NFLXD" = "Netflix",
+0:"NGG" = "National Grid",
+0:"NIO" = "NIO INC.",
+0:"NKE" = "Nike",
+0:"NKED" = "Nike",
+0:"NOKA" = "Nokia",
+0:"NTCO" = "Cedear Natura &...",
+0:"NTES" = "Netease, Inc.",
+0:"NUE" = "Nucor",
+0:"NVDA" = "Nvidia",
+0:"NVDAD" = "Nvidia",
+0:"NVS" = "Novartis Ag",
+0:"NVSD" = "Novartis AG",
+0:"OGZD" = "Gazprom",
+0:"OGZDD" = "Gazprom",
+0:"ORAN" = "Orange",
+0:"ORCL" = "Oracle",
+0:"OXY" = "Occidental Petr...",
+0:"PAAS" = "Pan American Si...",
+0:"PANW" = "Palo Alto Netwo...",
+0:"PBI" = "Pitney Bowes",
+0:"PBR" = "Petroleo Brasil...",
+0:"PBRD" = "Petroleo Brasil...",
+0:"PCAR" = "PACCAR",
+0:"PEP" = "PepsiCo",
+0:"PFE" = "Pfizer",
+0:"PFED" = "Pfizer",
+0:"PG" = "Procter & Gamble",
+0:"PGD" = "Procter & Gamble",
+0:"PHG" = "Phillips Electr...",
+0:"PKS" = "Posco Holdings ...",
+0:"PSX" = "Phillips 66",
+0:"PSXD" = "Phillips 66",
+0:"PYPL" = "Paypal Holdings...",
+0:"PYPLD" = "Paypal Holdings...",
+0:"QCOM" = "Qualcomm",
+0:"QCOMC" = "Qualcomm",
+0:"QCOMD" = "Qualcomm",
+0:"RBLX" = "Roblox Corporation",
+0:"RIO" = "Rio Tinto",
+0:"RIOD" = "Rio Tinto",
+0:"RTX" = "United Technolo...",
+0:"SAN" = "Banco Santander...",
+0:"SAP" = "SAP",
+0:"SATL" = "Satellogic Inc.",
+0:"SBS" = "COMPANHIA DE SA...",
+0:"SBUX" = "Starbucks",
+0:"SCCO" = "Southern Copper",
+0:"SE" = "Sea Ltd.",
+0:"SHEL" = "Shell Plc",
+0:"SHOP" = "Shopify Inc.",
+0:"SHOPD" = "Shopify Inc.",
+0:"SI" = "Silvergate Capi...",
+0:"SID" = "Companhia Sider...",
+0:"SLB" = "Schlumberger",
+0:"SLBD" = "Schlumberger",
+0:"SNA" = "Snap-On",
+0:"SNAP" = "Snap Inc.",
+0:"SNOW" = "Snowflake Inc.",
+0:"SNOWD" = "Snowflake Inc",
+0:"SONY" = "Sony Corporation",
+0:"SPGI" = "S&P GLOBAL INC.",
+0:"SPOT" = "Spotify Technol...",
+0:"SPOTD" = "Spotify Technol...",
+0:"SQ" = "Square Inc.",
+0:"SQD" = "Square Inc",
+0:"SUZ" = "Suzano",
+0:"SYY" = "Sysco",
+0:"T" = "At&T",
+0:"TD" = "AT&T",
+0:"TEFO" = "Telefonica Sa",
+0:"TEN" = "Tenaris",
+0:"TEND" = "Tenaris",
+0:"TGT" = "Target Corporation",
+0:"TIMB" = "Tim Participaçõ...",
+0:"TM" = "Toyota Motors",
+0:"TMD" = "Toyota Motors",
+0:"TMO" = "Thermo Fisher S...",
+0:"TRIP" = "Tripadvisor Inc.",
+0:"TSLA" = "Tesla",
+0:"TSLAC" = "Tesla",
+0:"TSLAD" = "Tesla",
+0:"TSM" = "Taiwan Semicond...",
+0:"TTE" = "Total",
+0:"TV" = "Grupo Televisa",
+0:"TWLO" = "TWILIO INC.",
+0:"TWTR" = "Twitter",
+0:"TWTRD" = "Twitter",
+0:"TXN" = "Texas Instruments",
+0:"TXR" = "Ternium",
+0:"TXRD" = "Ternium",
+0:"UAL" = "United Airlines...",
+0:"UBER" = "Uber Technologi...",
+0:"UGP" = "Ultrapar Partic...",
+0:"UL" = "Unilever",
+0:"UNH" = "UnitedHealth Gr...",
+0:"UNHD" = "UnitedHealth Gr...",
+0:"UNP" = "Union Pacific C...",
+0:"UNPD" = "Union Pacific C...",
+0:"UPST" = "Upstart Holding...",
+0:"USB" = "CEDEAR U.S.Banco",
+0:"V" = "Visa",
+0:"VALE" = "Vale",
+0:"VALED" = "Vale",
+0:"VD" = "Visa",
+0:"VIST" = "Vista Energy S....",
+0:"VISTD" = "Vista Energy S....",
+0:"VIV" = "Telefonica Brasil",
+0:"VOD" = "Vodafone Group",
+0:"VRSN" = "Verisign",
+0:"VZ" = "Verizon Communi...",
+0:"VZD" = "Verizon Communi...",
+0:"WBA" = "Walgreens Boots...",
+0:"WFC" = "Wells Fargo",
+0:"WFCC" = "Wells Fargo",
+0:"WFCD" = "Wells Fargo",
+0:"WMT" = "Walmart",
+0:"WMTD" = "Walmart",
+0:"X" = "United States S...",
+0:"XD" = "United States S...",
+0:"XOM" = "Exxon Mobil",
+0:"XOMD" = "Exxon Mobil",
+0:"XP" = "XP INC.",
+0:"XROX" = "Xerox",
+0:"YELP" = "Yelp Inc",
+0:"ZM" = "Zoom Video Comm...",
+0:"ZMD" = "Zoom Video Comm...")
+0:crear_dataframe <- function(acciones) {
+0:dataframe_final <- data.frame()
+0:for (accion in acciones) {
+0:print(accion)
+0:tryCatch({
+0:raw_data = getRawData(accion)
+0:print(accion)
+0:vector_trends = c(
+0:getTrend365Days(raw_data),
+0:getTrend150Days(raw_data),
+0:getTrend90Days(raw_data),
+0:getTrend60Days(raw_data)
+0:)
+0:data = getData(raw_data, vector_trends, accion)
+0:dataframe_final <- rbind(dataframe_final, data)
+0:}, error = function(e) {
+0:cat("Error en la acción:", accion, "\n")
+0:cat("Mensaje de error:", conditionMessage(e), "\n")
+0:})
+0:}
+0:rownames(dataframe_final) <- NULL
+0:return(dataframe_final)
+0:}
+0:acciones <- c("MELI", "AAPL", "TSLA", "NVDA", "AMZN", "MSFT", "KO", "BABA", "DIS", "COIN", "VIST",  "WMT", "PBR", "MCD", "AAL", "JPM", "GOLD", "YPF", "ABNB")
+0:cedears_claves <- paste0(names(cedears), ".BA")
+0:resultado <- crear_dataframe(cedears_claves)
+0:write.csv(resultado, "archivo.csv", row.names = FALSE)
+0:raw_data = getRawData("HD.BA")
+0:getAnualVariationCoeff(raw_data)
+0:ggplot(MELI, aes(x = fecha, y = precio)) +
+0:geom_line() +
+0:labs(title = "meli",
+0:x = "Fecha",
+0:y = "Valor")
+0:View(resultado)
+1705434044420:packageVersion('markdown')
+1705434063958:knitr::opts_chunk$set(echo = TRUE)
+1705434064912:library(quantmod)
+1705434065536:library(readr)
+1705434065946:library(dplyr)
+1705434066233:library(modeest)
+1705434066924:library(readxl)
+1705434067020:library(lubridate)
+1705434067550:library(tidyverse)
+1705434069439:fecha_hoy <- Sys.Date()
+1705434069531:today <- as.Date(format(with_tz(fecha_hoy, tz = "America/Argentina/Buenos_Aires"), "%Y-%m-%d"))
+1705434069949:# MELI=na.omit(as.data.frame(
+1705434069987:#   getSymbols(
+1705434070029:#     "HD.BA" , src = 'yahoo', auto.assign = F, from = "2020-01-01", to = Sys.Date(), periodicity = "daily"
+1705434070078:#     )
+1705434070130:#   ))
+1705434070179:#
+1705434070241:# MELI$Fecha <- as.Date(row.names(MELI))
+1705434070296:#
+1705434070361:# colnames(MELI) = c("Open", "High", "Low", "Close", "Volumen", "Ajustado", "Fecha")
+1705434070416:#
+1705434070464:# MELI = MELI %>% select("Ajustado", "Fecha", "Volumen")
+1705434070504:#
+1705434070568:# rownames(MELI) = 1:nrow(MELI)
+1705434070664:#
+1705434070758:# row_ultimo_maximo = which.max(MELI[['Ajustado']])
+1705434070885:#
+1705434070963:# distancia_ultimo_maximo = nrow(MELI) - row_ultimo_maximo
+1705434071021:#
+1705434071065:#
+1705434071105:# colnames(MELI) = c("precio","fecha", "volumen")
+1705434071419:getRawData = function(accion){
+1705434071555:raw_data = as.data.frame(
+1705434071615:getSymbols(
+1705434071683:accion ,
+1705434071756:src = 'yahoo',
+1705434071806:auto.assign = F,
+1705434071868:from = "2021-01-01",
+1705434071924:to = Sys.Date(),
+1705434071984:periodicity = "daily"
+1705434072051:)
+1705434072108:)
+1705434072268:raw_data$Fecha <- as.Date(row.names(raw_data))
+1705434072367:colnames(raw_data) = c("Open", "High", "Low", "Close", "Volumen", "Ajustado", "Fecha")
+1705434072443:raw_data = raw_data %>% select("Ajustado", "Fecha", "Volumen")
+1705434072579:rownames(raw_data) = 1:nrow(raw_data)
+1705434072689:colnames(raw_data) = c("precio","fecha", "volumen")
+1705434072763:return(na.omit(raw_data))
+1705434072801:}
+1705434073142:getOrder = function(data){
+1705434073216:return(data[order(data$fecha), ])
+1705434073289:}
+1705434073694:getVariation = function(data) {
+1705434073763:ultimo_precio <- data$precio[nrow(data)]
+1705434073818:anteultimo_precio <- data$precio[nrow(data) - 1]
+1705434073882:variacion <- round(((ultimo_precio - anteultimo_precio) / anteultimo_precio) * 100,2)
+1705434073936:return(variacion)
+1705434073982:}
+1705434074439:getVariationInterAnual = function(data) {
+1705434074503:ultimo_precio <- data$precio[nrow(data)]
+1705434074564:anteultimo_precio <- data$precio[nrow(data) - 365]
+1705434074614:variacion <- round(((ultimo_precio - anteultimo_precio) / anteultimo_precio) * 100,2)
+1705434074663:return(variacion)
+1705434074706:}
+1705434075050:getFechaUltimoMaximo = function(data){
+1705434075137:fila_max_precio <- which.max(data$precio)
+1705434075208:fecha_max_precio <- data$fecha[fila_max_precio]
+1705434075272:return(fecha_max_precio)
+1705434075346:}
+1705434076061:getDiasUtimoMaximo = function(fecha_ultimo_maximo, fecha_hoy) {
+1705434076110:return(as.integer(fecha_hoy - fecha_ultimo_maximo))
+1705434076153:}
+1705434076486:getVariationUltimoMaximo = function(data) {
+1705434076604:precio_actual = data$precio[nrow(data)]
+1705434076688:ultimo_maximio = max(data$precio)
+1705434076752:variacion = round(((ultimo_maximio - precio_actual) / precio_actual) * 100,2)
+1705434076829:return(variacion)
+1705434076890:}
+1705434077399:getUltVolumen = function(data) {
+1705434077451:volumen_actual = data$volumen[nrow(data)]
+1705434077506:return(volumen_actual)
+1705434077559:}
+1705434077892:getAnualVariationCoeff = function(data) {
+1705434077992:data365 <- data[(nrow(data)-365):nrow(data)-150, ]
+1705434078067:cv365 <- round(sd(data365$precio) / mean(data365$precio) * 100, 2)
+1705434078120:data150 <- data[(nrow(data)-150):nrow(data)-90, ]
+1705434078171:cv150 <- round(sd(data150$precio) / mean(data150$precio) * 100, 2)
+1705434078219:data90 <- data[(nrow(data)-90):nrow(data)-60, ]
+1705434078258:cv90 <- round(sd(data90$precio) / mean(data90$precio) * 100, 2)
+1705434078303:data60 <- data[(nrow(data)-60):nrow(data)-30, ]
+1705434078348:cv60 <- round(sd(data60$precio) / mean(data60$precio) * 100, 2)
+1705434078434:data30 <- data[(nrow(data)-30):nrow(data), ]
+1705434078493:cv30 <- round(sd(data30$precio) / mean(data30$precio) * 100, 2)
+1705434078544:return(
+1705434078597:mean(cv365 + cv150 + cv90 + cv60 + cv30)
+1705434078642:)
+1705434078687:}
+1705434079135:getHistoricTrend = function(data) {
+1705434079210:model <- lm(precio ~ fecha, data = data)
+1705434079271:pendiente <- round(coef(model)[2],2)
+1705434079346:return(pendiente)
+1705434079400:}
+1705434079489:getTrend365Days = function(data) {
+1705434079536:data <- tail(data, 365)
+1705434079582:model <- lm(precio ~ fecha, data = data)
+1705434079627:pendiente <- round(coef(model)[2],2)
+1705434079766:return(pendiente)
+1705434079811:}
+1705434079920:getTrend150Days = function(data) {
+1705434079989:data <- tail(data, 150)
+1705434080047:model <- lm(precio ~ fecha, data = data)
+1705434080113:pendiente <- round(coef(model)[2],2)
+1705434080167:return(pendiente)
+1705434080224:}
+1705434080449:getTrend90Days = function(data) {
+1705434080504:data <- tail(data, 90)
+1705434080566:model <- lm(precio ~ fecha, data = data)
+1705434080651:pendiente <- round(coef(model)[2],2)
+1705434080738:return(pendiente)
+1705434080808:}
+1705434080994:getTrend60Days = function(data) {
+1705434081039:data <- tail(data, 60)
+1705434081082:model <- lm(precio ~ fecha, data = data)
+1705434081121:pendiente <- round(coef(model)[2],2)
+1705434081162:return(pendiente)
+1705434081200:}
+1705434081357:pend365days =getTrend365Days(MELI)
+1705434141890:knitr::opts_chunk$set(echo = TRUE)
+1705434142354:library(quantmod)
+1705434142405:library(readr)
+1705434142454:library(dplyr)
+1705434142500:library(modeest)
+1705434142543:library(readxl)
+1705434142585:library(lubridate)
+1705434142640:library(tidyverse)
+1705434142966:fecha_hoy <- Sys.Date()
+1705434143032:today <- as.Date(format(with_tz(fecha_hoy, tz = "America/Argentina/Buenos_Aires"), "%Y-%m-%d"))
+1705434143342:# MELI=na.omit(as.data.frame(
+1705434143425:#   getSymbols(
+1705434143500:#     "HD.BA" , src = 'yahoo', auto.assign = F, from = "2020-01-01", to = Sys.Date(), periodicity = "daily"
+1705434143605:#     )
+1705434143643:#   ))
+1705434143690:#
+1705434143746:# MELI$Fecha <- as.Date(row.names(MELI))
+1705434143784:#
+1705434143820:# colnames(MELI) = c("Open", "High", "Low", "Close", "Volumen", "Ajustado", "Fecha")
+1705434143853:#
+1705434143913:# MELI = MELI %>% select("Ajustado", "Fecha", "Volumen")
+1705434143969:#
+1705434144015:# rownames(MELI) = 1:nrow(MELI)
+1705434144055:#
+1705434144093:# row_ultimo_maximo = which.max(MELI[['Ajustado']])
+1705434144127:#
+1705434144212:# distancia_ultimo_maximo = nrow(MELI) - row_ultimo_maximo
+1705434144285:#
+1705434144343:#
+1705434144398:# colnames(MELI) = c("precio","fecha", "volumen")
+1705434144840:getRawData = function(accion){
+1705434144976:raw_data = as.data.frame(
+1705434145030:getSymbols(
+1705434145083:accion ,
+1705434145128:src = 'yahoo',
+1705434145184:auto.assign = F,
+1705434145247:from = "2021-01-01",
+1705434145306:to = Sys.Date(),
+1705434145367:periodicity = "daily"
+1705434145705:)
+1705434145773:)
+1705434145884:raw_data$Fecha <- as.Date(row.names(raw_data))
+1705434146047:colnames(raw_data) = c("Open", "High", "Low", "Close", "Volumen", "Ajustado", "Fecha")
+1705434146183:raw_data = raw_data %>% select("Ajustado", "Fecha", "Volumen")
+1705434146283:rownames(raw_data) = 1:nrow(raw_data)
+1705434146349:colnames(raw_data) = c("precio","fecha", "volumen")
+1705434146406:return(na.omit(raw_data))
+1705434146437:}
+1705434146830:getOrder = function(data){
+1705434146924:return(data[order(data$fecha), ])
+1705434146968:}
+1705434147422:getVariation = function(data) {
+1705434147493:ultimo_precio <- data$precio[nrow(data)]
+1705434147547:anteultimo_precio <- data$precio[nrow(data) - 1]
+1705434147587:variacion <- round(((ultimo_precio - anteultimo_precio) / anteultimo_precio) * 100,2)
+1705434147622:return(variacion)
+1705434147663:}
+1705434147952:getVariationInterAnual = function(data) {
+1705434148017:ultimo_precio <- data$precio[nrow(data)]
+1705434148084:anteultimo_precio <- data$precio[nrow(data) - 365]
+1705434148154:variacion <- round(((ultimo_precio - anteultimo_precio) / anteultimo_precio) * 100,2)
+1705434148221:return(variacion)
+1705434148263:}
+1705434148598:getFechaUltimoMaximo = function(data){
+1705434148669:fila_max_precio <- which.max(data$precio)
+1705434148733:fecha_max_precio <- data$fecha[fila_max_precio]
+1705434148792:return(fecha_max_precio)
+1705434148849:}
+1705434149324:getDiasUtimoMaximo = function(fecha_ultimo_maximo, fecha_hoy) {
+1705434149419:return(as.integer(fecha_hoy - fecha_ultimo_maximo))
+1705434149471:}
+1705434149892:getVariationUltimoMaximo = function(data) {
+1705434149972:precio_actual = data$precio[nrow(data)]
+1705434150033:ultimo_maximio = max(data$precio)
+1705434150097:variacion = round(((ultimo_maximio - precio_actual) / precio_actual) * 100,2)
+1705434150148:return(variacion)
+1705434150202:}
+1705434150652:getUltVolumen = function(data) {
+1705434150737:volumen_actual = data$volumen[nrow(data)]
+1705434150808:return(volumen_actual)
+1705434150865:}
+1705434151201:getAnualVariationCoeff = function(data) {
+1705434151269:data365 <- data[(nrow(data)-365):nrow(data)-150, ]
+1705434151381:cv365 <- round(sd(data365$precio) / mean(data365$precio) * 100, 2)
+1705434151421:data150 <- data[(nrow(data)-150):nrow(data)-90, ]
+1705434151475:cv150 <- round(sd(data150$precio) / mean(data150$precio) * 100, 2)
+1705434151526:data90 <- data[(nrow(data)-90):nrow(data)-60, ]
+1705434151574:cv90 <- round(sd(data90$precio) / mean(data90$precio) * 100, 2)
+1705434151617:data60 <- data[(nrow(data)-60):nrow(data)-30, ]
+1705434151660:cv60 <- round(sd(data60$precio) / mean(data60$precio) * 100, 2)
+1705434151741:data30 <- data[(nrow(data)-30):nrow(data), ]
+1705434151825:cv30 <- round(sd(data30$precio) / mean(data30$precio) * 100, 2)
+1705434151893:return(
+1705434151949:mean(cv365 + cv150 + cv90 + cv60 + cv30)
+1705434152009:)
+1705434152071:}
+1705434152448:getHistoricTrend = function(data) {
+1705434152507:model <- lm(precio ~ fecha, data = data)
+1705434152561:pendiente <- round(coef(model)[2],2)
+1705434152648:return(pendiente)
+1705434152742:}
+1705434152886:getTrend365Days = function(data) {
+1705434152937:data <- tail(data, 365)
+1705434152989:model <- lm(precio ~ fecha, data = data)
+1705434153038:pendiente <- round(coef(model)[2],2)
+1705434153091:return(pendiente)
+1705434153133:}
+1705434153275:getTrend150Days = function(data) {
+1705434153331:data <- tail(data, 150)
+1705434153370:model <- lm(precio ~ fecha, data = data)
+1705434153412:pendiente <- round(coef(model)[2],2)
+1705434153460:return(pendiente)
+1705434153499:}
+1705434153702:getTrend90Days = function(data) {
+1705434153752:data <- tail(data, 90)
+1705434153809:model <- lm(precio ~ fecha, data = data)
+1705434153849:pendiente <- round(coef(model)[2],2)
+1705434153896:return(pendiente)
+1705434153948:}
+1705434154159:getTrend60Days = function(data) {
+1705434154211:data <- tail(data, 60)
+1705434154270:model <- lm(precio ~ fecha, data = data)
+1705434154333:pendiente <- round(coef(model)[2],2)
+1705434154387:return(pendiente)
+1705434154475:}
+1705434154742:getAnalisisTrend = function(vector) {
+1705434154860:negativos = c()
+1705434154921:positivos = c()
+1705434155036:count = 0
+1705434155089:for (v in vector){
+1705434155151:count = count + 1
+1705434155206:if (v < 0){
+1705434155261:negativos[count] = v
+1705434155316:} else {
+1705434155379:positivos[count] = v
+1705434155434:}
+1705434155528:}
+1705434155616:negativos = na.omit(negativos)
+1705434155654:positivos = na.omit(positivos)
+1705434155750:if (length(positivos) == 4){
+1705434155800:result <- "1 - Alza"
+1705434155849:} else if (length(positivos) == 3) {
+1705434155947:result <- "2 - Alza Media"
+1705434156001:} else if (length(positivos) == 2) {
+1705434156050:result <- "3 - Neutro"
+1705434156102:} else if (length(positivos) == 1) {
+1705434156160:result <- "4 - Baja Media"
+1705434156206:} else {
+1705434156244:result <- "5 - Baja"
+1705434156285:}
+1705434156382:return(result)
+1705434156473:}
+1705434157097:getData = function(data, vector_trends, especie) {
+1705434157211:data <- getOrder(data)
+1705434157321:fecha_ultimo_maximo <- getFechaUltimoMaximo(data)
+1705434157427:df <- data.frame(
+1705434157480:Especie = especie,
+1705434157525:Variacion = getVariation(data),
+1705434157572:InterAnual = getVariationInterAnual(data),
+1705434157614:PorcentajeRespectoAlMax = getVariationUltimoMaximo(data),
+1705434157657:DiasUltMax = getDiasUtimoMaximo(
+1705434157699:fecha_ultimo_maximo, today
+1705434157752:),
+1705434157798:FechaUltMax = fecha_ultimo_maximo,
+1705434157888:TrendActual = getAnalisisTrend(vector_trends),
+1705434157949:TrendUltYear = getTrend365Days(data),
+1705434158000:CoefVariationPromedioAnual = getAnualVariationCoeff(data)
+1705434158082:)
+1705434158155:rownames(df) = 1
+1705434158237:return(df)
+1705434158284:}
+1705434159411:datos <- list(
+1705434159497:AAL = "American Airlines Group Inc.",
+1705434159606:AAPL = "Apple Inc.",
+1705434159705:ABEV = "Ambev S.A.",
+1705434159793:AFRM = "Affirm Holdings, Inc.",
+1705434159874:AGL = "agilon health, inc.",
+1705434159962:AGNC = "AGNC Investment Corp.",
+1705434160030:AI = "C3.ai, Inc.",
+1705434160106:ALIT = "Alight, Inc.",
+1705434160176:AMCR = "Amcor plc",
+1705434160244:AMD = "Advanced Micro Devices, Inc.",
+1705434160321:AMZN = "Amazon.com, Inc.",
+1705434160379:ARDX = "Ardelyx, Inc.",
+1705434160427:BA = "The Boeing Company",
+1705434160484:BABA = "Alibaba Group Holding Limited",
+1705434160572:BAC = "Bank of America Corporation",
+1705434160619:BBD = "Banco Bradesco S.A.",
+1705434160667:BCS = "Barclays PLC",
+1705434160712:BEKE = "KE Holdings Inc.",
+1705434160759:BIDU = "Baidu, Inc.",
+1705434160840:BK = "The Bank of New York Mellon Corporation",
+1705434160906:BKR = "Baker Hughes Company",
+1705434160957:BMY = "Bristol-Myers Squibb Company",
+1705434161001:BP = "BP p.l.c.",
+1705434161050:BSX = "Boston Scientific Corporation",
+1705434161096:BTE = "Baytex Energy Corp.",
+1705434161136:BTG = "B2Gold Corp.",
+1705434161173:C = "Citigroup Inc.",
+1705434161214:CCJ = "Cameco Corporation",
+1705434161263:CCL = "Carnival Corporation & plc",
+1705434161325:CFG = "Citizens Financial Group, Inc.",
+1705434161390:CHWY = "Chewy, Inc.",
+1705434161449:CL = "Colgate-Palmolive Company",
+1705434161503:CLF = "Cleveland-Cliffs Inc.",
+1705434161581:CMCSA = "Comcast Corporation",
+1705434161626:CNHI = "CNH Industrial N.V.",
+1705434161679:COIN = "Coinbase Global, Inc.",
+1705434161724:COP = "ConocoPhillips",
+1705434161769:COTY = "Coty Inc.",
+1705434161816:CPNG = "Coupang, Inc.",
+1705434161855:CSCO = "Cisco Systems, Inc.",
+1705434161947:CSX = "CSX Corporation",
+1705434161995:CTSH = "Cognizant Technology Solutions Corporation",
+1705434162040:CVE = "Cenovus Energy Inc.",
+1705434162089:CVNA = "Carvana Co.",
+1705434162130:CVS = "CVS Health Corporation",
+1705434162174:CVX = "Chevron Corporation",
+1705434162212:DAL = "Delta Air Lines, Inc.",
+1705434162261:DB = "Deutsche Bank Aktiengesellschaft",
+1705434162305:DIDIY = "DiDi Global Inc.",
+1705434162346:DIS = "The Walt Disney Company",
+1705434162395:DKNG = "DraftKings Inc.",
+1705434162438:DNA = "Ginkgo Bioworks Holdings, Inc.",
+1705434162502:DOCU = "DocuSign, Inc.",
+1705434162568:DVN = "Devon Energy Corporation",
+1705434162633:EBAY = "eBay Inc.",
+1705434162698:ELAN = "Elanco Animal Health Incorporated",
+1705434162757:EPD = "Enterprise Products Partners L.P.",
+1705434162801:ERIC = "Telefonaktiebolaget LM Ericsson (publ)",
+1705434162859:ET = "Energy Transfer LP",
+1705434162899:F = "Ford Motor Company",
+1705434162948:FCX = "Freeport-McMoRan Inc.",
+1705434162991:FHN = "First Horizon Corporation",
+1705434163029:FITB = "Fifth Third Bancorp",
+1705434163072:GFI = "Gold Fields Limited",
+1705434163115:GILD = "Gilead Sciences, Inc.",
+1705434163158:GM = "General Motors Company",
+1705434163202:GOLD = "Barrick Gold Corporation",
+1705434163250:GOOG = "Alphabet Inc.",
+1705434163303:GOOGL = "Alphabet Inc.",
+1705434163350:GPS = "The Gap, Inc.",
+1705434163400:GRAB = "Grab Holdings Limited",
+1705434163448:GRFS = "Grifols, S.A.",
+1705434163484:HAL = "Halliburton Company",
+1705434163564:HBAN = "Huntington Bancshares Incorporated",
+1705434163629:HL = "Hecla Mining Company",
+1705434163696:HOOD = "Robinhood Markets, Inc.",
+1705434163768:HPE = "Hewlett Packard Enterprise Company",
+1705434163843:HPQ = "HP Inc.",
+1705434163915:HST = "Host Hotels & Resorts, Inc.",
+1705434163972:HTZ = "Hertz Global Holdings, Inc.",
+1705434164029:IBN = "ICICI Bank Limited",
+1705434164076:IMGN = "ImmunoGen, Inc.",
+1705434164126:INFY = "Infosys Limited",
+1705434164165:INTC = "Intel Corporation",
+1705434164216:IQ = "iQIYI, Inc.",
+1705434164268:ITUB = "Itaú Unibanco Holding S.A.",
+1705434164309:JCI = "Johnson Controls International plc",
+1705434164362:JD = "JD.com, Inc.",
+1705434164411:JNPR = "Juniper Networks, Inc.",
+1705434164453:JPM = "JPMorgan Chase & Co.",
+1705434164498:KDP = "Keurig Dr Pepper Inc.",
+1705434164537:KEY = "KeyCorp",
+1705434164579:KGC = "Kinross Gold Corporation",
+1705434164615:KIM = "Kimco Realty Corporation",
+1705434164649:KMI = "Kinder Morgan, Inc.",
+1705434164683:KO = "The Coca-Cola Company",
+1705434164717:KSS = "Kohl's Corporation",
+1705434164764:KVUE = "Kenvue Inc.",
+1705434164826:LCID = "Lucid Group, Inc.",
+1705434164883:LI = "Li Auto Inc.",
+1705434164941:LUV = "Southwest Airlines Co.",
+1705434165000:LYFT = "Lyft, Inc.",
+1705434165102:LYG = "Lloyds Banking Group plc",
+1705434165169:M = "Macy's, Inc.",
+1705434165226:MARA = "Marathon Digital Holdings, Inc.",
+1705434165282:MBLY = "Mobileye Global Inc.",
+1705434165338:MDT = "Medtronic plc",
+1705434165399:META = "Meta Platforms, Inc.",
+1705434165451:MO = "Altria Group, Inc.",
+1705434165503:MOS = "The Mosaic Company",
+1705434165563:MPW = "Medical Properties Trust, Inc.",
+1705434165630:MRK = "Merck & Co., Inc.",
+1705434165704:MRO = "Marathon Oil Corporation",
+1705434165761:MRVL = "Marvell Technology, Inc.",
+1705434165809:MS = "Morgan Stanley",
+1705434165875:MSFT = "Microsoft Corporation",
+1705434165941:MU = "Micron Technology, Inc.",
+1705434165999:NCLH = "Norwegian Cruise Line Holdings Ltd.",
+1705434166057:NEE = "NextEra Energy, Inc.",
+1705434166114:NEM = "Newmont Corporation",
+1705434166165:NFLX = "Netflix, Inc.",
+1705434166211:NIO = "NIO Inc.",
+1705434166269:NKE = "NIKE, Inc.",
+1705434166333:NMR = "Nomura Holdings, Inc.",
+1705434166388:NOK = "Nokia Oyj",
+1705434166455:NOV = "NOV Inc.",
+1705434166516:NU = "Nu Holdings Ltd.",
+1705434166570:NVDA = "NVIDIA Corporation",
+1705434166631:NXE = "NexGen Energy Ltd.",
+1705434166690:NYCB = "New York Community Bancorp, Inc.",
+1705434166739:O = "Realty Income Corporation",
+1705434166807:ON = "ON Semiconductor Corporation",
+1705434166865:OPEN = "Opendoor Technologies Inc.",
+1705434166919:ORCL = "Oracle Corporation",
+1705434166980:OSCR = "Oscar Health, Inc.",
+1705434167041:OXY = "Occidental Petroleum Corporation",
+1705434167122:PARA = "Paramount Global",
+1705434167194:PATH = "UiPath Inc.",
+1705434167253:PBR = "Petróleo Brasileiro S.A. - Petrobras",
+1705434167311:PCG = "PG&E Corporation",
+1705434167367:PDD = "PDD Holdings Inc.",
+1705434167421:PEAK = "Healthpeak Properties, Inc.",
+1705434167489:PENN = "PENN Entertainment, Inc.",
+1705434167546:PFE = "Pfizer Inc.",
+1705434167607:PG = "The Procter & Gamble Company",
+1705434167662:PLTR = "Palantir Technologies Inc.",
+1705434167716:PLUG = "Plug Power Inc.",
+1705434167768:PR = "Permian Resources Corporation",
+1705434167829:PSNY = "Polestar Automotive Holding UK PLC",
+1705434167898:PTON = "Peloton Interactive, Inc.",
+1705434167953:PYPL = "PayPal Holdings, Inc.",
+1705434168014:QCOM = "QUALCOMM Incorporated",
+1705434168074:QS = "QuantumScape Corporation",
+1705434168150:RBLX = "Roblox Corporation",
+1705434168233:RCM = "R1 RCM Inc.",
+1705434168322:RF = "Regions Financial Corporation",
+1705434168416:RIG = "Transocean Ltd.",
+1705434168486:RIOT = "Riot Platforms, Inc.",
+1705434168561:RIVN = "Rivian Automotive, Inc.",
+1705434168614:RTX = "RTX Corporation",
+1705434168686:RUN = "Sunrun Inc.",
+1705434168764:RXRX = "Recursion Pharmaceuticals, Inc.",
+1705434168834:S = "SentinelOne, Inc.",
+1705434168912:SATS = "EchoStar Corporation",
+1705434168974:SBSW = "Sibanye Stillwater Limited",
+1705434169023:SBUX = "Starbucks Corporation",
+1705434169091:SCHW = "The Charles Schwab Corporation",
+1705434169159:SE = "Sea Limited",
+1705434169229:SHOP = "Shopify Inc.",
+1705434169302:SIRI = "Sirius XM Holdings Inc.",
+1705434169367:SLB = "Schlumberger Limited",
+1705434169430:SNAP = "Snap Inc.",
+1705434169513:SOFI = "SoFi Technologies, Inc.",
+1705434169589:SQ = "Block, Inc.",
+1705434169680:SWN = "Southwestern Energy Company",
+1705434169761:SYF = "Synchrony Financial",
+1705434169853:T = "AT&T Inc.",
+1705434169908:TEVA = "Teva Pharmaceutical Industries Limited",
+1705434169968:TFC = "Truist Financial Corporation",
+1705434170030:TGTX = "TG Therapeutics, Inc.",
+1705434170098:TME = "Tencent Music Entertainment Group",
+1705434170172:TOST = "Toast, Inc.",
+1705434170232:TSLA = "Tesla, Inc.",
+1705434170283:TSM = "Taiwan Semiconductor Manufacturing Company Limited",
+1705434170345:TTD = "The Trade Desk, Inc.",
+1705434170421:U = "Unity Software Inc.",
+1705434170485:UAA = "Under Armour, Inc.",
+1705434170553:UAL = "United Airlines Holdings, Inc.",
+1705434170620:UBER = "Uber Technologies, Inc.",
+1705434170686:UEC = "Uranium Energy Corp.",
+1705434170764:UNH = "UnitedHealth Group Incorporated",
+1705434170850:UPST = "Upstart Holdings, Inc.",
+1705434170927:USB = "U.S. Bancorp",
+1705434171003:VALE = "Vale S.A.",
+1705434171102:VFC = "V.F. Corporation",
+1705434171170:VOD = "Vodafone Group Public Limited Company",
+1705434171238:VTRS = "Viatris Inc.",
+1705434171301:VZ = "Verizon Communications Inc.",
+1705434171355:WBA = "Walgreens Boots Alliance, Inc.",
+1705434171411:WBD = "Warner Bros. Discovery, Inc.",
+1705434171467:WFC = "Wells Fargo & Company",
+1705434171536:WIT = "Wipro Limited",
+1705434171621:WMB = "The Williams Companies, Inc.",
+1705434171692:XOM = "Exxon Mobil Corporation",
+1705434171752:XPEV = "XPeng Inc.",
+1705434171815:YPF = "YPF",
+1705434171873:ZI = "ZoomInfo Technologies Inc."
+1705434171928:)
+1705434172100:#
+1705434172174:#
+1705434172256:# cedears  <- c(
+1705434172345:#   "AAL" = "AMERICAN AIRLIN...",
+1705434172427:#   "AAPL" = "Apple",
+1705434172477:#   "AAPLC" = "Apple",
+1705434172520:#   "AAPLD" = "Apple",
+1705434172566:#   "ABBV" = "AbbVie Inc.",
+1705434172610:#   "ABBVD" = "Abbvie Inc.",
+1705434172653:#   "ABEV" = "Ambev",
+1705434172711:#   "ABNB" = "Airbnb, Inc.",
+1705434172759:#   "ABT" = "Abbott Laborato...",
+1705434172808:#   "ABTD" = "Abbott Laborato...",
+1705434172851:#   "ADBE" = "Adobe Systems I...",
+1705434172898:#   "ADGO" = "Adecoagro",
+1705434172952:#   "ADI" = "Analog Devices",
+1705434173004:#   "AEM" = "Agnico Eagle Mi...",
+1705434173053:#   "AIG" = "American Intern...",
+1705434173118:#   "AKO.B" = "EMBOTELLADORA A...",
+1705434173171:#   "AMAT" = "Applied Materials",
+1705434173226:#   "AMD" = "Advanced Micro ...",
+1705434173290:#   "AMDD" = "Advanced Micro ...",
+1705434173344:#   "AMGN" = "Amgen",
+1705434173451:#   "AMX" = "America Movil",
+1705434173508:#   "AMXD" = "America Movil",
+1705434173551:#   "AMZN" = "Amazon",
+1705434173593:#   "AMZNC" = "Amazon",
+1705434173636:#   "AMZND" = "Amazon",
+1705434173678:#   "AOCAD" = "Aluminum Corpor...",
+1705434173730:#   "ARCO" = "Arcos Dorados H...",
+1705434173772:#   "AUY" = "Yamana Gold Inc.",
+1705434173819:#   "AVGO" = "Broadcom Inc.",
+1705434173865:#   "AVGOD" = "Broadcom Inc.",
+1705434173910:#   "AVY" = "Avery Dennison",
+1705434173965:#   "AXP" = "American Express",
+1705434174023:#   "AXPD" = "American Express",
+1705434174079:#   "AZN" = "Astrazeneca",
+1705434174129:#   "AZND" = "Astrazeneca",
+1705434174175:#   "BA" = "Boeing",
+1705434174226:#   "BA.C" = "Bank of America",
+1705434174289:#   "BA.CD" = "Bank of America",
+1705434174337:#   "BABA" = "Alibaba Group",
+1705434174392:#   "BABAC" = "Alibaba Group",
+1705434174462:#   "BABAD" = "Alibaba Group",
+1705434174533:#   "BAD" = "Boeing",
+1705434174597:#   "BB" = "Blackberry",
+1705434174676:#   "BBD" = "Banco Bradesco ...",
+1705434174728:#   "BBDC" = "Banco Bradesco ...",
+1705434174791:#   "BBDD" = "Banco Bradesco ...",
+1705434174839:#   "BBV" = "Banco Bilbao Vi...",
+1705434174885:#   "BCS" = "Barclays",
+1705434174969:#   "BHP" = "BHP Billiton Ltd.",
+1705434175029:#   "BIDU" = "Baidu",
+1705434175080:#   "BIDUD" = "Baidu",
+1705434175119:#   "BIIB" = "Biogen Inc.",
+1705434175168:#   "BIOX" = "Bioceres Crop S...",
+1705434175218:#   "BIOXD" = "Bioceres Crop S...",
+1705434175265:#   "BITF" = "Bitfarms Ltd.",
+1705434175314:#   "BK" = "Bank of New Yor...",
+1705434175365:#   "BMY" = "Bristol-Myers S...",
+1705434175416:#   "BNG" = "Bunge Limited",
+1705434175480:#   "BP" = "BP",
+1705434175532:#   "BPD" = "BP",
+1705434175580:#   "BRFS" = "BRF S.A.",
+1705434175632:#   "BRKB" = "Berkshire Hathaway",
+1705434175686:#   "BRKBD" = "Berkshire Hathaway",
+1705434175754:#   "BSBR" = "Banco Santander...",
+1705434175835:#   "C" = "Citigroup",
+1705434175910:#   "C.D" = "Citigroup",
+1705434175958:#   "CAAP" = "Corporación Amé...",
+1705434176032:#   "CAH" = "Cardinal Health",
+1705434176081:#   "CAHD" = "Cardinal Health",
+1705434176133:#   "CAR" = "Avis Budget Gro...",
+1705434176178:#   "CAT" = "Caterpillar",
+1705434176222:#   "CATD" = "Caterpillar",
+1705434176267:#   "CDE" = "Coeur Mining",
+1705434176309:#   "CL" = "Colgate-Palmolive",
+1705434176346:#   "COIN" = "COINBASE GLOBAL...",
+1705434176391:#   "COST" = "Costco Wholesale",
+1705434176444:#   "CRM" = "Salesforce.com ...",
+1705434176502:#   "CS" = "Credit Suisse G...",
+1705434176553:#   "CSCO" = "Cisco Systems",
+1705434176613:#   "CSCOD" = "Cisco Systems",
+1705434176678:#   "CVX" = "Chevron",
+1705434176741:#   "CVXD" = "Chevron",
+1705434176799:#   "CX" = "Cemex",
+1705434176860:#   "DD" = "Dupont Corporation",
+1705434176926:#   "DE" = "Deere",
+1705434176986:#   "DEO" = "CEDEAR DIAGEO PL",
+1705434177050:#   "DESP" = "Despegar",
+1705434177114:#   "DESPD" = "Despegar",
+1705434177166:#   "DISN" = "The Walt Disney...",
+1705434177212:#   "DISND" = "The Walt Disney...",
+1705434177256:#   "DOCU" = "DocuSign Inc.",
+1705434177309:#   "DOCUD" = "Docusign Inc",
+1705434177357:#   "DOW" = "Dow Inc.",
+1705434177403:#   "EA" = "ELECTRONIC ARTS...",
+1705434177454:#   "EBAY" = "eBay",
+1705434177496:#   "EBAYD" = "eBay",
+1705434177543:#   "EBR" = "Centrais Elétri...",
+1705434177587:#   "EFX" = "Equifax Inc.",
+1705434177635:#   "EFXD" = "Equifax Inc.",
+1705434177687:#   "ERIC" = "LM Ericsson Tel...",
+1705434177738:#   "ERJ" = "Embraer S.A.",
+1705434177804:#   "ERJD" = "Embraer S.A.",
+1705434177860:#   "ETSY" = "Etsy Inc.",
+1705434177916:#   "ETSYD" = "Etsy Inc",
+1705434177967:#   "F" = "Ford Motor Company",
+1705434178126:#   "FCX" = "Freeport-Mcmora...",
+1705434178237:#   "FDX" = "FedEx",
+1705434178276:#   "FDXD" = "FedEx",
+1705434178323:#   "FMX" = "Femsa",
+1705434178396:#   "FMXD" = "Femsa",
+1705434178437:#   "FSLR" = "First Solar",
+1705434178475:#   "GE" = "General Electric",
+1705434178556:#   "GEC" = "General Electric",
+1705434178612:#   "GFI" = "Gold Fields",
+1705434178653:#   "GGB" = "Gerdau",
+1705434178698:#   "GILD" = "Gilead Sciences",
+1705434178743:#   "GILDC" = "Gilead Sciences",
+1705434178791:#   "GILDD" = "Gilead Sciences",
+1705434178845:#   "GLOB" = "Globant",
+1705434178902:#   "GLOBD" = "Globant",
+1705434178952:#   "GLW" = "Corning",
+1705434178998:#   "GM" = "General Motors Co.",
+1705434179051:#   "GOGLD" = "Google",
+1705434179107:#   "GOLD" = "Barrick Gold",
+1705434179160:#   "GOLDC" = "Barrick Gold",
+1705434179214:#   "GOLDD" = "Barrick Gold",
+1705434179263:#   "GOOGL" = "Google",
+1705434179331:#   "GPRK" = "Geopark Ltd.",
+1705434179380:#   "GRMN" = "Garmin LTD.",
+1705434179423:#   "GS" = "Goldman Sachs",
+1705434179468:#   "GSD" = "Goldman Sachs",
+1705434179510:#   "GSK" = "GlaxoSmithKline",
+1705434179550:#   "GSKC" = "GlaxoSmithKline",
+1705434179596:#   "GSKD" = "GlaxoSmithKline",
+1705434179639:#   "HAL" = "Halliburton Co.",
+1705434179680:#   "HD" = "Home Depot",
+1705434179725:#   "HL" = "Hecla Mining",
+1705434179780:#   "HMC" = "Honda Motor",
+1705434179831:#   "HMY" = "Harmony Gold",
+1705434179880:#   "HMYD" = "Harmony Gold",
+1705434179974:#   "HOG" = "Harley Davidson",
+1705434180015:#   "HON" = "Honeywell Inter...",
+1705434180072:#   "HPQ" = "Hewlett-Packard",
+1705434180148:#   "HSBC" = "Hsbc Holdings",
+1705434180188:#   "HSY" = "Hershey",
+1705434180224:#   "HUT" = "Hut 8 Mining Corp.",
+1705434180264:#   "HWM" = "Howmet Aerospace",
+1705434180300:#   "HWMD" = "Howmet Aerospace",
+1705434180340:#   "IBM" = "Ibm",
+1705434180379:#   "IBMD" = "IBM",
+1705434180418:#   "INTC" = "Intel",
+1705434180457:#   "INTCD" = "Intel",
+1705434180498:#   "IP" = "International P...",
+1705434180542:#   "ITUB" = "Banco Itaú Unib...",
+1705434180585:#   "ITUBD" = "Banco Itaú Unib...",
+1705434180651:#   "JD" = "Jd.Com",
+1705434180705:#   "JMIA" = "Jumia Technolog...",
+1705434180754:#   "JNJ" = "Johnson & Johnson",
+1705434180845:#   "JNJC" = "Johnson & Johnson",
+1705434180897:#   "JNJD" = "Johnson & Johnson",
+1705434180953:#   "JPM" = "Jpmorgan Chase ...",
+1705434180997:#   "JPMD" = "JPMorgan Chase ...",
+1705434181052:#   "KMB" = "Kimberly-Clark",
+1705434181106:#   "KMBC" = "Kimberly-Clark",
+1705434181151:#   "KO" = "The Coca-Cola C...",
+1705434181192:#   "KOC" = "The Coca-Cola C...",
+1705434181234:#   "KOD" = "The Coca-Cola C...",
+1705434181282:#   "LLY" = "Eli Lilly",
+1705434181330:#   "LMT" = "Lockheed Martin",
+1705434181385:#   "LMTD" = "Lockheed Martin",
+1705434181454:#   "LRCX" = "LAM RESEARCH CORP.",
+1705434181517:#   "LVS" = "Las Vegas Sands",
+1705434181582:#   "LYG" = "Lloyds Banking ...",
+1705434181645:#   "MA" = "Mastercard Inc.",
+1705434181713:#   "MAD" = "Mastercard",
+1705434181783:#   "MCD" = "McDonald's",
+1705434181835:#   "MCDD" = "Mcdonald's",
+1705434181887:#   "MDT" = "Medtronic",
+1705434181938:#   "MELI" = "MercadoLibre",
+1705434181984:#   "MELIC" = "MercadoLibre",
+1705434182030:#   "MELID" = "MercadoLibre",
+1705434182075:#   "META" = "Meta Platforms Inc",
+1705434182164:#   "METAC" = "Meta Platforms Inc",
+1705434182212:#   "METAD" = "Meta Platforms Inc",
+1705434182261:#   "MFG" = "MIZUHO FINANCIA...",
+1705434182308:#   "MMC" = "Marsh & McLennan",
+1705434182351:#   "MMM" = "3M",
+1705434182394:#   "MMMD" = "3M",
+1705434182439:#   "MO" = "Altria Group",
+1705434182488:#   "MOD" = "Altria Group",
+1705434182546:#   "MOS" = "The Mosaic Co",
+1705434182631:#   "MRK" = "Merck",
+1705434182689:#   "MRKD" = "Merck",
+1705434182748:#   "MSFT" = "Microsoft",
+1705434182805:#   "MSFTC" = "Microsoft",
+1705434182861:#   "MSFTD" = "Microsoft",
+1705434182917:#   "MSI" = "Motorola",
+1705434182968:#   "MSTR" = "MicroStrategy I...",
+1705434183023:#   "MU" = "Micron Technolo...",
+1705434183069:#   "NEM" = "Newmont Mining ...",
+1705434183115:#   "NEMD" = "Newmont Mining ...",
+1705434183157:#   "NFLX" = "Netflix",
+1705434183243:#   "NFLXD" = "Netflix",
+1705434183294:#   "NGG" = "National Grid",
+1705434183345:#   "NIO" = "NIO INC.",
+1705434183399:#   "NKE" = "Nike",
+1705434183440:#   "NKED" = "Nike",
+1705434183492:#   "NOKA" = "Nokia",
+1705434183546:#   "NTCO" = "Cedear Natura &...",
+1705434183602:#   "NTES" = "Netease, Inc.",
+1705434183653:#   "NUE" = "Nucor",
+1705434183710:#   "NVDA" = "Nvidia",
+1705434183763:#   "NVDAD" = "Nvidia",
+1705434183826:#   "NVS" = "Novartis Ag",
+1705434183873:#   "NVSD" = "Novartis AG",
+1705434183929:#   "OGZD" = "Gazprom",
+1705434184013:#   "OGZDD" = "Gazprom",
+1705434184084:#   "ORAN" = "Orange",
+1705434184130:#   "ORCL" = "Oracle",
+1705434184187:#   "OXY" = "Occidental Petr...",
+1705434184244:#   "PAAS" = "Pan American Si...",
+1705434184296:#   "PANW" = "Palo Alto Netwo...",
+1705434184344:#   "PBI" = "Pitney Bowes",
+1705434184388:#   "PBR" = "Petroleo Brasil...",
+1705434184438:#   "PBRD" = "Petroleo Brasil...",
+1705434184481:#   "PCAR" = "PACCAR",
+1705434184526:#   "PEP" = "PepsiCo",
+1705434184572:#   "PFE" = "Pfizer",
+1705434184614:#   "PFED" = "Pfizer",
+1705434184653:#   "PG" = "Procter & Gamble",
+1705434184694:#   "PGD" = "Procter & Gamble",
+1705434184732:#   "PHG" = "Phillips Electr...",
+1705434184770:#   "PKS" = "Posco Holdings ...",
+1705434184812:#   "PSX" = "Phillips 66",
+1705434184878:#   "PSXD" = "Phillips 66",
+1705434184935:#   "PYPL" = "Paypal Holdings...",
+1705434184977:#   "PYPLD" = "Paypal Holdings...",
+1705434185017:#   "QCOM" = "Qualcomm",
+1705434185056:#   "QCOMC" = "Qualcomm",
+1705434185095:#   "QCOMD" = "Qualcomm",
+1705434185143:#   "RBLX" = "Roblox Corporation",
+1705434185204:#   "RIO" = "Rio Tinto",
+1705434185252:#   "RIOD" = "Rio Tinto",
+1705434185302:#   "RTX" = "United Technolo...",
+1705434185374:#   "SAN" = "Banco Santander...",
+1705434185417:#   "SAP" = "SAP",
+1705434185461:#   "SATL" = "Satellogic Inc.",
+1705434185506:#   "SBS" = "COMPANHIA DE SA...",
+1705434185544:#   "SBUX" = "Starbucks",
+1705434185579:#   "SCCO" = "Southern Copper",
+1705434185618:#   "SE" = "Sea Ltd.",
+1705434185663:#   "SHEL" = "Shell Plc",
+1705434185724:#   "SHOP" = "Shopify Inc.",
+1705434185771:#   "SHOPD" = "Shopify Inc.",
+1705434185814:#   "SI" = "Silvergate Capi...",
+1705434185855:#   "SID" = "Companhia Sider...",
+1705434185899:#   "SLB" = "Schlumberger",
+1705434185945:#   "SLBD" = "Schlumberger",
+1705434185987:#   "SNA" = "Snap-On",
+1705434186028:#   "SNAP" = "Snap Inc.",
+1705434186070:#   "SNOW" = "Snowflake Inc.",
+1705434186114:#   "SNOWD" = "Snowflake Inc",
+1705434186159:#   "SONY" = "Sony Corporation",
+1705434186197:#   "SPGI" = "S&P GLOBAL INC.",
+1705434186236:#   "SPOT" = "Spotify Technol...",
+1705434186272:#   "SPOTD" = "Spotify Technol...",
+1705434186312:#   "SQ" = "Square Inc.",
+1705434186357:#   "SQD" = "Square Inc",
+1705434186455:#   "SUZ" = "Suzano",
+1705434186503:#   "SYY" = "Sysco",
+1705434186548:#   "T" = "At&T",
+1705434186595:#   "TD" = "AT&T",
+1705434186639:#   "TEFO" = "Telefonica Sa",
+1705434186715:#   "TEN" = "Tenaris",
+1705434186758:#   "TEND" = "Tenaris",
+1705434186793:#   "TGT" = "Target Corporation",
+1705434186837:#   "TIMB" = "Tim Participaçõ...",
+1705434186876:#   "TM" = "Toyota Motors",
+1705434186906:#   "TMD" = "Toyota Motors",
+1705434186949:#   "TMO" = "Thermo Fisher S...",
+1705434186987:#   "TRIP" = "Tripadvisor Inc.",
+1705434187022:#   "TSLA" = "Tesla",
+1705434187063:#   "TSLAC" = "Tesla",
+1705434187106:#   "TSLAD" = "Tesla",
+1705434187142:#   "TSM" = "Taiwan Semicond...",
+1705434187193:#   "TTE" = "Total",
+1705434187237:#   "TV" = "Grupo Televisa",
+1705434187280:#   "TWLO" = "TWILIO INC.",
+1705434187321:#   "TWTR" = "Twitter",
+1705434187369:#   "TWTRD" = "Twitter",
+1705434187409:#   "TXN" = "Texas Instruments",
+1705434187444:#   "TXR" = "Ternium",
+1705434187482:#   "TXRD" = "Ternium",
+1705434187575:#   "UAL" = "United Airlines...",
+1705434187628:#   "UBER" = "Uber Technologi...",
+1705434187672:#   "UGP" = "Ultrapar Partic...",
+1705434187714:#   "UL" = "Unilever",
+1705434187762:#   "UNH" = "UnitedHealth Gr...",
+1705434187807:#   "UNHD" = "UnitedHealth Gr...",
+1705434187847:#   "UNP" = "Union Pacific C...",
+1705434187883:#   "UNPD" = "Union Pacific C...",
+1705434187922:#   "UPST" = "Upstart Holding...",
+1705434187960:#   "USB" = "CEDEAR U.S.Banco",
+1705434188002:#   "V" = "Visa",
+1705434188079:#   "VALE" = "Vale",
+1705434188146:#   "VALED" = "Vale",
+1705434188428:#   "VD" = "Visa",
+1705434188485:#   "VIST" = "Vista Energy S....",
+1705434188541:#   "VISTD" = "Vista Energy S....",
+1705434188592:#   "VIV" = "Telefonica Brasil",
+1705434188638:#   "VOD" = "Vodafone Group",
+1705434188689:#   "VRSN" = "Verisign",
+1705434188744:#   "VZ" = "Verizon Communi...",
+1705434188791:#   "VZD" = "Verizon Communi...",
+1705434188840:#   "WBA" = "Walgreens Boots...",
+1705434188880:#   "WFC" = "Wells Fargo",
+1705434188921:#   "WFCC" = "Wells Fargo",
+1705434188963:#   "WFCD" = "Wells Fargo",
+1705434189006:#   "WMT" = "Walmart",
+1705434189041:#   "WMTD" = "Walmart",
+1705434189078:#   "X" = "United States S...",
+1705434189115:#   "XD" = "United States S...",
+1705434189154:#   "XOM" = "Exxon Mobil",
+1705434189199:#   "XOMD" = "Exxon Mobil",
+1705434189249:#   "XP" = "XP INC.",
+1705434189287:#   "XROX" = "Xerox",
+1705434189326:#   "YELP" = "Yelp Inc",
+1705434189364:#   "ZM" = "Zoom Video Comm...",
+1705434189406:#   "ZMD" = "Zoom Video Comm...")
+1705434189945:crear_dataframe <- function(acciones) {
+1705434190021:dataframe_final <- data.frame()
+1705434190094:for (accion in acciones) {
+1705434190131:print(accion)
+1705434190211:tryCatch({
+1705434190255:raw_data = getRawData(accion)
+1705434190294:vector_trends = c(
+1705434190332:getTrend365Days(raw_data),
+1705434190382:getTrend150Days(raw_data),
+1705434190429:getTrend90Days(raw_data),
+1705434190510:getTrend60Days(raw_data)
+1705434190557:)
+1705434190601:data = getData(raw_data, vector_trends, accion)
+1705434190678:dataframe_final <- rbind(dataframe_final, data)
+1705434190754:}, error = function(e) {
+1705434190801:cat("Error en la acción:", accion, "\n")
+1705434190851:cat("Mensaje de error:", conditionMessage(e), "\n")
+1705434190893:})
+1705434190942:}
+1705434191027:rownames(dataframe_final) <- NULL
+1705434191095:return(dataframe_final)
+1705434191139:}
+1705434191272:acciones <- c("MELI", "AAPL", "TSLA", "NVDA", "AMZN", "MSFT", "KO", "BABA", "DIS", "COIN", "VIST",  "WMT", "PBR", "MCD", "AAL", "JPM", "GOLD", "YPF", "ABNB")
+1705434191422:resultado <- crear_dataframe(acciones)
+1705434208948:write.csv(resultado, "archivo.csv", row.names = FALSE)

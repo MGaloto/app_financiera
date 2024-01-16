@@ -1,0 +1,3 @@
+"0","fecha_hoy <- Sys.Date()"
+"0","today <- as.Date(format(with_tz(fecha_hoy, tz = ""America/Argentina/Buenos_Aires""), ""%Y-%m-%d""))"
+"0",""

@@ -1,0 +1,24 @@
+name: Dashboard Refresh
+
+on: 
+  schedule:  
+    - cron: '0 10 * * *'
+
+jobs:
+  refresh-the-dashboard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+      pages: write
+
+    container: 
+      image: mgaloto/flexdash_inversiones:02
+    steps:
+    - name: checkout_repo
+      uses: actions/checkout@v3
+      with: 
+        ref: 'main'
+    - name: Render Rmarkdown
+      run: bash ./bash/extract_data.sh "MGaloto" "maxigaloto@hotmail.com"
+
