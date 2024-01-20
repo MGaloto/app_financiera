@@ -82,7 +82,7 @@ clrsVariacion <- ramp(length(brksVariacion)+1)
 
 datatable(
   resultado %>% 
-    select(Especie, Nombre,Variacion, Cierre, InterAnual, DiasUltMax, UltimoPrecioMaximo, TrendActual, CoefVariationPromedioAnual, TrendUltYear, Volumen), 
+    select(Especie, Nombre,Variacion, Cierre, InterAnual, DiasUltMax, UltimoPrecioMaximo, TrendActual, CoefVariationPromedioAnual, TrendUltYear, PorcentajeRespectoAlMax, PorcentajeRespectoAlMin, Volumen), 
   options = list(
     pageLength = -1,
         scrollY="100vh",
@@ -110,7 +110,21 @@ datatable(
   formatStyle(
     'CoefVariationPromedioAnual',
     backgroundColor = styleInterval(c(0,50,100), c('#858f86','#91bd98', '#68de79','#3bf557'))
-    )
+    ) %>%
+  formatStyle(
+    'PorcentajeRespectoAlMax',
+    background = styleColorBar(resultado$PorcentajeRespectoAlMax, '#93badb'),
+    backgroundSize = '100% 90%',
+    backgroundRepeat = 'no-repeat',
+    backgroundPosition = 'center'
+  ) %>%
+  formatStyle(
+    'PorcentajeRespectoAlMin',
+    background = styleColorBar(resultado$PorcentajeRespectoAlMin, '#93badb'),
+    backgroundSize = '100% 90%',
+    backgroundRepeat = 'no-repeat',
+    backgroundPosition = 'center'
+  )
 
 ```
 
