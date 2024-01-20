@@ -449,8 +449,7 @@ datos <- list(
   TEO = "Telecom",
   TGS = "TGS",
   TS = "Tenaris",
-  TX = "Ternium",
-  YPF = "YPF"
+  TX = "Ternium"
 )
 
 # 
