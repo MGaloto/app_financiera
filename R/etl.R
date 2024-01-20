@@ -15,29 +15,6 @@ library(tidyverse)
 fecha_hoy <- Sys.Date()
 today <- as.Date(format(with_tz(fecha_hoy, tz = "America/Argentina/Buenos_Aires"), "%Y-%m-%d"))
 
-# MELI=na.omit(as.data.frame(
-#   getSymbols(
-#     "HD.BA" , src = 'yahoo', auto.assign = F, from = "2020-01-01", to = Sys.Date(), periodicity = "daily"
-#     )
-#   ))
-# 
-# MELI$Fecha <- as.Date(row.names(MELI))
-#   
-# colnames(MELI) = c("Open", "High", "Low", "Close", "Volumen", "Ajustado", "Fecha")
-# 
-# MELI = MELI %>% select("Ajustado", "Fecha", "Volumen")
-# 
-# rownames(MELI) = 1:nrow(MELI)
-# 
-# row_ultimo_maximo = which.max(MELI[['Ajustado']])
-# 
-# distancia_ultimo_maximo = nrow(MELI) - row_ultimo_maximo
-# 
-# 
-# colnames(MELI) = c("precio","fecha", "volumen")
-
-
-
 getRawData = function(accion){
   
   raw_data = as.data.frame(
@@ -63,6 +40,8 @@ getRawData = function(accion){
   
   return(na.omit(raw_data))
 }
+
+
 
 
 getOrder = function(data){
@@ -456,7 +435,21 @@ datos <- list(
   XOM = "Exxon Mobil Corporation",
   XPEV = "XPeng Inc.",
   YPF = "YPF",
-  ZI = "ZoomInfo Technologies Inc."
+  ZI = "ZoomInfo Technologies Inc.",
+  BBAR = "Bbva Banco Frances",
+  BMA = "Banco Macro",
+  CEPU = "Central Puerto",
+  CRESY = "Cresud",
+  EDN = "Edenor",
+  GGAL = "Galicia",
+  IRS = "IRSA",
+  LOMA = "LOMA",
+  PAM = "Pampa Energia",
+  SUPV = "Supervielle",
+  TEO = "Telecom",
+  TGS = "TGS",
+  TS = "Tenaris",
+  TX = "Ternium"
 )
 
 # 
