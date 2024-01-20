@@ -86,6 +86,14 @@ getVariationUltimoMaximo = function(data) {
 }
 
 
+getVariationUltimoMinimo = function(data) {
+  precio_actual = data$precio[nrow(data)]
+  ultimo_minimo = min(data$precio)
+  variacion = round(((precio_actual - ultimo_minimo) / ultimo_minimo) * 100,2)
+  return(variacion)
+}
+
+
 getUltVolumen = function(data) {
   volumen_actual = data$volumen[nrow(data)]
   return(volumen_actual)
@@ -210,6 +218,7 @@ getData = function(data, vector_trends, especie, accion_completa) {
     Volumen = getUltVolumen(data),
     InterAnual = getVariationInterAnual(data),
     PorcentajeRespectoAlMax = getVariationUltimoMaximo(data),
+    PorcentajeRespectoAlMin = getVariationUltimoMinimo(data),
     DiasUltMax = getDiasUtimoMaximo(
       fecha_ultimo_maximo, today
     ),
