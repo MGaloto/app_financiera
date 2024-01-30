@@ -54,8 +54,6 @@ todayhms <- format(with_tz(Sys.time(), tzone = "America/Argentina/Buenos_Aires")
 
 source("R/etl.R")
 
-#resultado <- read.csv("R/archivo.csv")
-
 
 ```
 
@@ -76,13 +74,32 @@ Row
 
 ```{r}
 
-brksVariacion <- quantile(resultado$Variacion, probs = seq(.05, .95, .05), na.rm = TRUE)
+brksVariacion <- quantile(data$Variacion, probs = seq(.05, .95, .05), na.rm = TRUE)
 ramp <- colorRampPalette(c("#f52f2f", "#3bf557"))
 clrsVariacion <- ramp(length(brksVariacion)+1)
 
 datatable(
-  resultado %>% 
-    select(Especie, Nombre,Variacion, Cierre, InterAnual, DiasUltMax, UltimoPrecioMaximo, TrendActual, CoefVariationPromedioAnual, TrendUltYear, PorcentajeRespectoAlMax, PorcentajeRespectoAlMin, Volumen), 
+  data %>% 
+    select(
+      Especie, 
+      Nombre,
+      Variacion,
+      InterAnual,
+      Cierre, 
+      TrendActual,
+      TrendUltYear,
+      TrendUlt90Days,
+      CoefVariationPromedioAnual,
+      UltimoPrecioMaximo,
+      PorcentajeRespectoAlMax,
+      PorcentajeRespectoAlMin,
+      DiasUltMax, 
+      Volumen,
+      VolumenPromedioMensual,
+      VolumenTrendYear,
+      VolumenTrend90Days
+      
+      ), 
   options = list(
     pageLength = -1,
         scrollY="100vh",
@@ -94,7 +111,7 @@ datatable(
   )  %>%
   formatStyle(
     'DiasUltMax',
-    background = styleColorBar(resultado$DiasUltMax, '#93badb'),
+    background = styleColorBar(data$DiasUltMax, '#93badb'),
     backgroundSize = '100% 90%',
     backgroundRepeat = 'no-repeat',
     backgroundPosition = 'center'
@@ -113,14 +130,14 @@ datatable(
     ) %>%
   formatStyle(
     'PorcentajeRespectoAlMax',
-    background = styleColorBar(resultado$PorcentajeRespectoAlMax, '#93badb'),
+    background = styleColorBar(data$PorcentajeRespectoAlMax, '#93badb'),
     backgroundSize = '100% 90%',
     backgroundRepeat = 'no-repeat',
     backgroundPosition = 'center'
   ) %>%
   formatStyle(
     'PorcentajeRespectoAlMin',
-    background = styleColorBar(resultado$PorcentajeRespectoAlMin, '#93badb'),
+    background = styleColorBar(data$PorcentajeRespectoAlMin, '#93badb'),
     backgroundSize = '100% 90%',
     backgroundRepeat = 'no-repeat',
     backgroundPosition = 'center'
@@ -150,5 +167,15 @@ Referencias {data-orientation=rows}
 
 * TrendUltYear: Se utilizo la pendiente de los ultimos 365 dias.
 
+* TrendUlt90Days: Tendencia de ultimos 90 dias.
 
+* UltimoPrecioMaximo: Ultimo precio maximo.
+
+* Volumen: Volumen de la ultima jornada.
+
+* VolumenPromedioMensual: Volumen Promedio de los ultimos 30 dias.
+
+* VolumenTrendYear: Pendiente del volumen del ultimo año.
+
+* VolumenTrend90Days: Pendiente del volumen de los ultimos 90 dias.
 
