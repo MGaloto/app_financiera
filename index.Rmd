@@ -94,6 +94,8 @@ datatable(
       PorcentajeRespectoAlMax,
       PorcentajeRespectoAlMin,
       DiasUltMax, 
+      probTwoDays,
+      probThreeDays,
       Volumen,
       VolumenPromedioMensual,
       VolumenTrendYear,

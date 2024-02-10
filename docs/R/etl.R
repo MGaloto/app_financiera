@@ -42,6 +42,82 @@ getRawData = function(accion){
 }
 
 
+data = getRawData("MELi")
+
+
+
+probTwoDays = function(data) {
+  casos = c()
+  frecuencia = c()
+  count = 0
+  vectorPrice = data$precio
+  vectorPrice = c(diff(vectorPrice)/vectorPrice[-length(vectorPrice)] * 100)
+  
+  tryCatch({
+    
+    for (v in vectorPrice) {
+      valorActual = v
+      valorPosterior = vectorPrice[count+1]
+      valorPosterior2 = vectorPrice[count+2]
+      
+      if (valorActual < 0 & valorPosterior < 0){
+        lenCasos = length(casos)
+        casos[lenCasos+1] = 1
+        
+        if(valorPosterior2 > 0) {
+          lenFrecuencia = length(frecuencia)
+          frecuencia[lenFrecuencia+1] = 1
+        }
+      }
+    
+      count = count + 1
+    }
+    
+  }, error = function(e) {
+      cat("Mensaje de error:", conditionMessage(e), "\n")
+  })
+  
+  return(round((sum(frecuencia)/sum(casos)),2))
+}
+
+
+
+probThreeDays = function(data) {
+  casos = c()
+  frecuencia = c()
+  count = 0
+  vectorPrice = data$precio
+  vectorPrice = c(diff(vectorPrice)/vectorPrice[-length(vectorPrice)] * 100)
+  
+  tryCatch({
+    
+    for (v in vectorPrice) {
+      valorActual = v
+      valorPosterior = vectorPrice[count+1]
+      valorPosterior2 = vectorPrice[count+2]
+      valorPosterior3 = vectorPrice[count+3]
+      
+      if (valorActual < 0 & valorPosterior < 0 & valorPosterior2 < 0){
+        lenCasos = length(casos)
+        casos[lenCasos+1] = 1
+        
+        if(valorPosterior3 > 0) {
+          lenFrecuencia = length(frecuencia)
+          frecuencia[lenFrecuencia+1] = 1
+        }
+      }
+      
+      count = count + 1
+    }
+    
+  }, error = function(e) {
+    cat("Mensaje de error:", conditionMessage(e), "\n")
+  })
+  
+  return(round((sum(frecuencia)/sum(casos)),2))
+}
+
+
 
 
 getOrder = function(data){
@@ -249,6 +325,8 @@ getData = function(data, vector_trends, especie, accion_completa) {
     TrendUltYear = getTrend365Days(data),
     TrendUlt90Days = getTrend90Days(data),
     CoefVariationPromedioAnual = getAnualVariationCoeff(data),
+    probTwoDays = probTwoDays(data),
+    probThreeDays = probThreeDays(data),
     VolumenPromedioMensual = getVolumenPromedioMensual(data),
     VolumenTrendYear = getVolumenTrendYear(data),
     VolumenTrend90Days = getVolumenTrend90Days(data)
