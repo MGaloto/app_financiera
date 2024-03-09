@@ -99,7 +99,8 @@ datatable(
       Volumen,
       VolumenPromedioMensual,
       VolumenTrendYear,
-      VolumenTrend90Days
+      VolumenTrend90Days,
+      CorrSp500
       
       ), 
   options = list(
@@ -140,6 +141,13 @@ datatable(
   formatStyle(
     'PorcentajeRespectoAlMin',
     background = styleColorBar(data$PorcentajeRespectoAlMin, '#93badb'),
+    backgroundSize = '100% 90%',
+    backgroundRepeat = 'no-repeat',
+    backgroundPosition = 'center'
+  ) %>%
+  formatStyle(
+    'CorrSp500',
+    background = styleColorBar(data$CorrSp500, '#93badb'),
     backgroundSize = '100% 90%',
     backgroundRepeat = 'no-repeat',
     backgroundPosition = 'center'

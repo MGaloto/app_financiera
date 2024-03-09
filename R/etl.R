@@ -42,9 +42,6 @@ getRawData = function(accion){
 }
 
 
-data = getRawData("MELi")
-
-
 
 probTwoDays = function(data) {
   casos = c()
@@ -263,36 +260,21 @@ getTrend60Days = function(data) {
 }
 
 
-
-getAnalisisTrend = function(vector) {
+getAnalisisTrend <- function(vector) {
   
-  negativos = c()
-  positivos = c()
+  negativos <- discard(vector, ~.x >= 0)
+  positivos <- discard(vector, ~.x < 0)
   
-  count = 0
-  for (v in vector){
-    count = count + 1
-    if (v < 0){
-      negativos[count] = v
-    } else {
-      positivos[count] = v
-    }
-  }
+  negativos <- na.omit(negativos)
+  positivos <- na.omit(positivos)
   
-  negativos = na.omit(negativos)
-  positivos = na.omit(positivos)
-  
-  if (length(positivos) == 4){
-    result <- "1 - Alza"
-  } else if (length(positivos) == 3) {
-    result <- "2 - Alza Media"
-  } else if (length(positivos) == 2) {
-    result <- "3 - Neutro"
-  } else if (length(positivos) == 1) {
-    result <- "4 - Baja Media"
-  } else {
-    result <- "5 - Baja"
-  }
+  result <- case_when(
+    length(positivos) == 4 ~ "1 - Alza",
+    length(positivos) == 3 ~ "2 - Alza Media",
+    length(positivos) == 2 ~ "3 - Neutro",
+    length(positivos) == 1 ~ "4 - Baja Media",
+    TRUE ~ "5 - Baja"
+  )
   
   return(result)
   
@@ -300,8 +282,36 @@ getAnalisisTrend = function(vector) {
 
 
 
+getCorr = function(data_uno, data_dos){
+  tryCatch({
+    data_uno_1000_rows <- tail(data_uno, 1000)
+    data_dos_1000_rows <- tail(data_dos, 1000)
+    correlacion <- cor(data_uno_1000_rows$precio, data_dos_1000_rows$precio)
+    cor=round(correlacion,2)
+  }, error = function(e1) {
+    tryCatch({
+      data_uno_500_rows <- tail(data_uno, 500)
+      data_dos_500_rows <- tail(data_dos, 500)
+      correlacion <- cor(data_uno_500_rows$precio, data_dos_500_rows$precio)
+      cor = round(correlacion,2)
+    }, error = function(e2) {
+      data_uno_200_rows <- tail(data_uno, 200)
+      data_dos_200_rows <- tail(data_dos, 200)
+      correlacion <- cor(data_uno_200_rows$precio, data_dos_200_rows$precio)
+      cor = round(correlacion,2)
+      })
+  })
+  return(cor)
+}
+  
 
-getData = function(data, vector_trends, especie, accion_completa) {
+
+sp500 = getOrder(getRawData('^GSPC'))
+
+
+
+
+getData = function(data, vector_trends, especie, accion_completa, sp500) {
   
   data <- getOrder(data)
   
@@ -329,7 +339,8 @@ getData = function(data, vector_trends, especie, accion_completa) {
     probThreeDays = probThreeDays(data),
     VolumenPromedioMensual = getVolumenPromedioMensual(data),
     VolumenTrendYear = getVolumenTrendYear(data),
-    VolumenTrend90Days = getVolumenTrend90Days(data)
+    VolumenTrend90Days = getVolumenTrend90Days(data),
+    CorrSp500 = getCorr(data, sp500)
     
   )
   
@@ -565,7 +576,9 @@ datos <- list(
   TX = "Ternium"
 )
 
-crear_dataframe <- function(acciones) {
+
+
+crear_dataframe <- function(acciones, sp500) {
   dataframe_final <- data.frame()
   
   for (accion in names(acciones)) {
@@ -580,7 +593,7 @@ crear_dataframe <- function(acciones) {
         getTrend90Days(raw_data), 
         getTrend60Days(raw_data)
       )
-      data = getData(raw_data, vector_trends, accion, accion_completa)
+      data = getData(raw_data, vector_trends, accion, accion_completa, sp500)
       
       dataframe_final <- rbind(dataframe_final, data)
       
@@ -597,6 +610,6 @@ crear_dataframe <- function(acciones) {
 
 acciones <- c(MELI="MELI")
 
-data <- crear_dataframe(datos)
+data <- crear_dataframe(datos, sp500)
 
 
