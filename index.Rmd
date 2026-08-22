@@ -109,7 +109,9 @@ datatable(
       FuerzaVol90,
       IndiceFuerza365,
       FuerzaPrecio365,
-      FuerzaVol365
+      FuerzaVol365,
+      EspecieFin = Especie,
+      NombreFin = Nombre
       
       ), 
   options = list(
