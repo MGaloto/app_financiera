@@ -100,7 +100,16 @@ datatable(
       VolumenPromedioMensual,
       VolumenTrendYear,
       VolumenTrend90Days,
-      CorrSp500
+      CorrSp500,
+      IndiceFuerza30,
+      FuerzaPrecio30,
+      FuerzaVol30,
+      IndiceFuerza90,
+      FuerzaPrecio90,
+      FuerzaVol90,
+      IndiceFuerza365,
+      FuerzaPrecio365,
+      FuerzaVol365
       
       ), 
   options = list(
@@ -151,7 +160,52 @@ datatable(
     backgroundSize = '100% 90%',
     backgroundRepeat = 'no-repeat',
     backgroundPosition = 'center'
-  )
+  ) %>%
+  formatStyle(
+    'IndiceFuerza30',
+    background = styleColorBar(data$IndiceFuerza30, '#93badb'),
+    backgroundSize = '100% 90%',
+    backgroundRepeat = 'no-repeat',
+    backgroundPosition = 'center'
+  ) %>%
+  formatStyle(
+    'IndiceFuerza90',
+    background = styleColorBar(data$IndiceFuerza90, '#93badb'),
+    backgroundSize = '100% 90%',
+    backgroundRepeat = 'no-repeat',
+    backgroundPosition = 'center'
+  ) %>%
+  formatStyle(
+    'IndiceFuerza365',
+    background = styleColorBar(data$IndiceFuerza365, '#93badb'),
+    backgroundSize = '100% 90%',
+    backgroundRepeat = 'no-repeat',
+    backgroundPosition = 'center'
+  ) %>%
+  formatStyle(
+    'FuerzaPrecio30',
+    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+    ) %>%
+  formatStyle(
+    'FuerzaVol30',
+    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+    ) %>%
+  formatStyle(
+    'FuerzaPrecio90',
+    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+    ) %>%
+  formatStyle(
+    'FuerzaVol90',
+    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+    ) %>%
+  formatStyle(
+    'FuerzaPrecio365',
+    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+    ) %>%
+  formatStyle(
+    'FuerzaVol365',
+    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+    )
 
 ```
 
@@ -189,3 +243,20 @@ Referencias {data-orientation=rows}
 
 * VolumenTrend90Days: Pendiente del volumen de los ultimos 90 dias.
 
+* IndiceFuerza30: Indice de fuerza relativa Precio + Volumen sobre las ultimas 30 ruedas (movimiento reciente). Combina la fuerza de la tendencia del precio con la confirmacion del volumen: IndiceFuerza = FuerzaPrecio + FuerzaVol. Mide la CONSISTENCIA de la tendencia (no su magnitud). Al usar pocas ruedas es la ventana mas sensible y ruidosa: sirve para detectar movimientos que recien arrancan, pero se reordena mas dia a dia.
+
+* FuerzaPrecio30: Aporte del precio al IndiceFuerza30. Es el t-valor de la pendiente de la regresion de log(precio) contra el tiempo en las ultimas 30 ruedas. El signo da la direccion (positivo = alza) y la magnitud, la fuerza/consistencia de la tendencia.
+
+* FuerzaVol30: Aporte del volumen al IndiceFuerza30 (con peso 0.5). El volumen CONFIRMA la direccion del precio: si el precio sube y el volumen acompaña, suma; si el precio sube pero el volumen no, aporta poco. Puede ser negativo cuando el precio cae y el volumen confirma esa baja.
+
+* IndiceFuerza90: Indice de fuerza relativa Precio + Volumen sobre las ultimas 90 ruedas. Combina la fuerza de la tendencia del precio con la confirmacion del volumen: IndiceFuerza = FuerzaPrecio + FuerzaVol. Mide la CONSISTENCIA de la tendencia (no su magnitud): un valor alto indica una suba limpia y sostenida; un valor negativo, una baja. Es comparable entre acciones porque todas usan la misma cantidad de ruedas. Ordenar de mayor a menor da el ranking de fuerza relativa.
+
+* FuerzaPrecio90: Aporte del precio al IndiceFuerza90. Es el t-valor de la pendiente de la regresion de log(precio) contra el tiempo en las ultimas 90 ruedas. El signo da la direccion (positivo = alza) y la magnitud, la fuerza/consistencia de la tendencia.
+
+* FuerzaVol90: Aporte del volumen al IndiceFuerza90 (con peso 0.5). El volumen CONFIRMA la direccion del precio: si el precio sube y el volumen acompaña, suma; si el precio sube pero el volumen no, aporta poco. Puede ser negativo cuando el precio cae y el volumen confirma esa baja.
+
+* IndiceFuerza365: Igual que IndiceFuerza90 pero sobre las ultimas 365 ruedas (tendencia de fondo). Nota: al usar mas ruedas, sus valores absolutos tienden a ser mayores que los de 90 y 30 dias, por eso conviene comparar cada ventana contra si misma (30 vs 30, 90 vs 90, 365 vs 365), nunca una ventana contra la otra.
+
+* FuerzaPrecio365: Aporte del precio al IndiceFuerza365 (ver FuerzaPrecio90).
+
+* FuerzaVol365: Aporte del volumen al IndiceFuerza365 (ver FuerzaVol90).
