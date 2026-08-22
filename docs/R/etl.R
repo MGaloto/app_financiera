@@ -1,6 +1,3 @@
-
-
-
 library(quantmod)
 library(readr)  
 library(dplyr) 
@@ -50,29 +47,22 @@ probTwoDays = function(data) {
   vectorPrice = data$precio
   vectorPrice = c(diff(vectorPrice)/vectorPrice[-length(vectorPrice)] * 100)
   
-  tryCatch({
+  for (v in vectorPrice) {
+    # v ya es vectorPrice[count+1] (dia actual); el dia siguiente es count+2
+    valorActual     = v
+    valorPosterior  = vectorPrice[count + 2]
+    valorPosterior2 = vectorPrice[count + 3]
     
-    for (v in vectorPrice) {
-      valorActual = v
-      valorPosterior = vectorPrice[count+1]
-      valorPosterior2 = vectorPrice[count+2]
-      
-      if (valorActual < 0 & valorPosterior < 0){
-        lenCasos = length(casos)
-        casos[lenCasos+1] = 1
-        
-        if(valorPosterior2 > 0) {
-          lenFrecuencia = length(frecuencia)
-          frecuencia[lenFrecuencia+1] = 1
-        }
+    # isTRUE() vuelve FALSE cualquier NA del borde -> ya no rompe el if
+    if (isTRUE(valorActual < 0) && isTRUE(valorPosterior < 0)) {
+      casos[length(casos) + 1] = 1
+      if (isTRUE(valorPosterior2 > 0)) {
+        frecuencia[length(frecuencia) + 1] = 1
       }
-    
-      count = count + 1
     }
     
-  }, error = function(e) {
-      cat("Mensaje de error:", conditionMessage(e), "\n")
-  })
+    count = count + 1
+  }
   
   return(round((sum(frecuencia)/sum(casos)),2))
 }
@@ -86,30 +76,22 @@ probThreeDays = function(data) {
   vectorPrice = data$precio
   vectorPrice = c(diff(vectorPrice)/vectorPrice[-length(vectorPrice)] * 100)
   
-  tryCatch({
+  for (v in vectorPrice) {
+    # v ya es vectorPrice[count+1] (dia actual); los siguientes van corridos
+    valorActual     = v
+    valorPosterior  = vectorPrice[count + 2]
+    valorPosterior2 = vectorPrice[count + 3]
+    valorPosterior3 = vectorPrice[count + 4]
     
-    for (v in vectorPrice) {
-      valorActual = v
-      valorPosterior = vectorPrice[count+1]
-      valorPosterior2 = vectorPrice[count+2]
-      valorPosterior3 = vectorPrice[count+3]
-      
-      if (valorActual < 0 & valorPosterior < 0 & valorPosterior2 < 0){
-        lenCasos = length(casos)
-        casos[lenCasos+1] = 1
-        
-        if(valorPosterior3 > 0) {
-          lenFrecuencia = length(frecuencia)
-          frecuencia[lenFrecuencia+1] = 1
-        }
+    if (isTRUE(valorActual < 0) && isTRUE(valorPosterior < 0) && isTRUE(valorPosterior2 < 0)) {
+      casos[length(casos) + 1] = 1
+      if (isTRUE(valorPosterior3 > 0)) {
+        frecuencia[length(frecuencia) + 1] = 1
       }
-      
-      count = count + 1
     }
     
-  }, error = function(e) {
-    cat("Mensaje de error:", conditionMessage(e), "\n")
-  })
+    count = count + 1
+  }
   
   return(round((sum(frecuencia)/sum(casos)),2))
 }
@@ -228,6 +210,71 @@ getVolumenTrend90Days = function(data) {
 }
 
 
+# =====================================================================
+#  getIndiceFuerzaDetalle(): fuerza relativa Precio + Volumen, POR ACCION
+#  ---------------------------------------------------------------------
+#  Se calcula desde el 'data' que ya esta en memoria (mismo criterio que
+#  getTrend90Days / getVolumenTrend90Days: tail(data, dias) = ultimas N ruedas).
+#  NO vuelve a descargar de Yahoo -> cero descargas extra en el loop.
+#
+#  indice = t_precio + w * signo(t_precio) * t_volumen
+#    t_precio  = t-valor de la pendiente de lm(log(precio)  ~ tiempo)
+#    t_volumen = t-valor de la pendiente de lm(log(volumen) ~ tiempo)
+#
+#  Devuelve un data.frame de 1 fila con la DESCOMPOSICION:
+#    t_precio     -> participacion del precio (aporte al indice)
+#    aporte_vol   -> participacion del volumen (= w * signo(t_precio) * t_volumen)
+#    indice_total -> t_precio + aporte_vol  (los dos aportes SUMAN el indice)
+#
+#  Como todas las acciones usan la misma cantidad de ruedas (dias), los
+#  t-valores (adimensionales) son directamente comparables entre acciones.
+#
+#  Mas alto -> mas traccion Precio+Volumen al ALZA (mayor fuerza relativa)
+#  Mas bajo -> mas traccion Precio+Volumen a la BAJA
+# =====================================================================
+getIndiceFuerzaDetalle <- function(data, dias = 90, vol_weight = 0.5) {
+  data <- tail(data, dias)
+  
+  close  <- data$precio     # 'precio' ya es el Ajustado en getRawData
+  volume <- data$volumen
+  
+  ok     <- is.finite(close) & is.finite(volume) & close > 0 & volume > 0
+  close  <- close[ok]
+  volume <- volume[ok]
+  n      <- length(close)
+  if (n < 10) {
+    return(data.frame(t_precio = NA_real_,
+                      aporte_vol = NA_real_,
+                      indice_total = NA_real_))
+  }
+  
+  tt <- seq_len(n)   # eje temporal (indice de ruedas)
+  
+  # t-valor de la pendiente; safe_tval evita NaN si la serie es constante
+  safe_tval <- function(y) {
+    out <- tryCatch(summary(lm(y ~ tt))$coefficients["tt", "t value"],
+                    error = function(e) NA_real_)
+    if (!is.finite(out)) 0 else out
+  }
+  
+  t_precio   <- safe_tval(log(close))
+  t_volumen  <- safe_tval(log(volume))
+  aporte_vol <- vol_weight * sign(t_precio) * t_volumen
+  
+  data.frame(
+    t_precio     = round(t_precio, 3),
+    aporte_vol   = round(aporte_vol, 3),
+    indice_total = round(t_precio + aporte_vol, 3)
+  )
+}
+
+
+# Wrapper: devuelve solo el numero del indice (usa la misma cuenta de arriba)
+getIndiceFuerza <- function(data, dias = 90, vol_weight = 0.5) {
+  getIndiceFuerzaDetalle(data, dias, vol_weight)$indice_total
+}
+
+
 getTrend150Days = function(data) {
   data <- tail(data, 150)
   model <- lm(precio ~ fecha, data = data)
@@ -299,11 +346,11 @@ getCorr = function(data_uno, data_dos){
       data_dos_200_rows <- tail(data_dos, 200)
       correlacion <- cor(data_uno_200_rows$precio, data_dos_200_rows$precio)
       cor = round(correlacion,2)
-      })
+    })
   })
   return(cor)
 }
-  
+
 
 
 sp500 = getOrder(getRawData('^GSPC'))
@@ -316,6 +363,11 @@ getData = function(data, vector_trends, especie, accion_completa, sp500) {
   data <- getOrder(data)
   
   fecha_ultimo_maximo <- getFechaUltimoMaximo(data)
+  
+  # Descomposicion del indice de fuerza para cada ventana (una sola regresion c/u)
+  det30  <- getIndiceFuerzaDetalle(data, 30)
+  det90  <- getIndiceFuerzaDetalle(data, 90)
+  det365 <- getIndiceFuerzaDetalle(data, 365)
   
   df <- data.frame(
     Especie = especie,
@@ -340,7 +392,16 @@ getData = function(data, vector_trends, especie, accion_completa, sp500) {
     VolumenPromedioMensual = getVolumenPromedioMensual(data),
     VolumenTrendYear = getVolumenTrendYear(data),
     VolumenTrend90Days = getVolumenTrend90Days(data),
-    CorrSp500 = getCorr(data, sp500)
+    CorrSp500 = getCorr(data, sp500),
+    IndiceFuerza30  = det30$indice_total,
+    FuerzaPrecio30  = det30$t_precio,
+    FuerzaVol30     = det30$aporte_vol,
+    IndiceFuerza90  = det90$indice_total,
+    FuerzaPrecio90  = det90$t_precio,
+    FuerzaVol90     = det90$aporte_vol,
+    IndiceFuerza365 = det365$indice_total,
+    FuerzaPrecio365 = det365$t_precio,
+    FuerzaVol365    = det365$aporte_vol
     
   )
   
@@ -573,6 +634,62 @@ datos <- list(
   TEO = "Telecom",
   TGS = "TGS",
   TS = "Tenaris",
+  # --- Mega-caps que faltan ---
+  V = "Visa Inc.",
+  MA = "Mastercard Incorporated",
+  WMT = "Walmart Inc.",
+  JNJ = "Johnson & Johnson",
+  LLY = "Eli Lilly and Company",
+  AVGO = "Broadcom Inc.",
+  `BRK-B` = "Berkshire Hathaway Inc.",   # ojo: en Yahoo lleva guion, por eso los backticks
+  HD = "The Home Depot, Inc.",
+  COST = "Costco Wholesale Corporation",
+  MCD = "McDonald's Corporation",
+  PEP = "PepsiCo, Inc.",
+  ABBV = "AbbVie Inc.",
+  ABT = "Abbott Laboratories",
+  AMGN = "Amgen Inc.",
+  TMO = "Thermo Fisher Scientific Inc.",
+  GS = "The Goldman Sachs Group, Inc.",
+  BLK = "BlackRock, Inc.",
+  CAT = "Caterpillar Inc.",
+  HON = "Honeywell International Inc.",
+  GE = "GE Aerospace",
+  LMT = "Lockheed Martin Corporation",
+  DE = "Deere & Company",
+  UPS = "United Parcel Service, Inc.",
+  TMUS = "T-Mobile US, Inc.",
+  
+  # --- Software / semis / tech que faltan ---
+  CRM = "Salesforce, Inc.",
+  ADBE = "Adobe Inc.",
+  NOW = "ServiceNow, Inc.",
+  TXN = "Texas Instruments Incorporated",
+  AMAT = "Applied Materials, Inc.",
+  IBM = "International Business Machines Corporation",
+  ARM = "Arm Holdings plc",
+  SMCI = "Super Micro Computer, Inc.",
+  DELL = "Dell Technologies Inc.",
+  CRWD = "CrowdStrike Holdings, Inc.",
+  PANW = "Palo Alto Networks, Inc.",
+  SNOW = "Snowflake Inc.",
+  NET = "Cloudflare, Inc.",
+  
+  # --- Growth / consumo digital ---
+  ABNB = "Airbnb, Inc.",
+  DASH = "DoorDash, Inc.",
+  SPOT = "Spotify Technology S.A.",
+  RDDT = "Reddit, Inc.",
+  PINS = "Pinterest, Inc.",
+  MSTR = "Strategy (MicroStrategy Incorporated)",
+  
+  # --- LatAm / Argentina (dado tu enfoque) ---
+  MELI = "MercadoLibre, Inc.",
+  GLOB = "Globant S.A.",
+  VIST = "Vista Energy, S.A.B. de C.V.",
+  DESP = "Despegar.com, Corp.",
+  BIOX = "Bioceres Crop Solutions Corp.",
+  CAAP = "Corporación América Airports S.A.",
   TX = "Ternium"
 )
 
@@ -608,8 +725,21 @@ crear_dataframe <- function(acciones, sp500) {
 }
 
 
-acciones <- c(MELI="MELI")
+# =====================================================================
+#  PRUEBA RAPIDA DEL INDICE PARA UNA ACCION (reutiliza getRawData,
+#  sin descargas extra: baja una vez y calcula las dos ventanas)
+# =====================================================================
+# raw_csx <- getOrder(getRawData("CSX"))
+# getIndiceFuerza(raw_csx, 90)              # solo el numero
+# getIndiceFuerzaDetalle(raw_csx, 90)       # descomposicion: t_precio | aporte_vol | indice_total
+# getIndiceFuerzaDetalle(raw_csx, 365)
 
+
+# =====================================================================
+#  GENERACION DEL DATAFRAME FINAL
+# =====================================================================
 data <- crear_dataframe(datos, sp500)
 
-
+# Ordenar por fuerza relativa (mayor -> menor). Descomenta la que uses:
+# data <- data[order(-data$IndiceFuerza90), ]
+# data <- data[order(-data$IndiceFuerza365), ]
