@@ -80,6 +80,7 @@ clrsVariacion <- ramp(length(brksVariacion)+1)
 
 datatable(
   data %>% 
+    mutate(EspecieFin = Especie, NombreFin = Nombre) %>%
     select(
       Especie, 
       Nombre,
@@ -100,18 +101,8 @@ datatable(
       VolumenPromedioMensual,
       VolumenTrendYear,
       VolumenTrend90Days,
-      CorrSp500,
-      IndiceFuerza30,
-      FuerzaPrecio30,
-      FuerzaVol30,
-      IndiceFuerza90,
-      FuerzaPrecio90,
-      FuerzaVol90,
-      IndiceFuerza365,
-      FuerzaPrecio365,
-      FuerzaVol365,
-      EspecieFin = Especie,
-      NombreFin = Nombre
+      EspecieFin,
+      NombreFin
       
       ), 
   options = list(
@@ -155,10 +146,61 @@ datatable(
     backgroundSize = '100% 90%',
     backgroundRepeat = 'no-repeat',
     backgroundPosition = 'center'
-  ) %>%
+  )
+
+```
+
+
+
+
+Fuerza Relativa {data-orientation=rows}
+=====================================
+
+**Ultima actualización `r todayhms`**
+
+
+
+Row 
+-----------------------------------------------------------------------
+
+
+```{r}
+
+datatable(
+  data %>% 
+    select(
+      Especie,
+      Nombre,
+      CorrSp500,
+      IndiceFuerza7,
+      FuerzaPrecio7,
+      FuerzaVol7,
+      IndiceFuerza30,
+      FuerzaPrecio30,
+      FuerzaVol30,
+      IndiceFuerza90,
+      FuerzaPrecio90,
+      FuerzaVol90,
+      IndiceFuerza365,
+      FuerzaPrecio365,
+      FuerzaVol365
+      
+      ), 
+  options = list(
+    pageLength = -1,
+        scrollY="100vh",
+        scrollCollapse = FALSE
+      ),rownames = FALSE) %>% 
   formatStyle(
     'CorrSp500',
     background = styleColorBar(data$CorrSp500, '#93badb'),
+    backgroundSize = '100% 90%',
+    backgroundRepeat = 'no-repeat',
+    backgroundPosition = 'center'
+  ) %>%
+  formatStyle(
+    'IndiceFuerza7',
+    background = styleColorBar(data$IndiceFuerza7, '#93badb'),
     backgroundSize = '100% 90%',
     backgroundRepeat = 'no-repeat',
     backgroundPosition = 'center'
@@ -184,6 +226,14 @@ datatable(
     backgroundRepeat = 'no-repeat',
     backgroundPosition = 'center'
   ) %>%
+  formatStyle(
+    'FuerzaPrecio7',
+    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+    ) %>%
+  formatStyle(
+    'FuerzaVol7',
+    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+    ) %>%
   formatStyle(
     'FuerzaPrecio30',
     backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
@@ -245,7 +295,15 @@ Referencias {data-orientation=rows}
 
 * VolumenTrend90Days: Pendiente del volumen de los ultimos 90 dias.
 
-* IndiceFuerza30: Indice de fuerza relativa Precio + Volumen sobre las ultimas 30 ruedas (movimiento reciente). Combina la fuerza de la tendencia del precio con la confirmacion del volumen: IndiceFuerza = FuerzaPrecio + FuerzaVol. Mide la CONSISTENCIA de la tendencia (no su magnitud). Al usar pocas ruedas es la ventana mas sensible y ruidosa: sirve para detectar movimientos que recien arrancan, pero se reordena mas dia a dia.
+* CorrSp500: Correlacion del precio de la accion con el S&P 500 (sobre las ultimas ~1000 ruedas, con fallback a 500 o 200 si no hay datos suficientes).
+
+* IndiceFuerza7: Indice de fuerza relativa Precio + Volumen sobre las ultimas 7 ruedas (ultima semana). Combina la fuerza de la tendencia del precio con la confirmacion del volumen: IndiceFuerza = FuerzaPrecio + FuerzaVol. Es la ventana MAS ruidosa e inestable (apenas ~5 grados de libertad): sirve como termometro de muy corto plazo, pero se reordena mucho dia a dia. Comparar solo contra si misma (7 vs 7).
+
+* FuerzaPrecio7: Aporte del precio al IndiceFuerza7. Es el t-valor de la pendiente de la regresion de log(precio) contra el tiempo en las ultimas 7 ruedas. El signo da la direccion (positivo = alza) y la magnitud, la fuerza/consistencia de la tendencia.
+
+* FuerzaVol7: Aporte del volumen al IndiceFuerza7 (con peso 0.5). El volumen CONFIRMA la direccion del precio: si el precio sube y el volumen acompaña, suma; si el precio sube pero el volumen no, aporta poco. Puede ser negativo cuando el precio cae y el volumen confirma esa baja.
+
+* IndiceFuerza30: Indice de fuerza relativa Precio + Volumen sobre las ultimas 30 ruedas (movimiento reciente). Combina la fuerza de la tendencia del precio con la confirmacion del volumen: IndiceFuerza = FuerzaPrecio + FuerzaVol. Mide la CONSISTENCIA de la tendencia (no su magnitud). Al usar pocas ruedas es una ventana sensible y ruidosa: sirve para detectar movimientos que recien arrancan, pero se reordena mas dia a dia.
 
 * FuerzaPrecio30: Aporte del precio al IndiceFuerza30. Es el t-valor de la pendiente de la regresion de log(precio) contra el tiempo en las ultimas 30 ruedas. El signo da la direccion (positivo = alza) y la magnitud, la fuerza/consistencia de la tendencia.
 
@@ -257,7 +315,7 @@ Referencias {data-orientation=rows}
 
 * FuerzaVol90: Aporte del volumen al IndiceFuerza90 (con peso 0.5). El volumen CONFIRMA la direccion del precio: si el precio sube y el volumen acompaña, suma; si el precio sube pero el volumen no, aporta poco. Puede ser negativo cuando el precio cae y el volumen confirma esa baja.
 
-* IndiceFuerza365: Igual que IndiceFuerza90 pero sobre las ultimas 365 ruedas (tendencia de fondo). Nota: al usar mas ruedas, sus valores absolutos tienden a ser mayores que los de 90 y 30 dias, por eso conviene comparar cada ventana contra si misma (30 vs 30, 90 vs 90, 365 vs 365), nunca una ventana contra la otra.
+* IndiceFuerza365: Igual que IndiceFuerza90 pero sobre las ultimas 365 ruedas (tendencia de fondo). Nota: al usar mas ruedas, sus valores absolutos tienden a ser mayores que los de 90, 30 y 7 dias, por eso conviene comparar cada ventana contra si misma (7 vs 7, 30 vs 30, 90 vs 90, 365 vs 365), nunca una ventana contra la otra.
 
 * FuerzaPrecio365: Aporte del precio al IndiceFuerza365 (ver FuerzaPrecio90).
 
