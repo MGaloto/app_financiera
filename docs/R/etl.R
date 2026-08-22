@@ -232,7 +232,7 @@ getVolumenTrend90Days = function(data) {
 #  Mas alto -> mas traccion Precio+Volumen al ALZA (mayor fuerza relativa)
 #  Mas bajo -> mas traccion Precio+Volumen a la BAJA
 # =====================================================================
-getIndiceFuerzaDetalle <- function(data, dias = 90, vol_weight = 0.5) {
+getIndiceFuerzaDetalle <- function(data, dias = 90, vol_weight = 0.5, min_obs = 10) {
   data <- tail(data, dias)
   
   close  <- data$precio     # 'precio' ya es el Ajustado en getRawData
@@ -242,7 +242,7 @@ getIndiceFuerzaDetalle <- function(data, dias = 90, vol_weight = 0.5) {
   close  <- close[ok]
   volume <- volume[ok]
   n      <- length(close)
-  if (n < 10) {
+  if (n < min_obs) {
     return(data.frame(t_precio = NA_real_,
                       aporte_vol = NA_real_,
                       indice_total = NA_real_))
@@ -270,8 +270,8 @@ getIndiceFuerzaDetalle <- function(data, dias = 90, vol_weight = 0.5) {
 
 
 # Wrapper: devuelve solo el numero del indice (usa la misma cuenta de arriba)
-getIndiceFuerza <- function(data, dias = 90, vol_weight = 0.5) {
-  getIndiceFuerzaDetalle(data, dias, vol_weight)$indice_total
+getIndiceFuerza <- function(data, dias = 90, vol_weight = 0.5, min_obs = 10) {
+  getIndiceFuerzaDetalle(data, dias, vol_weight, min_obs)$indice_total
 }
 
 
@@ -365,6 +365,7 @@ getData = function(data, vector_trends, especie, accion_completa, sp500) {
   fecha_ultimo_maximo <- getFechaUltimoMaximo(data)
   
   # Descomposicion del indice de fuerza para cada ventana (una sola regresion c/u)
+  det7   <- getIndiceFuerzaDetalle(data, 7, min_obs = 5)
   det30  <- getIndiceFuerzaDetalle(data, 30)
   det90  <- getIndiceFuerzaDetalle(data, 90)
   det365 <- getIndiceFuerzaDetalle(data, 365)
@@ -393,6 +394,9 @@ getData = function(data, vector_trends, especie, accion_completa, sp500) {
     VolumenTrendYear = getVolumenTrendYear(data),
     VolumenTrend90Days = getVolumenTrend90Days(data),
     CorrSp500 = getCorr(data, sp500),
+    IndiceFuerza7   = det7$indice_total,
+    FuerzaPrecio7   = det7$t_precio,
+    FuerzaVol7      = det7$aporte_vol,
     IndiceFuerza30  = det30$indice_total,
     FuerzaPrecio30  = det30$t_precio,
     FuerzaVol30     = det30$aporte_vol,
@@ -692,7 +696,6 @@ datos <- list(
   CAAP = "Corporación América Airports S.A.",
   TX = "Ternium"
 )
-
 
 
 crear_dataframe <- function(acciones, sp500) {
