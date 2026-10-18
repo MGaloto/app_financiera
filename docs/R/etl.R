@@ -275,6 +275,54 @@ getMedias200 <- function(data, dias_pend = 20) {
              Tendencia = tendencia, Recomendacion = recomendacion)
 }
 
+# =====================================================================
+#  getSenalGiro(): detecta si una accion castigada empieza a darse vuelta
+#  ---------------------------------------------------------------------
+#  Solo aplica a Tendencia "4 - Bajista" o "3 - Recuperacion" (en el resto
+#  devuelve "No aplica"). Suma 1 punto por cada condicion que se cumple:
+#    1. Minimos mas altos : minimo de las ultimas 20 ruedas > minimo de las 20 anteriores
+#    2. SMA50 frena       : SMA50 de hoy >= SMA50 de hace 10 ruedas (dejo de caer)
+#    3. Fuerza + volumen  : IndiceFuerza30 > 0 y FuerzaVol30 > 0 (entra dinero comprando)
+#    4. Sobre la SMA50    : precio > SMA50 (primer cruce alcista)
+#  SenalGiro:
+#    "Giro confirmado" : condicion 4 + al menos 3 puntos
+#    "Giro temprano"   : 2 puntos o mas (sin confirmar)
+#    "Sin senal"       : 0 o 1 punto (sigue cayendo)
+# =====================================================================
+getSenalGiro <- function(data, tendencia, det30) {
+  if (!tendencia %in% c("3 - Recuperacion", "4 - Bajista")) {
+    return(data.frame(SenalGiro = "No aplica", PuntosGiro = NA_integer_, GiroDetalle = ""))
+  }
+  p <- data$precio[is.finite(data$precio)]
+  n <- length(p)
+  if (n < 60) {
+    return(data.frame(SenalGiro = "Sin datos", PuntosGiro = NA_integer_, GiroDetalle = ""))
+  }
+  sma50_hoy   <- mean(p[(n - 49):n])
+  sma50_antes <- mean(p[(n - 59):(n - 10)])
+  c1 <- min(p[(n - 19):n]) > min(p[(n - 39):(n - 20)])
+  c2 <- sma50_hoy >= sma50_antes
+  c3 <- isTRUE(det30$indice_total > 0 && det30$aporte_vol > 0)
+  c4 <- p[n] > sma50_hoy
+  puntos <- as.integer(c1 + c2 + c3 + c4)
+  senal <- if (c4 && puntos >= 3) "Giro confirmado" else if (puntos >= 2) "Giro temprano" else "Sin senal"
+  si_no <- function(x) if (x) "SI" else "no"
+  detalle <- paste0("Min.altos:", si_no(c1), " | SMA50 frena:", si_no(c2),
+                    " | Fuerza+Vol:", si_no(c3), " | Sobre SMA50:", si_no(c4))
+  data.frame(SenalGiro = senal, PuntosGiro = puntos, GiroDetalle = detalle)
+}
+
+
+# Ajusta la Recomendacion segun la senal de giro:
+#   - Giro confirmado (y no mas de +10% sobre la SMA200) -> "2 - Normal (giro)"
+#   - Giro temprano en una accion "6 - No promediar"     -> "5 - De a poco"
+ajustarRecomendacionGiro <- function(recomendacion, senal, pct200) {
+  if (senal == "Giro confirmado" && isTRUE(pct200 <= 10)) return("2 - Normal (giro)")
+  if (senal == "Giro temprano" && recomendacion == "6 - No promediar") return("5 - De a poco")
+  recomendacion
+}
+
+
 getVolumenTrendYear = function(data) {
   data <- tail(data, 365)
   model <- lm(volumen ~ fecha, data = data)
@@ -400,6 +448,10 @@ getData = function(data, especie, accion_completa, sp500) {
   det30  <- getIndiceFuerzaDetalle(data, 30)
   det90  <- getIndiceFuerzaDetalle(data, 90)
   det365 <- getIndiceFuerzaDetalle(data, 365)
+
+  # Senal de giro (solo para tendencia Bajista o Recuperacion) y ajuste de la recomendacion
+  giro <- getSenalGiro(data, med$Tendencia, det30)
+  reco <- ajustarRecomendacionGiro(med$Recomendacion, giro$SenalGiro, med$PctMedia200)
   
   df <- data.frame(
     Especie = especie,
@@ -419,7 +471,10 @@ getData = function(data, especie, accion_completa, sp500) {
     PctMedia200 = med$PctMedia200,
     PendMedia200 = med$PendMedia200,
     Tendencia = med$Tendencia,
-    Recomendacion = med$Recomendacion,
+    Recomendacion = reco,
+    SenalGiro = giro$SenalGiro,
+    PuntosGiro = giro$PuntosGiro,
+    GiroDetalle = giro$GiroDetalle,
     SMA50 = med$SMA50,
     SMA200 = med$SMA200,
     CoefVariationPromedioAnual = getAnualVariationCoeff(data),
