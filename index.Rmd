@@ -79,22 +79,25 @@ ramp <- colorRampPalette(c("#f52f2f", "#3bf557"))
 clrsVariacion <- ramp(length(brksVariacion)+1)
 
 datatable(
-  data %>% 
+  data %>%
     mutate(EspecieFin = Especie, NombreFin = Nombre) %>%
+    arrange(Recomendacion, PctMedia200) %>%
     select(
-      Especie, 
+      Especie,
       Nombre,
       Variacion,
       InterAnual,
-      Cierre, 
-      TrendActual,
-      TrendUltYear,
-      TrendUlt90Days,
+      Cierre,
+      PctMedia200,
+      Tendencia,
+      Recomendacion,
+      PendMedia200,
       CoefVariationPromedioAnual,
       UltimoPrecioMaximo,
       PorcentajeRespectoAlMax,
       PorcentajeRespectoAlMin,
-      DiasUltMax, 
+      DiasUltMax,
+      FechaInicio,
       probTwoDays,
       probThreeDays,
       Volumen,
@@ -126,19 +129,32 @@ datatable(
     backgroundColor = styleInterval(brksVariacion, clrsVariacion)
     ) %>%
   formatStyle(
-    'TrendActual',
-    backgroundColor = styleEqual(c("1 - Alza","2 - Alza Media", "3 - Neutro", "4 - Baja Media", "5 - Baja"),c('#15e854','#5cbd79', '#a39b9c','#c45260', '#de1028'))
+    'PctMedia200',
+    backgroundColor = styleInterval(c(-30, -10, 0, 10, 20), c('#de1028', '#f0a35e', '#3bf557', '#91bd98', '#f5d76e', '#f59e3b'))
+    ) %>%
+  formatStyle(
+    'Tendencia',
+    backgroundColor = styleEqual(
+      c("1 - Alcista fuerte", "2 - Retroceso en alza", "3 - Recuperacion", "4 - Bajista", "Sin datos"),
+      c('#15e854', '#5cbd79', '#f5d76e', '#de1028', '#d9d9d9'))
+    ) %>%
+  formatStyle(
+    'Recomendacion',
+    backgroundColor = styleEqual(
+      c("1 - Prioridad", "2 - Normal", "3 - Mitad", "4 - Esperar", "5 - De a poco", "6 - No promediar", "Sin datos"),
+      c('#15e854', '#91bd98', '#f5d76e', '#f59e3b', '#f0a35e', '#de1028', '#d9d9d9'))
+    ) %>%
+  formatStyle(
+    'PendMedia200',
+    backgroundColor = styleInterval(0, c('#c45260', '#5cbd79'))
     ) %>%
   formatStyle(
     'CoefVariationPromedioAnual',
-    backgroundColor = styleInterval(c(0,50,100), c('#858f86','#91bd98', '#68de79','#3bf557'))
+    backgroundColor = styleInterval(c(3, 6, 10), c('#91bd98', '#d9e8a0', '#f5d76e', '#f59e3b'))
     ) %>%
   formatStyle(
     'PorcentajeRespectoAlMax',
-    background = styleColorBar(data$PorcentajeRespectoAlMax, '#93badb'),
-    backgroundSize = '100% 90%',
-    backgroundRepeat = 'no-repeat',
-    backgroundPosition = 'center'
+    backgroundColor = styleInterval(c(-50, -30, -10), c('#2b6cb0', '#5b8fd1', '#93badb', '#dbe9f6'))
   ) %>%
   formatStyle(
     'PorcentajeRespectoAlMin',
@@ -273,29 +289,41 @@ Referencias {data-orientation=rows}
 
 * Variacion: Cambio porcentual respecto al dia anterior.
 
-* InterAnual: Cambio porcentual respecto al precio hace 365 días.
+* InterAnual: Cambio porcentual respecto al precio de hace 1 año calendario (último cierre disponible en o antes de esa fecha). Si la acción cotiza hace menos de 1 año (salida a bolsa reciente, por ejemplo SPCX), se calcula desde su primer precio: ver FechaInicio.
+
+* FechaInicio: Primera fecha con precio disponible en Yahoo (para las salidas a bolsa recientes, es el primer día de cotización).
 
 * DiasUltMax: Cantidad de dias que pasaron desde su ultimo maximo.
 
-* TrendActual: Para este calculo se realizaron 4 regresiones lineales obteniendo de cada una de ellas la pendiente. Los periodos son para los ultimos 60 dias, del dia 60 al 90, del 90 al 150 y del 150 al 365. Si la pendiente de las 4 regresiones es positiva la etiqueta sera 1 - Alza. Si tres son positivas la etiqueta es 2 - Alza Media.
+* PctMedia200: Distancia porcentual del precio (ajustado) contra su media movil simple de 200 ruedas: (precio / SMA200 - 1) x 100. Positivo = el precio esta por encima de la media; mas de +20% = muy estirada.
 
-* CoefVariationPromedioAnual: Se utilizo el promedio del coeficiente de variacion para los mismos 4 periodos mencionados en la variable anterior.
+* Tendencia: Alineacion de medias moviles simples de 50 y 200 ruedas. 1 - Alcista fuerte: precio > SMA50 > SMA200. 2 - Retroceso en alza: SMA50 > SMA200 pero el precio bajo de la SMA50 (correccion dentro de una tendencia alcista). 3 - Recuperacion: precio > SMA50 pero SMA50 <= SMA200 (rebote sin confirmar). 4 - Bajista: precio <= SMA50 <= SMA200.
 
-* TrendUltYear: Se utilizo la pendiente de los ultimos 365 dias.
+* Recomendacion: Combina Tendencia, PctMedia200 y PendMedia200. 1 - Prioridad: Retroceso en alza, hasta +10% sobre la SMA200 y con la SMA200 subiendo. 2 - Normal: Alcista fuerte hasta +10%, Recuperacion, o Retroceso en alza con la SMA200 bajando. 3 - Mitad: entre +10% y +20% sobre la SMA200 (comprar la mitad). 4 - Esperar: mas de +20% (esperar un retroceso). 5 - De a poco: Bajista hasta -30% (comprar en escalera y revisar que el negocio este sano). 6 - No promediar: Bajista con mas de -30% (esperar senal de despegue). Historia corta: si la accion tiene entre 50 y 199 ruedas, la media de 200 se calcula con todos los precios desde su primera cotizacion (y nunca da Prioridad porque no hay pendiente). Sin datos: menos de 50 ruedas.
 
-* TrendUlt90Days: Tendencia de ultimos 90 dias.
+* PendMedia200: Variacion porcentual de la SMA200 en las ultimas 20 ruedas. Positivo = la tendencia de fondo sube; negativo = se esta dando vuelta.
+
+* SMA50 / SMA200: Medias moviles simples de 50 y 200 ruedas (se calculan en el ETL; son las mismas que muestra TradingView en velas diarias).
+
+* CoefVariationPromedioAnual: Promedio del coeficiente de variacion del precio (desvio / media x 100) en 4 tramos sin superposicion: ultimas 60 ruedas, de la 61 a la 90, de la 91 a la 150 y de la 151 a la 252 (1 año). Mide cuanto se mueve el precio: mas alto = mas volatil. Si la accion tiene poca historia se promedian los tramos disponibles.
+
+* PorcentajeRespectoAlMax: Cuanto esta el precio por debajo de su maximo historico (precio ajustado): 0 = en maximos, -40 = 40% abajo del maximo.
+
+* PorcentajeRespectoAlMin: Cuanto esta el precio por encima de su minimo de las ultimas 52 semanas (252 ruedas).
 
 * UltimoPrecioMaximo: Ultimo precio maximo.
 
 * Volumen: Volumen de la ultima jornada.
 
-* VolumenPromedioMensual: Volumen Promedio de los ultimos 30 dias.
+* VolumenPromedioMensual: Volumen promedio del ultimo mes (21 ruedas).
 
 * VolumenTrendYear: Pendiente del volumen del ultimo año.
 
 * VolumenTrend90Days: Pendiente del volumen de los ultimos 90 dias.
 
-* CorrSp500: Correlacion del precio de la accion con el S&P 500 (sobre las ultimas ~1000 ruedas, con fallback a 500 o 200 si no hay datos suficientes).
+* CorrSp500: Correlacion de los retornos diarios de la accion con los del S&P 500, alineados por fecha, en las ultimas ~3 años (750 ruedas en comun; vacio si hay menos de 120). Cerca de 1 = se mueve igual que el mercado; cerca de 0 = se mueve por su cuenta.
+
+* Nota sobre los datos: si el dashboard se actualiza con Wall Street abierto, se descarta la vela del dia (incompleta) y se usa el ultimo cierre.
 
 * IndiceFuerza7: Indice de fuerza relativa Precio + Volumen sobre las ultimas 7 ruedas (ultima semana). Combina la fuerza de la tendencia del precio con la confirmacion del volumen: IndiceFuerza = FuerzaPrecio + FuerzaVol. Es la ventana MAS ruidosa e inestable (apenas ~5 grados de libertad): sirve como termometro de muy corto plazo, pero se reordena mucho dia a dia. Comparar solo contra si misma (7 vs 7).
 
@@ -320,3 +348,14 @@ Referencias {data-orientation=rows}
 * FuerzaPrecio365: Aporte del precio al IndiceFuerza365 (ver FuerzaPrecio90).
 
 * FuerzaVol365: Aporte del volumen al IndiceFuerza365 (ver FuerzaVol90).
+
+
+**Tickers con error en esta actualizacion**
+
+```{r errores, echo=FALSE, results='asis'}
+if (exists("errores_tickers") && nrow(errores_tickers) > 0) {
+  print(knitr::kable(errores_tickers, row.names = FALSE))
+} else {
+  cat("Ninguno: todos los tickers se actualizaron correctamente.")
+}
+```
