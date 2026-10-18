@@ -93,7 +93,6 @@ datatable(
       Recomendacion,
       SenalGiro,
       PuntosGiro,
-      GiroDetalle,
       PendMedia200,
       CoefVariationPromedioAnual,
       UltimoPrecioMaximo,
@@ -312,7 +311,7 @@ Referencias {data-orientation=rows}
 
 * SenalGiro: Detecta si una accion castigada (Tendencia Bajista o Recuperacion) empieza a darse vuelta. Suma 1 punto por cada condicion: (1) Minimos mas altos: el minimo de las ultimas 20 ruedas es mayor que el de las 20 anteriores; (2) SMA50 frena: la SMA50 de hoy es mayor o igual que la de hace 10 ruedas; (3) Fuerza + volumen: IndiceFuerza30 > 0 y FuerzaVol30 > 0; (4) Sobre la SMA50: el precio supera su SMA50. Giro confirmado: condicion 4 y al menos 3 puntos. Giro temprano: 2 puntos o mas. Sin senal: 0 o 1 punto. No aplica: la tendencia es alcista.
 
-* PuntosGiro / GiroDetalle: Cantidad de condiciones de giro que se cumplen (0 a 4) y cuales.
+* PuntosGiro: Cantidad de condiciones de giro que se cumplen (0 a 4).
 
 * Ajuste por giro en la Recomendacion: con Giro confirmado (y hasta +10% sobre la SMA200) pasa a "2 - Normal (giro)"; con Giro temprano, una accion en "6 - No promediar" pasa a "5 - De a poco". La senal es solo de precio: antes de comprar fuerte, revisar que el negocio no se este deteriorando.
 
