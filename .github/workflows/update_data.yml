@@ -3,8 +3,11 @@ name: Dashboard Refresh
 on: 
   push:
     branches: [main, master]
-  schedule:  
-    - cron: '0 10 * * *'
+  schedule:
+    # Lunes a viernes 22:30 UTC (19:30 hora Argentina): despues del cierre de
+    # Wall Street todo el año (cierra 20:00 UTC en verano y 21:00 UTC en invierno),
+    # asi los datos son del cierre completo del dia.
+    - cron: '30 22 * * 1-5'
 
 jobs:
   refresh-the-dashboard:
@@ -23,4 +26,3 @@ jobs:
         ref: 'main'
     - name: Render Rmarkdown
       run: bash ./bash/extract_data.sh "MGaloto" "maxigaloto@hotmail.com"
-
