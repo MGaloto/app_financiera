@@ -91,6 +91,9 @@ datatable(
       PctMedia200,
       Tendencia,
       Recomendacion,
+      SenalGiro,
+      PuntosGiro,
+      GiroDetalle,
       PendMedia200,
       CoefVariationPromedioAnual,
       UltimoPrecioMaximo,
@@ -141,8 +144,14 @@ datatable(
   formatStyle(
     'Recomendacion',
     backgroundColor = styleEqual(
-      c("1 - Prioridad", "2 - Normal", "3 - Mitad", "4 - Esperar", "5 - De a poco", "6 - No promediar", "Sin datos"),
-      c('#15e854', '#91bd98', '#f5d76e', '#f59e3b', '#f0a35e', '#de1028', '#d9d9d9'))
+      c("1 - Prioridad", "2 - Normal", "2 - Normal (giro)", "3 - Mitad", "4 - Esperar", "5 - De a poco", "6 - No promediar", "Sin datos"),
+      c('#15e854', '#91bd98', '#7fd3f7', '#f5d76e', '#f59e3b', '#f0a35e', '#de1028', '#d9d9d9'))
+    ) %>%
+  formatStyle(
+    'SenalGiro',
+    backgroundColor = styleEqual(
+      c("Giro confirmado", "Giro temprano", "Sin senal", "No aplica", "Sin datos"),
+      c('#7fd3f7', '#cdeefc', '#f0a35e', '#ffffff', '#d9d9d9'))
     ) %>%
   formatStyle(
     'PendMedia200',
@@ -300,6 +309,12 @@ Referencias {data-orientation=rows}
 * Tendencia: Alineacion de medias moviles simples de 50 y 200 ruedas. 1 - Alcista fuerte: precio > SMA50 > SMA200. 2 - Retroceso en alza: SMA50 > SMA200 pero el precio bajo de la SMA50 (correccion dentro de una tendencia alcista). 3 - Recuperacion: precio > SMA50 pero SMA50 <= SMA200 (rebote sin confirmar). 4 - Bajista: precio <= SMA50 <= SMA200.
 
 * Recomendacion: Combina Tendencia, PctMedia200 y PendMedia200. 1 - Prioridad: Retroceso en alza, hasta +10% sobre la SMA200 y con la SMA200 subiendo. 2 - Normal: Alcista fuerte hasta +10%, Recuperacion, o Retroceso en alza con la SMA200 bajando. 3 - Mitad: entre +10% y +20% sobre la SMA200 (comprar la mitad). 4 - Esperar: mas de +20% (esperar un retroceso). 5 - De a poco: Bajista hasta -30% (comprar en escalera y revisar que el negocio este sano). 6 - No promediar: Bajista con mas de -30% (esperar senal de despegue). Historia corta: si la accion tiene entre 50 y 199 ruedas, la media de 200 se calcula con todos los precios desde su primera cotizacion (y nunca da Prioridad porque no hay pendiente). Sin datos: menos de 50 ruedas.
+
+* SenalGiro: Detecta si una accion castigada (Tendencia Bajista o Recuperacion) empieza a darse vuelta. Suma 1 punto por cada condicion: (1) Minimos mas altos: el minimo de las ultimas 20 ruedas es mayor que el de las 20 anteriores; (2) SMA50 frena: la SMA50 de hoy es mayor o igual que la de hace 10 ruedas; (3) Fuerza + volumen: IndiceFuerza30 > 0 y FuerzaVol30 > 0; (4) Sobre la SMA50: el precio supera su SMA50. Giro confirmado: condicion 4 y al menos 3 puntos. Giro temprano: 2 puntos o mas. Sin senal: 0 o 1 punto. No aplica: la tendencia es alcista.
+
+* PuntosGiro / GiroDetalle: Cantidad de condiciones de giro que se cumplen (0 a 4) y cuales.
+
+* Ajuste por giro en la Recomendacion: con Giro confirmado (y hasta +10% sobre la SMA200) pasa a "2 - Normal (giro)"; con Giro temprano, una accion en "6 - No promediar" pasa a "5 - De a poco". La senal es solo de precio: antes de comprar fuerte, revisar que el negocio no se este deteriorando.
 
 * PendMedia200: Variacion porcentual de la SMA200 en las ultimas 20 ruedas. Positivo = la tendencia de fondo sube; negativo = se esta dando vuelta.
 
