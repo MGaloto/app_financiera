@@ -291,12 +291,12 @@ getMedias200 <- function(data, dias_pend = 20) {
 # =====================================================================
 getSenalGiro <- function(data, tendencia, det30) {
   if (!tendencia %in% c("3 - Recuperacion", "4 - Bajista")) {
-    return(data.frame(SenalGiro = "No aplica", PuntosGiro = NA_integer_, GiroDetalle = ""))
+    return(data.frame(SenalGiro = "No aplica", PuntosGiro = NA_integer_))
   }
   p <- data$precio[is.finite(data$precio)]
   n <- length(p)
   if (n < 60) {
-    return(data.frame(SenalGiro = "Sin datos", PuntosGiro = NA_integer_, GiroDetalle = ""))
+    return(data.frame(SenalGiro = "Sin datos", PuntosGiro = NA_integer_))
   }
   sma50_hoy   <- mean(p[(n - 49):n])
   sma50_antes <- mean(p[(n - 59):(n - 10)])
@@ -306,10 +306,7 @@ getSenalGiro <- function(data, tendencia, det30) {
   c4 <- p[n] > sma50_hoy
   puntos <- as.integer(c1 + c2 + c3 + c4)
   senal <- if (c4 && puntos >= 3) "Giro confirmado" else if (puntos >= 2) "Giro temprano" else "Sin senal"
-  si_no <- function(x) if (x) "SI" else "no"
-  detalle <- paste0("Min.altos:", si_no(c1), " | SMA50 frena:", si_no(c2),
-                    " | Fuerza+Vol:", si_no(c3), " | Sobre SMA50:", si_no(c4))
-  data.frame(SenalGiro = senal, PuntosGiro = puntos, GiroDetalle = detalle)
+  data.frame(SenalGiro = senal, PuntosGiro = puntos)
 }
 
 
@@ -474,7 +471,6 @@ getData = function(data, especie, accion_completa, sp500) {
     Recomendacion = reco,
     SenalGiro = giro$SenalGiro,
     PuntosGiro = giro$PuntosGiro,
-    GiroDetalle = giro$GiroDetalle,
     SMA50 = med$SMA50,
     SMA200 = med$SMA200,
     CoefVariationPromedioAnual = getAnualVariationCoeff(data),
