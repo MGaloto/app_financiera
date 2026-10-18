@@ -34,8 +34,19 @@ getRawData = function(accion){
   rownames(raw_data) = 1:nrow(raw_data)
   
   colnames(raw_data) = c("precio","fecha", "volumen")
-  
-  return(na.omit(raw_data))
+
+  raw_data = na.omit(raw_data)
+
+  # Si el workflow corre con Wall Street abierto, Yahoo devuelve la vela del
+  # dia INCOMPLETA (precio y volumen a medias). Se descarta hasta el cierre.
+  ahora_ny = with_tz(Sys.time(), "America/New_York")
+  hoy_ny = as.Date(format(ahora_ny, "%Y-%m-%d"))
+  minutos_ny = hour(ahora_ny) * 60 + minute(ahora_ny)
+  if (nrow(raw_data) > 0 && max(raw_data$fecha) >= hoy_ny && minutos_ny < 16 * 60 + 30) {
+    raw_data = raw_data[raw_data$fecha < hoy_ny, ]
+  }
+
+  return(raw_data)
 }
 
 
@@ -113,10 +124,16 @@ getVariation = function(data) {
 }
 
 
+# Variacion contra el precio de hace 1 ano CALENDARIO (365 dias, no 365 ruedas).
+# Toma el ultimo cierre disponible en o antes de esa fecha. Si la accion cotiza
+# hace menos de 1 ano (salida a bolsa reciente), se calcula desde su PRIMER
+# precio disponible (ver columna FechaInicio).
 getVariationInterAnual = function(data) {
   ultimo_precio <- data$precio[nrow(data)]
-  anteultimo_precio <- data$precio[nrow(data) - 365]
-  variacion <- round(((ultimo_precio - anteultimo_precio) / anteultimo_precio) * 100,2)
+  fecha_ref <- max(data$fecha) - 365
+  idx <- which(data$fecha <= fecha_ref)
+  precio_ref <- if (length(idx) == 0) data$precio[1] else data$precio[max(idx)]
+  variacion <- round(((ultimo_precio - precio_ref) / precio_ref) * 100,2)
   return(variacion)
 }
 
@@ -133,18 +150,20 @@ getDiasUtimoMaximo = function(fecha_ultimo_maximo, fecha_hoy) {
 }
 
 
+# Cuanto esta el precio DEBAJO de su maximo historico (0 = en maximos, -40 = 40% abajo).
 getVariationUltimoMaximo = function(data) {
   precio_actual = data$precio[nrow(data)]
-  ultimo_maximio = max(data$precio)
-  variacion = round(((ultimo_maximio - precio_actual) / precio_actual) * 100,2)
+  ultimo_maximo = max(data$precio)
+  variacion = round((precio_actual / ultimo_maximo - 1) * 100,2)
   return(variacion)
 }
 
 
+# Cuanto esta el precio POR ENCIMA de su minimo de las ultimas 52 semanas (252 ruedas).
 getVariationUltimoMinimo = function(data) {
   precio_actual = data$precio[nrow(data)]
-  ultimo_minimo = min(data$precio)
-  variacion = round(((precio_actual - ultimo_minimo) / ultimo_minimo) * 100,2)
+  minimo_52s = min(tail(data$precio, 252))
+  variacion = round((precio_actual / minimo_52s - 1) * 100,2)
   return(variacion)
 }
 
@@ -166,33 +185,94 @@ getUltimoPrecioMaximo = function(data) {
 
 
 
+# Promedio del coeficiente de variacion (desvio / media * 100) del precio en
+# 4 tramos SIN superposicion, contados en ruedas hacia atras:
+# ultimas 60, de la 61 a la 90, de la 91 a la 150 y de la 151 a la 252 (1 ano).
+# Si no hay historia para un tramo, se promedian los que existen (NA si ninguno).
 getAnualVariationCoeff = function(data) {
-  data365 <- data[(nrow(data)-365):nrow(data)-150, ]
-  cv365 <- round(sd(data365$precio) / mean(data365$precio) * 100, 2)
-  data150 <- data[(nrow(data)-150):nrow(data)-90, ]
-  cv150 <- round(sd(data150$precio) / mean(data150$precio) * 100, 2)
-  data90 <- data[(nrow(data)-90):nrow(data)-60, ]
-  cv90 <- round(sd(data90$precio) / mean(data90$precio) * 100, 2)
-  data60 <- data[(nrow(data)-60):nrow(data)-30, ]
-  cv60 <- round(sd(data60$precio) / mean(data60$precio) * 100, 2)
-  data30 <- data[(nrow(data)-30):nrow(data), ]
-  cv30 <- round(sd(data30$precio) / mean(data30$precio) * 100, 2)
-  return(
-    round(mean(cv365 + cv150 + cv90 + cv60 + cv30),2)
-  )
+  p <- data$precio
+  n <- length(p)
+  tramos <- list(c(1, 60), c(61, 90), c(91, 150), c(151, 252))
+  cvs <- sapply(tramos, function(t) {
+    if (n < t[2]) return(NA_real_)
+    x <- p[(n - t[2] + 1):(n - t[1] + 1)]
+    sd(x) / mean(x) * 100
+  })
+  if (all(is.na(cvs))) return(NA_real_)
+  return(round(mean(cvs, na.rm = TRUE), 2))
 }
 
-getHistoricTrend = function(data) {
-  model <- lm(precio ~ fecha, data = data)
-  pendiente <- round(coef(model)[2],2)
-  return(pendiente)
-}
+# =====================================================================
+#  getMedias200(): % contra la media de 200, Tendencia y Recomendacion
+#  ---------------------------------------------------------------------
+#  Usa el precio AJUSTADO ('precio' en getRawData) y medias moviles
+#  SIMPLES de 50 y 200 ruedas (las mismas que se ven en TradingView en
+#  velas diarias con "SMA 50" y "SMA 200").
+#
+#  PctMedia200 = (precio / SMA200 - 1) * 100
+#  PendMedia200 = variacion % de la SMA200 en las ultimas 20 ruedas
+#                 (> 0: la tendencia de fondo sube; < 0: se esta girando)
+#
+#  Tendencia (alineacion de medias):
+#    1 - Alcista fuerte     : precio > SMA50 > SMA200
+#    2 - Retroceso en alza  : SMA50 > SMA200 y precio <= SMA50
+#    3 - Recuperacion       : precio > SMA50 y SMA50 <= SMA200
+#    4 - Bajista            : precio <= SMA50 y SMA50 <= SMA200
+#
+#  Recomendacion (combina Tendencia + PctMedia200 + PendMedia200):
+#    1 - Prioridad      : Retroceso en alza, PctMedia200 <= 10 y SMA200 subiendo
+#    2 - Normal         : Alcista fuerte con PctMedia200 <= 10, Recuperacion,
+#                         o Retroceso en alza con la SMA200 bajando
+#    3 - Mitad          : PctMedia200 entre 10 y 20 (estirada)
+#    4 - Esperar        : PctMedia200 > 20 (muy estirada, esperar retroceso)
+#    5 - De a poco      : Bajista con PctMedia200 > -30 (escalera, revisar negocio)
+#    6 - No promediar   : Bajista con PctMedia200 <= -30 (esperar senal de despegue)
+#
+#  Historia corta (salidas a bolsa recientes, ej. SPCX): si hay entre 50 y 199
+#  ruedas, la "SMA200" se calcula con TODOS los precios desde la primera
+#  cotizacion (y PendMedia200 queda vacia, por eso nunca da "1 - Prioridad").
+#  Con menos de 50 ruedas: "Sin datos".
+# =====================================================================
+getMedias200 <- function(data, dias_pend = 20) {
+  vacio <- data.frame(SMA50 = NA_real_, SMA200 = NA_real_, PctMedia200 = NA_real_,
+                      PendMedia200 = NA_real_, Tendencia = "Sin datos",
+                      Recomendacion = "Sin datos")
+  precios <- data$precio[is.finite(data$precio)]
+  n <- length(precios)
+  if (n < 50) return(vacio)
 
-getTrend365Days = function(data) {
-  data <- tail(data, 365)
-  model <- lm(precio ~ fecha, data = data)
-  pendiente <- round(coef(model)[2],2)
-  return(pendiente)
+  precio <- precios[n]
+  sma50  <- mean(precios[(n - 49):n])
+  sma200 <- mean(precios[max(1, n - 199):n])
+  pct200 <- (precio / sma200 - 1) * 100
+
+  pend200 <- NA_real_
+  if (n >= 200 + dias_pend) {
+    sma200_antes <- mean(precios[(n - 199 - dias_pend):(n - dias_pend)])
+    pend200 <- (sma200 / sma200_antes - 1) * 100
+  }
+
+  tendencia <- if (sma50 > sma200) {
+    if (precio > sma50) "1 - Alcista fuerte" else "2 - Retroceso en alza"
+  } else {
+    if (precio > sma50) "3 - Recuperacion" else "4 - Bajista"
+  }
+
+  recomendacion <- if (tendencia == "4 - Bajista") {
+    if (pct200 <= -30) "6 - No promediar" else "5 - De a poco"
+  } else if (pct200 > 20) {
+    "4 - Esperar"
+  } else if (pct200 > 10) {
+    "3 - Mitad"
+  } else if (tendencia == "2 - Retroceso en alza" && isTRUE(pend200 >= 0)) {
+    "1 - Prioridad"
+  } else {
+    "2 - Normal"
+  }
+
+  data.frame(SMA50 = round(sma50, 2), SMA200 = round(sma200, 2),
+             PctMedia200 = round(pct200, 1), PendMedia200 = round(pend200, 2),
+             Tendencia = tendencia, Recomendacion = recomendacion)
 }
 
 getVolumenTrendYear = function(data) {
@@ -214,7 +294,7 @@ getVolumenTrend90Days = function(data) {
 #  getIndiceFuerzaDetalle(): fuerza relativa Precio + Volumen, POR ACCION
 #  ---------------------------------------------------------------------
 #  Se calcula desde el 'data' que ya esta en memoria (mismo criterio que
-#  getTrend90Days / getVolumenTrend90Days: tail(data, dias) = ultimas N ruedas).
+#  getVolumenTrend90Days: tail(data, dias) = ultimas N ruedas).
 #  NO vuelve a descargar de Yahoo -> cero descargas extra en el loop.
 #
 #  indice = t_precio + w * signo(t_precio) * t_volumen
@@ -275,80 +355,28 @@ getIndiceFuerza <- function(data, dias = 90, vol_weight = 0.5, min_obs = 10) {
 }
 
 
-getTrend150Days = function(data) {
-  data <- tail(data, 150)
-  model <- lm(precio ~ fecha, data = data)
-  pendiente <- round(coef(model)[2],2)
-  return(pendiente)
-}
-
-
-getTrend90Days = function(data) {
-  data <- tail(data, 90)
-  model <- lm(precio ~ fecha, data = data)
-  pendiente <- round(coef(model)[2],2)
-  return(pendiente)
-}
-
-
+# Volumen promedio del ultimo mes (21 ruedas).
 getVolumenPromedioMensual = function(data) {
-  data <- tail(data, 90)
+  data <- tail(data, 21)
   promedio <- mean(data$volumen)
   promedio <- round(promedio,2)
   return(promedio)
 }
 
 
-getTrend60Days = function(data) {
-  data <- tail(data, 60)
-  model <- lm(precio ~ fecha, data = data)
-  pendiente <- round(coef(model)[2],2)
-  return(pendiente)
-}
 
-
-getAnalisisTrend <- function(vector) {
-  
-  negativos <- discard(vector, ~.x >= 0)
-  positivos <- discard(vector, ~.x < 0)
-  
-  negativos <- na.omit(negativos)
-  positivos <- na.omit(positivos)
-  
-  result <- case_when(
-    length(positivos) == 4 ~ "1 - Alza",
-    length(positivos) == 3 ~ "2 - Alza Media",
-    length(positivos) == 2 ~ "3 - Neutro",
-    length(positivos) == 1 ~ "4 - Baja Media",
-    TRUE ~ "5 - Baja"
-  )
-  
-  return(result)
-  
-}
-
-
-
-getCorr = function(data_uno, data_dos){
-  tryCatch({
-    data_uno_1000_rows <- tail(data_uno, 1000)
-    data_dos_1000_rows <- tail(data_dos, 1000)
-    correlacion <- cor(data_uno_1000_rows$precio, data_dos_1000_rows$precio)
-    cor=round(correlacion,2)
-  }, error = function(e1) {
-    tryCatch({
-      data_uno_500_rows <- tail(data_uno, 500)
-      data_dos_500_rows <- tail(data_dos, 500)
-      correlacion <- cor(data_uno_500_rows$precio, data_dos_500_rows$precio)
-      cor = round(correlacion,2)
-    }, error = function(e2) {
-      data_uno_200_rows <- tail(data_uno, 200)
-      data_dos_200_rows <- tail(data_dos, 200)
-      correlacion <- cor(data_uno_200_rows$precio, data_dos_200_rows$precio)
-      cor = round(correlacion,2)
-    })
-  })
-  return(cor)
+# Correlacion de los RETORNOS diarios (log) de la accion contra el S&P 500,
+# alineados POR FECHA, en las ultimas ~3 anos (750 ruedas en comun).
+# (Correlacionar precios da valores enganosos: dos cosas que suben "correlacionan".)
+# NA si hay menos de 120 ruedas en comun.
+getCorr = function(data_uno, data_dos, ruedas = 750, min_obs = 120){
+  m <- merge(data_uno[, c("fecha", "precio")], data_dos[, c("fecha", "precio")],
+             by = "fecha", suffixes = c("", "_sp"))
+  m <- tail(m[order(m$fecha), ], ruedas + 1)
+  if (nrow(m) < min_obs + 1) return(NA_real_)
+  r1 <- diff(log(m$precio))
+  r2 <- diff(log(m$precio_sp))
+  return(round(cor(r1, r2), 2))
 }
 
 
@@ -358,12 +386,15 @@ sp500 = getOrder(getRawData('^GSPC'))
 
 
 
-getData = function(data, vector_trends, especie, accion_completa, sp500) {
-  
+getData = function(data, especie, accion_completa, sp500) {
+
   data <- getOrder(data)
-  
+
   fecha_ultimo_maximo <- getFechaUltimoMaximo(data)
-  
+
+  # % contra la media de 200, Tendencia y Recomendacion
+  med <- getMedias200(data)
+
   # Descomposicion del indice de fuerza para cada ventana (una sola regresion c/u)
   det7   <- getIndiceFuerzaDetalle(data, 7, min_obs = 5)
   det30  <- getIndiceFuerzaDetalle(data, 30)
@@ -384,9 +415,13 @@ getData = function(data, vector_trends, especie, accion_completa, sp500) {
       fecha_ultimo_maximo, today
     ),
     FechaUltMax = fecha_ultimo_maximo,
-    TrendActual = getAnalisisTrend(vector_trends),
-    TrendUltYear = getTrend365Days(data),
-    TrendUlt90Days = getTrend90Days(data),
+    FechaInicio = min(data$fecha),
+    PctMedia200 = med$PctMedia200,
+    PendMedia200 = med$PendMedia200,
+    Tendencia = med$Tendencia,
+    Recomendacion = med$Recomendacion,
+    SMA50 = med$SMA50,
+    SMA200 = med$SMA200,
     CoefVariationPromedioAnual = getAnualVariationCoeff(data),
     probTwoDays = probTwoDays(data),
     probThreeDays = probThreeDays(data),
@@ -452,7 +487,7 @@ datos <- list(
   CL = "Colgate-Palmolive Company",
   CLF = "Cleveland-Cliffs Inc.",
   CMCSA = "Comcast Corporation",
-  CNHI = "CNH Industrial N.V.",
+  CNH = "CNH Industrial N.V.",            # antes CNHI
   COIN = "Coinbase Global, Inc.",
   COP = "ConocoPhillips",
   COTY = "Coty Inc.",
@@ -487,7 +522,7 @@ datos <- list(
   GOLD = "Barrick Gold Corporation",
   GOOG = "Alphabet Inc.",
   GOOGL = "Alphabet Inc.",
-  GPS = "The Gap, Inc.",
+  GAP = "The Gap, Inc.",                  # antes GPS
   GRAB = "Grab Holdings Limited",
   GRFS = "Grifols, S.A.",
   HAL = "Halliburton Company",
@@ -499,14 +534,12 @@ datos <- list(
   HST = "Host Hotels & Resorts, Inc.",
   HTZ = "Hertz Global Holdings, Inc.",
   IBN = "ICICI Bank Limited",
-  IMGN = "ImmunoGen, Inc.",
   INFY = "Infosys Limited",
   INTC = "Intel Corporation",
   IQ = "iQIYI, Inc.",
   ITUB = "Itaú Unibanco Holding S.A.",
   JCI = "Johnson Controls International plc",
   JD = "JD.com, Inc.",
-  JNPR = "Juniper Networks, Inc.",
   JPM = "JPMorgan Chase & Co.",
   KDP = "Keurig Dr Pepper Inc.",
   KEY = "KeyCorp",
@@ -530,7 +563,6 @@ datos <- list(
   MOS = "The Mosaic Company",
   MPW = "Medical Properties Trust, Inc.",
   MRK = "Merck & Co., Inc.",
-  MRO = "Marathon Oil Corporation",
   MRVL = "Marvell Technology, Inc.",
   MS = "Morgan Stanley",
   MSFT = "Microsoft Corporation",
@@ -547,19 +579,19 @@ datos <- list(
   NU = "Nu Holdings Ltd.",
   NVDA = "NVIDIA Corporation",
   NXE = "NexGen Energy Ltd.",
-  NYCB = "New York Community Bancorp, Inc.",
+  FLG = "Flagstar Financial, Inc.",       # antes NYCB
   O = "Realty Income Corporation",
   ON = "ON Semiconductor Corporation",
   OPEN = "Opendoor Technologies Inc.",
   ORCL = "Oracle Corporation",
   OSCR = "Oscar Health, Inc.",
   OXY = "Occidental Petroleum Corporation",
-  PARA = "Paramount Global",
+  PSKY = "Paramount Skydance Corporation", # antes PARA
   PATH = "UiPath Inc.",
   PBR = "Petróleo Brasileiro S.A. - Petrobras",
   PCG = "PG&E Corporation",
   PDD = "PDD Holdings Inc.",
-  PEAK = "Healthpeak Properties, Inc.",
+  DOC = "Healthpeak Properties, Inc.",    # antes PEAK
   PENN = "PENN Entertainment, Inc.",
   PFE = "Pfizer Inc.",
   PG = "The Procter & Gamble Company",
@@ -572,7 +604,6 @@ datos <- list(
   QCOM = "QUALCOMM Incorporated",
   QS = "QuantumScape Corporation",
   RBLX = "Roblox Corporation",
-  RCM = "R1 RCM Inc.",
   RF = "Regions Financial Corporation",
   RIG = "Transocean Ltd.",
   RIOT = "Riot Platforms, Inc.",
@@ -591,8 +622,8 @@ datos <- list(
   SLB = "Schlumberger Limited",
   SNAP = "Snap Inc.",
   SOFI = "SoFi Technologies, Inc.",
-  SQ = "Block, Inc.",
-  SWN = "Southwestern Energy Company",
+  XYZ = "Block, Inc.",                    # antes SQ
+  EXE = "Expand Energy Corporation",      # antes SWN (fusion con Chesapeake)
   SYF = "Synchrony Financial",
   T = "AT&T Inc.",
   TEVA = "Teva Pharmaceutical Industries Limited",
@@ -616,7 +647,6 @@ datos <- list(
   VOD = "Vodafone Group Public Limited Company",
   VTRS = "Viatris Inc.",
   VZ = "Verizon Communications Inc.",
-  WBA = "Walgreens Boots Alliance, Inc.",
   WBD = "Warner Bros. Discovery, Inc.",
   WFC = "Wells Fargo & Company",
   WIT = "Wipro Limited",
@@ -624,7 +654,7 @@ datos <- list(
   XOM = "Exxon Mobil Corporation",
   XPEV = "XPeng Inc.",
   YPF = "YPF",
-  ZI = "ZoomInfo Technologies Inc.",
+  GTM = "ZoomInfo Technologies Inc.",     # antes ZI
   BBAR = "Bbva Banco Frances",
   BMA = "Banco Macro",
   CEPU = "Central Puerto",
@@ -691,39 +721,113 @@ datos <- list(
   MELI = "MercadoLibre, Inc.",
   GLOB = "Globant S.A.",
   VIST = "Vista Energy, S.A.B. de C.V.",
-  DESP = "Despegar.com, Corp.",
   BIOX = "Bioceres Crop Solutions Corp.",
   CAAP = "Corporación América Airports S.A.",
-  TX = "Ternium"
+  TX = "Ternium",
+
+  # --- Cartera preferida: los que faltaban ---
+  CEG = "Constellation Energy Corporation",
+  GEV = "GE Vernova Inc.",
+  ETN = "Eaton Corporation plc",
+  VRT = "Vertiv Holdings Co.",
+  ANET = "Arista Networks, Inc.",
+  TER = "Teradyne, Inc.",
+  ISRG = "Intuitive Surgical, Inc.",
+  NVO = "Novo Nordisk A/S",
+  AZN = "AstraZeneca PLC",
+  RKLB = "Rocket Lab Corporation",
+  ASTS = "AST SpaceMobile, Inc.",
+  OKLO = "Oklo Inc.",
+  RGTI = "Rigetti Computing, Inc.",
+
+  # --- ETFs (indices, sector, oro, Brasil y cripto) ---
+  SPY = "SPDR S&P 500 ETF (referencia)",
+  QQQ = "Invesco QQQ - Nasdaq 100 (referencia)",
+  XLV = "Health Care Select Sector SPDR ETF",
+  GLD = "SPDR Gold Shares",
+  EWZ = "iShares MSCI Brazil ETF",
+  IBIT = "iShares Bitcoin Trust ETF",
+  ETHA = "iShares Ethereum Trust ETF",
+
+  # --- Infraestructura de IA: conectividad, optica y semis ---
+  CRDO = "Credo Technology Group",
+  ALAB = "Astera Labs, Inc.",
+  LITE = "Lumentum Holdings Inc.",
+  COHR = "Coherent Corp.",
+  ASML = "ASML Holding N.V.",
+  LRCX = "Lam Research Corporation",
+  KLAC = "KLA Corporation",
+  SNPS = "Synopsys, Inc.",
+  CDNS = "Cadence Design Systems, Inc.",
+  ADI = "Analog Devices, Inc.",
+  CRWV = "CoreWeave, Inc.",
+
+  # --- Software ---
+  INTU = "Intuit Inc.",
+  APP = "AppLovin Corporation",
+  DDOG = "Datadog, Inc.",
+  ZS = "Zscaler, Inc.",
+  MDB = "MongoDB, Inc.",
+  FIG = "Figma, Inc.",
+
+  # --- Energia nuclear y electricidad ---
+  VST = "Vistra Corp.",
+  SMR = "NuScale Power Corporation",
+
+  # --- Espacio ---
+  SPCX = "SpaceX (Space Exploration Technologies Corp.)",
+
+  # --- Salud ---
+  VRTX = "Vertex Pharmaceuticals Incorporated",
+  REGN = "Regeneron Pharmaceuticals, Inc.",
+  DHR = "Danaher Corporation",
+  TEM = "Tempus AI, Inc.",
+
+  # --- Robotica ---
+  SYM = "Symbotic Inc.",
+  HSAI = "Hesai Group",
+
+  # --- Computacion cuantica ---
+  IONQ = "IonQ, Inc.",
+
+  # --- Fintech / salidas a bolsa recientes ---
+  CRCL = "Circle Internet Group, Inc.",
+  ETOR = "eToro Group Ltd.",
+  KLAR = "Klarna Group plc",
+
+  # --- Litio ---
+  LAC = "Lithium Americas Corp."
 )
 
 
-crear_dataframe <- function(acciones, sp500) {
+# Arma la tabla final. Los tickers que fallan (deslistados, sin datos, etc.)
+# ya no se pierden en silencio: quedan en 'errores_tickers' y se muestran
+# en la pestana Referencias del dashboard.
+crear_dataframe <- function(acciones, sp500, min_ruedas = 2) {
   dataframe_final <- data.frame()
-  
+  errores <- data.frame(Especie = character(), Nombre = character(), Error = character())
+
   for (accion in names(acciones)) {
     print(accion)
     accion_completa = acciones[[accion]]
-    
+
     tryCatch({
       raw_data = getRawData(accion)
-      vector_trends = c(
-        getTrend365Days(raw_data), 
-        getTrend150Days(raw_data), 
-        getTrend90Days(raw_data), 
-        getTrend60Days(raw_data)
-      )
-      data = getData(raw_data, vector_trends, accion, accion_completa, sp500)
-      
+      if (nrow(raw_data) < min_ruedas) stop(paste("menos de", min_ruedas, "ruedas de historia"))
+      data = getData(raw_data, accion, accion_completa, sp500)
+
       dataframe_final <- rbind(dataframe_final, data)
-      
+
     }, error = function(e) {
       cat("Error en la acción:", accion, "\n")
       cat("Mensaje de error:", conditionMessage(e), "\n")
+      errores <<- rbind(errores, data.frame(Especie = accion, Nombre = accion_completa,
+                                            Error = conditionMessage(e)))
     })
   }
-  
+
   rownames(dataframe_final) <- NULL
+  errores_tickers <<- errores
   return(dataframe_final)
 }
 
