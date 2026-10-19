@@ -288,6 +288,37 @@ datatable(
 
 
 
+Correlaciones {data-orientation=rows}
+=====================================
+
+**Ultima actualización `r todayhms`**
+
+
+
+Row
+-----------------------------------------------------------------------
+
+
+```{r}
+
+datatable(
+  corr_resumen,
+  filter = 'top',
+  options = list(
+    pageLength = -1,
+    scrollY = "100vh",
+    scrollCollapse = FALSE
+  ), rownames = FALSE) %>%
+  formatStyle(
+    c('CorrMasParecida', 'CorrMasDistinta'),
+    backgroundColor = styleInterval(c(0, 0.3, 0.6, 0.8), c('#7fd3f7', '#dbe9f6', '#f5f5f5', '#f5d76e', '#f59e3b'))
+  )
+
+```
+
+
+
+
 Referencias {data-orientation=rows}
 =====================================
 
@@ -362,6 +393,17 @@ Referencias {data-orientation=rows}
 * FuerzaPrecio365: Aporte del precio al IndiceFuerza365 (ver FuerzaPrecio90).
 
 * FuerzaVol365: Aporte del volumen al IndiceFuerza365 (ver FuerzaVol90).
+
+
+**Pestaña Correlaciones**
+
+* Correlacion de los retornos diarios de cada accion contra TODAS las demas de la app, alineados por fecha, en las ultimas ~3 años (750 ruedas). Un par solo cuenta si tiene al menos 120 ruedas en comun.
+
+* MasParecida / CorrMasParecida: la accion que mas se mueve igual a esta y su coeficiente. Arriba de 0,8 = en la practica son la misma apuesta (tenerlas juntas casi no diversifica).
+
+* MasDistinta / CorrMasDistinta: la accion que menos se parece y su coeficiente. Cerca de 0 = se mueven cada una por su cuenta (diversifican). Negativo = tienden a moverse al reves (es raro entre acciones).
+
+* Colores: celeste = negativa, azul claro = 0 a 0,3, gris = 0,3 a 0,6, amarillo = 0,6 a 0,8, naranja = mas de 0,8.
 
 
 **Tickers con error en esta actualizacion**
