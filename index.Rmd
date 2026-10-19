@@ -58,6 +58,229 @@ source("R/etl.R")
 ```
 
 
+```{r funciones, include=FALSE}
+
+# Tablas reutilizables: se usan para todas las acciones y para la cartera.
+# Los colores (cortes de Variacion y barras) se calculan siempre sobre 'data'
+# completo, asi una misma accion se ve igual en las dos pestanas.
+
+# Colores de la columna Rubro (uno por sector, igual en todas las pestanas)
+rubro_niveles <- c("Tecnologia", "Semiconductores", "Comunicacion e internet",
+                   "Consumo discrecional", "Consumo basico", "Salud", "Financiero",
+                   "Energia", "Industria", "Materiales y mineria", "Servicios publicos",
+                   "Inmobiliario", "ETF", "Cripto", "Otro")
+rubro_colores <- c('#9ec5fe', '#b5a8f0', '#a8e6f0', '#ffc59e', '#f7e19c', '#f5b3c8', '#b8e0b0',
+                   '#d9b38c', '#c9ccd1', '#e0c9a6', '#fff3a3', '#d6c2e8', '#e6e6e6', '#ffd27f', '#ffffff')
+
+estilo_rubro <- function(tabla) {
+  formatStyle(tabla, 'Rubro',
+              backgroundColor = styleEqual(rubro_niveles, rubro_colores),
+              fontWeight = 'bold')
+}
+
+tabla_panel <- function(df) {
+  brksVariacion <- quantile(data$Variacion, probs = seq(.05, .95, .05), na.rm = TRUE)
+  ramp <- colorRampPalette(c("#f52f2f", "#3bf557"))
+  clrsVariacion <- ramp(length(brksVariacion)+1)
+
+  datatable(
+    df %>%
+      mutate(EspecieFin = Especie, NombreFin = Nombre) %>%
+      select(
+        Especie,
+        Nombre,
+        Rubro,
+        any_of(c("Puntos", "Peso", "Bloque", "Grupo")),
+        Variacion,
+        InterAnual,
+        Cierre,
+        PctMedia200,
+        Tendencia,
+        Recomendacion,
+        SenalGiro,
+        PuntosGiro,
+        PendMedia200,
+        CoefVariationPromedioAnual,
+        UltimoPrecioMaximo,
+        PorcentajeRespectoAlMax,
+        PorcentajeRespectoAlMin,
+        DiasUltMax,
+        FechaInicio,
+        Volumen,
+        VolumenPromedioMensual,
+        VolumenTrendYear,
+        VolumenTrend90Days,
+        EspecieFin,
+        NombreFin
+      
+        ), 
+    options = list(
+      pageLength = -1,
+          scrollY="100vh",
+          scrollCollapse = FALSE
+        ),rownames = FALSE) %>% 
+    estilo_rubro() %>%
+    formatStyle(
+      'InterAnual',
+      backgroundColor = styleInterval(c(0,50,100), c('#de1028','#91bd98', '#68de79','#3bf557'))
+    )  %>%
+    formatStyle(
+      'DiasUltMax',
+      background = styleColorBar(data$DiasUltMax, '#93badb'),
+      backgroundSize = '100% 90%',
+      backgroundRepeat = 'no-repeat',
+      backgroundPosition = 'center'
+    ) %>%
+    formatStyle(
+      'Variacion',
+      backgroundColor = styleInterval(brksVariacion, clrsVariacion)
+      ) %>%
+    formatStyle(
+      'PctMedia200',
+      backgroundColor = styleInterval(c(-30, -10, 0, 10, 20), c('#de1028', '#f0a35e', '#3bf557', '#91bd98', '#f5d76e', '#f59e3b'))
+      ) %>%
+    formatStyle(
+      'Tendencia',
+      backgroundColor = styleEqual(
+        c("1 - Alcista fuerte", "2 - Retroceso en alza", "3 - Recuperacion", "4 - Bajista", "Sin datos"),
+        c('#15e854', '#5cbd79', '#f5d76e', '#de1028', '#d9d9d9'))
+      ) %>%
+    formatStyle(
+      'Recomendacion',
+      backgroundColor = styleEqual(
+        c("1 - Prioridad", "2 - Normal", "2 - Normal (giro)", "3 - Mitad", "4 - Esperar", "5 - De a poco", "6 - No promediar", "Sin datos"),
+        c('#15e854', '#91bd98', '#7fd3f7', '#f5d76e', '#f59e3b', '#f0a35e', '#de1028', '#d9d9d9'))
+      ) %>%
+    formatStyle(
+      'SenalGiro',
+      backgroundColor = styleEqual(
+        c("Giro confirmado", "Giro temprano", "Sin senal", "No aplica", "Sin datos"),
+        c('#7fd3f7', '#cdeefc', '#f0a35e', '#ffffff', '#d9d9d9'))
+      ) %>%
+    formatStyle(
+      'PendMedia200',
+      backgroundColor = styleInterval(0, c('#c45260', '#5cbd79'))
+      ) %>%
+    formatStyle(
+      'CoefVariationPromedioAnual',
+      backgroundColor = styleInterval(c(3, 6, 10), c('#91bd98', '#d9e8a0', '#f5d76e', '#f59e3b'))
+      ) %>%
+    formatStyle(
+      'PorcentajeRespectoAlMax',
+      backgroundColor = styleInterval(c(-50, -30, -10), c('#2b6cb0', '#5b8fd1', '#93badb', '#dbe9f6'))
+    ) %>%
+    formatStyle(
+      'PorcentajeRespectoAlMin',
+      background = styleColorBar(data$PorcentajeRespectoAlMin, '#93badb'),
+      backgroundSize = '100% 90%',
+      backgroundRepeat = 'no-repeat',
+      backgroundPosition = 'center'
+    )
+}
+
+tabla_fuerza <- function(df) {
+  datatable(
+    df %>% 
+      select(
+        Especie,
+        Nombre,
+        Rubro,
+        any_of(c("Puntos", "Peso", "Bloque", "Grupo")),
+        CorrSp500,
+        IndiceFuerza7,
+        FuerzaPrecio7,
+        FuerzaVol7,
+        IndiceFuerza30,
+        FuerzaPrecio30,
+        FuerzaVol30,
+        IndiceFuerza90,
+        FuerzaPrecio90,
+        FuerzaVol90,
+        IndiceFuerza365,
+        FuerzaPrecio365,
+        FuerzaVol365
+      
+        ), 
+    options = list(
+      pageLength = -1,
+          scrollY="100vh",
+          scrollCollapse = FALSE
+        ),rownames = FALSE) %>% 
+    estilo_rubro() %>%
+    formatStyle(
+      'CorrSp500',
+      background = styleColorBar(data$CorrSp500, '#93badb'),
+      backgroundSize = '100% 90%',
+      backgroundRepeat = 'no-repeat',
+      backgroundPosition = 'center'
+    ) %>%
+    formatStyle(
+      'IndiceFuerza7',
+      background = styleColorBar(data$IndiceFuerza7, '#93badb'),
+      backgroundSize = '100% 90%',
+      backgroundRepeat = 'no-repeat',
+      backgroundPosition = 'center'
+    ) %>%
+    formatStyle(
+      'IndiceFuerza30',
+      background = styleColorBar(data$IndiceFuerza30, '#93badb'),
+      backgroundSize = '100% 90%',
+      backgroundRepeat = 'no-repeat',
+      backgroundPosition = 'center'
+    ) %>%
+    formatStyle(
+      'IndiceFuerza90',
+      background = styleColorBar(data$IndiceFuerza90, '#93badb'),
+      backgroundSize = '100% 90%',
+      backgroundRepeat = 'no-repeat',
+      backgroundPosition = 'center'
+    ) %>%
+    formatStyle(
+      'IndiceFuerza365',
+      background = styleColorBar(data$IndiceFuerza365, '#93badb'),
+      backgroundSize = '100% 90%',
+      backgroundRepeat = 'no-repeat',
+      backgroundPosition = 'center'
+    ) %>%
+    formatStyle(
+      'FuerzaPrecio7',
+      backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+      ) %>%
+    formatStyle(
+      'FuerzaVol7',
+      backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+      ) %>%
+    formatStyle(
+      'FuerzaPrecio30',
+      backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+      ) %>%
+    formatStyle(
+      'FuerzaVol30',
+      backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+      ) %>%
+    formatStyle(
+      'FuerzaPrecio90',
+      backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+      ) %>%
+    formatStyle(
+      'FuerzaVol90',
+      backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+      ) %>%
+    formatStyle(
+      'FuerzaPrecio365',
+      backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+      ) %>%
+    formatStyle(
+      'FuerzaVol365',
+      backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
+      )
+}
+
+```
+
+
+
+
 
 
 
@@ -74,103 +297,27 @@ Row
 
 ```{r}
 
-brksVariacion <- quantile(data$Variacion, probs = seq(.05, .95, .05), na.rm = TRUE)
-ramp <- colorRampPalette(c("#f52f2f", "#3bf557"))
-clrsVariacion <- ramp(length(brksVariacion)+1)
+tabla_panel(data %>% arrange(Recomendacion, PctMedia200))
 
-datatable(
-  data %>%
-    mutate(EspecieFin = Especie, NombreFin = Nombre) %>%
-    arrange(Recomendacion, PctMedia200) %>%
-    select(
-      Especie,
-      Nombre,
-      Variacion,
-      InterAnual,
-      Cierre,
-      PctMedia200,
-      Tendencia,
-      Recomendacion,
-      SenalGiro,
-      PuntosGiro,
-      PendMedia200,
-      CoefVariationPromedioAnual,
-      UltimoPrecioMaximo,
-      PorcentajeRespectoAlMax,
-      PorcentajeRespectoAlMin,
-      DiasUltMax,
-      FechaInicio,
-      probTwoDays,
-      probThreeDays,
-      Volumen,
-      VolumenPromedioMensual,
-      VolumenTrendYear,
-      VolumenTrend90Days,
-      EspecieFin,
-      NombreFin
-      
-      ), 
-  options = list(
-    pageLength = -1,
-        scrollY="100vh",
-        scrollCollapse = FALSE
-      ),rownames = FALSE) %>% 
-  formatStyle(
-    'InterAnual',
-    backgroundColor = styleInterval(c(0,50,100), c('#de1028','#91bd98', '#68de79','#3bf557'))
-  )  %>%
-  formatStyle(
-    'DiasUltMax',
-    background = styleColorBar(data$DiasUltMax, '#93badb'),
-    backgroundSize = '100% 90%',
-    backgroundRepeat = 'no-repeat',
-    backgroundPosition = 'center'
-  ) %>%
-  formatStyle(
-    'Variacion',
-    backgroundColor = styleInterval(brksVariacion, clrsVariacion)
-    ) %>%
-  formatStyle(
-    'PctMedia200',
-    backgroundColor = styleInterval(c(-30, -10, 0, 10, 20), c('#de1028', '#f0a35e', '#3bf557', '#91bd98', '#f5d76e', '#f59e3b'))
-    ) %>%
-  formatStyle(
-    'Tendencia',
-    backgroundColor = styleEqual(
-      c("1 - Alcista fuerte", "2 - Retroceso en alza", "3 - Recuperacion", "4 - Bajista", "Sin datos"),
-      c('#15e854', '#5cbd79', '#f5d76e', '#de1028', '#d9d9d9'))
-    ) %>%
-  formatStyle(
-    'Recomendacion',
-    backgroundColor = styleEqual(
-      c("1 - Prioridad", "2 - Normal", "2 - Normal (giro)", "3 - Mitad", "4 - Esperar", "5 - De a poco", "6 - No promediar", "Sin datos"),
-      c('#15e854', '#91bd98', '#7fd3f7', '#f5d76e', '#f59e3b', '#f0a35e', '#de1028', '#d9d9d9'))
-    ) %>%
-  formatStyle(
-    'SenalGiro',
-    backgroundColor = styleEqual(
-      c("Giro confirmado", "Giro temprano", "Sin senal", "No aplica", "Sin datos"),
-      c('#7fd3f7', '#cdeefc', '#f0a35e', '#ffffff', '#d9d9d9'))
-    ) %>%
-  formatStyle(
-    'PendMedia200',
-    backgroundColor = styleInterval(0, c('#c45260', '#5cbd79'))
-    ) %>%
-  formatStyle(
-    'CoefVariationPromedioAnual',
-    backgroundColor = styleInterval(c(3, 6, 10), c('#91bd98', '#d9e8a0', '#f5d76e', '#f59e3b'))
-    ) %>%
-  formatStyle(
-    'PorcentajeRespectoAlMax',
-    backgroundColor = styleInterval(c(-50, -30, -10), c('#2b6cb0', '#5b8fd1', '#93badb', '#dbe9f6'))
-  ) %>%
-  formatStyle(
-    'PorcentajeRespectoAlMin',
-    background = styleColorBar(data$PorcentajeRespectoAlMin, '#93badb'),
-    backgroundSize = '100% 90%',
-    backgroundRepeat = 'no-repeat',
-    backgroundPosition = 'center'
-  )
+```
+
+
+
+
+Panel General - Cartera {data-orientation=rows}
+=====================================
+
+**Ultima actualización `r todayhms`** · Mi cartera: `r sum(mi_cartera$Grupo == "Fija")` acciones fijas (`r sum(mi_cartera$Peso, na.rm = TRUE)`%) + `r sum(mi_cartera$Grupo == "Timba")` de timba`r if (length(cartera_sin_datos) > 0) paste0(' · Sin datos hoy: ', paste(cartera_sin_datos, collapse = ', ')) else ''`
+
+
+
+Row 
+-----------------------------------------------------------------------
+
+
+```{r}
+
+tabla_panel(data_cartera %>% arrange(Grupo, Recomendacion, desc(Peso)))
 
 ```
 
@@ -190,98 +337,27 @@ Row
 
 ```{r}
 
-datatable(
-  data %>% 
-    select(
-      Especie,
-      Nombre,
-      CorrSp500,
-      IndiceFuerza7,
-      FuerzaPrecio7,
-      FuerzaVol7,
-      IndiceFuerza30,
-      FuerzaPrecio30,
-      FuerzaVol30,
-      IndiceFuerza90,
-      FuerzaPrecio90,
-      FuerzaVol90,
-      IndiceFuerza365,
-      FuerzaPrecio365,
-      FuerzaVol365
-      
-      ), 
-  options = list(
-    pageLength = -1,
-        scrollY="100vh",
-        scrollCollapse = FALSE
-      ),rownames = FALSE) %>% 
-  formatStyle(
-    'CorrSp500',
-    background = styleColorBar(data$CorrSp500, '#93badb'),
-    backgroundSize = '100% 90%',
-    backgroundRepeat = 'no-repeat',
-    backgroundPosition = 'center'
-  ) %>%
-  formatStyle(
-    'IndiceFuerza7',
-    background = styleColorBar(data$IndiceFuerza7, '#93badb'),
-    backgroundSize = '100% 90%',
-    backgroundRepeat = 'no-repeat',
-    backgroundPosition = 'center'
-  ) %>%
-  formatStyle(
-    'IndiceFuerza30',
-    background = styleColorBar(data$IndiceFuerza30, '#93badb'),
-    backgroundSize = '100% 90%',
-    backgroundRepeat = 'no-repeat',
-    backgroundPosition = 'center'
-  ) %>%
-  formatStyle(
-    'IndiceFuerza90',
-    background = styleColorBar(data$IndiceFuerza90, '#93badb'),
-    backgroundSize = '100% 90%',
-    backgroundRepeat = 'no-repeat',
-    backgroundPosition = 'center'
-  ) %>%
-  formatStyle(
-    'IndiceFuerza365',
-    background = styleColorBar(data$IndiceFuerza365, '#93badb'),
-    backgroundSize = '100% 90%',
-    backgroundRepeat = 'no-repeat',
-    backgroundPosition = 'center'
-  ) %>%
-  formatStyle(
-    'FuerzaPrecio7',
-    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
-    ) %>%
-  formatStyle(
-    'FuerzaVol7',
-    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
-    ) %>%
-  formatStyle(
-    'FuerzaPrecio30',
-    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
-    ) %>%
-  formatStyle(
-    'FuerzaVol30',
-    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
-    ) %>%
-  formatStyle(
-    'FuerzaPrecio90',
-    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
-    ) %>%
-  formatStyle(
-    'FuerzaVol90',
-    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
-    ) %>%
-  formatStyle(
-    'FuerzaPrecio365',
-    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
-    ) %>%
-  formatStyle(
-    'FuerzaVol365',
-    backgroundColor = styleInterval(0, c('#de1028', '#68de79'))
-    )
+tabla_fuerza(data)
+
+```
+
+
+
+
+Fuerza Relativa - Cartera {data-orientation=rows}
+=====================================
+
+**Ultima actualización `r todayhms`**
+
+
+
+Row 
+-----------------------------------------------------------------------
+
+
+```{r}
+
+tabla_fuerza(data_cartera %>% arrange(Grupo, desc(Peso)))
 
 ```
 
@@ -309,6 +385,7 @@ datatable(
     scrollY = "100vh",
     scrollCollapse = FALSE
   ), rownames = FALSE) %>%
+  estilo_rubro() %>%
   formatStyle(
     c('CorrMasParecida', 'CorrMasDistinta'),
     backgroundColor = styleInterval(c(0, 0.3, 0.6, 0.8), c('#7fd3f7', '#dbe9f6', '#f5f5f5', '#f5d76e', '#f59e3b'))
@@ -325,6 +402,8 @@ Referencias {data-orientation=rows}
 
 **Calculo de las columnas**
 
+
+* Rubro: Sector de la empresa segun la clasificacion GICS (la que usan S&P y MSCI), agrupada en 14 rubros: Tecnologia (software, nube, hardware), Semiconductores (chips y equipos para fabricarlos), Comunicacion e internet (Google, Meta, Netflix, telecos), Consumo discrecional (autos, comercio online, viajes, ropa), Consumo basico (alimentos, bebidas, supermercados), Salud, Financiero (bancos, pagos, brokers, aseguradoras), Energia (petroleo, gas, uranio), Industria (aviones, maquinaria, transporte, defensa, espacio), Materiales y mineria (oro, cobre, acero, litio), Servicios publicos (electricas, nuclear), Inmobiliario, ETF (fondos de indice o sector) y Cripto (bitcoin y mineras de cripto). Cada rubro tiene su color. Si se agrega un ticker nuevo hay que sumarlo tambien al vector 'rubros' de R/etl.R; si no, aparece como Otro.
 
 * Variacion: Cambio porcentual respecto al dia anterior.
 
@@ -395,9 +474,16 @@ Referencias {data-orientation=rows}
 * FuerzaVol365: Aporte del volumen al IndiceFuerza365 (ver FuerzaVol90).
 
 
+**Pestañas de Cartera**
+
+* Panel General - Cartera y Fuerza Relativa - Cartera: las mismas tablas que Panel General y Fuerza Relativa, pero solo con las acciones de mi cartera (definida en la tabla 'mi_cartera' al final de R/etl.R). Puntos = lo que pesa cada accion para mi (no tienen que sumar 100: para agregar una accion se le ponen puntos sin tocar las demas); Peso = % real en la cartera fija, calculado como Puntos / total de puntos x 100; Bloque = sector o tema; Grupo = Fija o Timba (la timba no tiene peso).
+
+
 **Pestaña Correlaciones**
 
 * Correlacion de los retornos diarios de cada accion contra TODAS las demas de la app, alineados por fecha, en las ultimas ~3 años (750 ruedas). Un par solo cuenta si tiene al menos 120 ruedas en comun.
+
+* Rubro: el sector de la accion (ver Referencias de arriba). Sirve para ver si la mas parecida es del mismo rubro (lo esperable) o de otro (dato interesante).
 
 * MasParecida / CorrMasParecida: la accion que mas se mueve igual a esta y su coeficiente. Arriba de 0,8 = en la practica son la misma apuesta (tenerlas juntas casi no diversifica).
 
