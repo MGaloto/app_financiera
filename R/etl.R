@@ -51,65 +51,6 @@ getRawData = function(accion){
 
 
 
-probTwoDays = function(data) {
-  casos = c()
-  frecuencia = c()
-  count = 0
-  vectorPrice = data$precio
-  vectorPrice = c(diff(vectorPrice)/vectorPrice[-length(vectorPrice)] * 100)
-  
-  for (v in vectorPrice) {
-    # v ya es vectorPrice[count+1] (dia actual); el dia siguiente es count+2
-    valorActual     = v
-    valorPosterior  = vectorPrice[count + 2]
-    valorPosterior2 = vectorPrice[count + 3]
-    
-    # isTRUE() vuelve FALSE cualquier NA del borde -> ya no rompe el if
-    if (isTRUE(valorActual < 0) && isTRUE(valorPosterior < 0)) {
-      casos[length(casos) + 1] = 1
-      if (isTRUE(valorPosterior2 > 0)) {
-        frecuencia[length(frecuencia) + 1] = 1
-      }
-    }
-    
-    count = count + 1
-  }
-  
-  return(round((sum(frecuencia)/sum(casos)),2))
-}
-
-
-
-probThreeDays = function(data) {
-  casos = c()
-  frecuencia = c()
-  count = 0
-  vectorPrice = data$precio
-  vectorPrice = c(diff(vectorPrice)/vectorPrice[-length(vectorPrice)] * 100)
-  
-  for (v in vectorPrice) {
-    # v ya es vectorPrice[count+1] (dia actual); los siguientes van corridos
-    valorActual     = v
-    valorPosterior  = vectorPrice[count + 2]
-    valorPosterior2 = vectorPrice[count + 3]
-    valorPosterior3 = vectorPrice[count + 4]
-    
-    if (isTRUE(valorActual < 0) && isTRUE(valorPosterior < 0) && isTRUE(valorPosterior2 < 0)) {
-      casos[length(casos) + 1] = 1
-      if (isTRUE(valorPosterior3 > 0)) {
-        frecuencia[length(frecuencia) + 1] = 1
-      }
-    }
-    
-    count = count + 1
-  }
-  
-  return(round((sum(frecuencia)/sum(casos)),2))
-}
-
-
-
-
 getOrder = function(data){
   return(data[order(data$fecha), ])
 }
@@ -474,8 +415,6 @@ getData = function(data, especie, accion_completa, sp500) {
     SMA50 = med$SMA50,
     SMA200 = med$SMA200,
     CoefVariationPromedioAnual = getAnualVariationCoeff(data),
-    probTwoDays = probTwoDays(data),
-    probThreeDays = probThreeDays(data),
     VolumenPromedioMensual = getVolumenPromedioMensual(data),
     VolumenTrendYear = getVolumenTrendYear(data),
     VolumenTrend90Days = getVolumenTrend90Days(data),
@@ -950,8 +889,189 @@ calcularCorrResumen <- function(precios_hist, nombres, ruedas = 750, min_obs = 1
 # =====================================================================
 data <- crear_dataframe(datos, sp500)
 
+# =====================================================================
+#  RUBRO de cada accion (clasificacion GICS de S&P / MSCI, agrupada en 14
+#  rubros). Si agregas un ticker nuevo a 'datos', agregalo aca tambien;
+#  si falta, aparece como "Otro".
+# =====================================================================
+rubros <- c(
+  # Tecnologia
+  AAPL = "Tecnologia", AI = "Tecnologia", CSCO = "Tecnologia", CTSH = "Tecnologia", DOCU = "Tecnologia",
+  ERIC = "Tecnologia", HPE = "Tecnologia", HPQ = "Tecnologia", INFY = "Tecnologia", MSFT = "Tecnologia",
+  NOK = "Tecnologia", ORCL = "Tecnologia", PATH = "Tecnologia", PLTR = "Tecnologia", S = "Tecnologia",
+  SHOP = "Tecnologia", U = "Tecnologia", WIT = "Tecnologia", GTM = "Tecnologia", CRM = "Tecnologia",
+  ADBE = "Tecnologia", NOW = "Tecnologia", IBM = "Tecnologia", SMCI = "Tecnologia", DELL = "Tecnologia",
+  CRWD = "Tecnologia", PANW = "Tecnologia", SNOW = "Tecnologia", NET = "Tecnologia", GLOB = "Tecnologia",
+  ANET = "Tecnologia", RGTI = "Tecnologia", LITE = "Tecnologia", COHR = "Tecnologia", SNPS = "Tecnologia",
+  CDNS = "Tecnologia", CRWV = "Tecnologia", INTU = "Tecnologia", APP = "Tecnologia", DDOG = "Tecnologia",
+  ZS = "Tecnologia", MDB = "Tecnologia", FIG = "Tecnologia", IONQ = "Tecnologia",
+
+  # Semiconductores
+  AMD = "Semiconductores", INTC = "Semiconductores", MRVL = "Semiconductores", MU = "Semiconductores", NVDA = "Semiconductores",
+  ON = "Semiconductores", QCOM = "Semiconductores", TSM = "Semiconductores", AVGO = "Semiconductores", TXN = "Semiconductores",
+  AMAT = "Semiconductores", ARM = "Semiconductores", TER = "Semiconductores", CRDO = "Semiconductores", ALAB = "Semiconductores",
+  ASML = "Semiconductores", LRCX = "Semiconductores", KLAC = "Semiconductores", ADI = "Semiconductores",
+
+  # Comunicacion e internet
+  BIDU = "Comunicacion e internet", CMCSA = "Comunicacion e internet", DIS = "Comunicacion e internet", GOOG = "Comunicacion e internet", GOOGL = "Comunicacion e internet",
+  IQ = "Comunicacion e internet", META = "Comunicacion e internet", NFLX = "Comunicacion e internet", PSKY = "Comunicacion e internet", RBLX = "Comunicacion e internet",
+  SATS = "Comunicacion e internet", SIRI = "Comunicacion e internet", SNAP = "Comunicacion e internet", T = "Comunicacion e internet", TME = "Comunicacion e internet",
+  TTD = "Comunicacion e internet", VOD = "Comunicacion e internet", VZ = "Comunicacion e internet", WBD = "Comunicacion e internet", TEO = "Comunicacion e internet",
+  TMUS = "Comunicacion e internet", SPOT = "Comunicacion e internet", RDDT = "Comunicacion e internet", PINS = "Comunicacion e internet", ASTS = "Comunicacion e internet",
+
+  # Consumo discrecional
+  AMZN = "Consumo discrecional", BABA = "Consumo discrecional", CCL = "Consumo discrecional", CHWY = "Consumo discrecional", CPNG = "Consumo discrecional",
+  CVNA = "Consumo discrecional", DKNG = "Consumo discrecional", EBAY = "Consumo discrecional", F = "Consumo discrecional", GM = "Consumo discrecional",
+  GAP = "Consumo discrecional", JD = "Consumo discrecional", KSS = "Consumo discrecional", LCID = "Consumo discrecional", LI = "Consumo discrecional",
+  M = "Consumo discrecional", MBLY = "Consumo discrecional", NCLH = "Consumo discrecional", NIO = "Consumo discrecional", NKE = "Consumo discrecional",
+  PDD = "Consumo discrecional", PENN = "Consumo discrecional", PSNY = "Consumo discrecional", PTON = "Consumo discrecional", QS = "Consumo discrecional",
+  RIVN = "Consumo discrecional", SBUX = "Consumo discrecional", SE = "Consumo discrecional", TSLA = "Consumo discrecional", UAA = "Consumo discrecional",
+  VFC = "Consumo discrecional", XPEV = "Consumo discrecional", HD = "Consumo discrecional", MCD = "Consumo discrecional", ABNB = "Consumo discrecional",
+  DASH = "Consumo discrecional", MELI = "Consumo discrecional", HSAI = "Consumo discrecional",
+
+  # Consumo basico
+  ABEV = "Consumo basico", CL = "Consumo basico", COTY = "Consumo basico", KDP = "Consumo basico", KO = "Consumo basico",
+  KVUE = "Consumo basico", MO = "Consumo basico", PG = "Consumo basico", CRESY = "Consumo basico", WMT = "Consumo basico",
+  COST = "Consumo basico", PEP = "Consumo basico",
+
+  # Salud
+  AGL = "Salud", ARDX = "Salud", BMY = "Salud", BSX = "Salud", CVS = "Salud",
+  DNA = "Salud", ELAN = "Salud", GILD = "Salud", GRFS = "Salud", MDT = "Salud",
+  MRK = "Salud", OSCR = "Salud", PFE = "Salud", RXRX = "Salud", TEVA = "Salud",
+  TGTX = "Salud", UNH = "Salud", VTRS = "Salud", JNJ = "Salud", LLY = "Salud",
+  ABBV = "Salud", ABT = "Salud", AMGN = "Salud", TMO = "Salud", ISRG = "Salud",
+  NVO = "Salud", AZN = "Salud", VRTX = "Salud", REGN = "Salud", DHR = "Salud",
+  TEM = "Salud",
+
+  # Financiero
+  AFRM = "Financiero", AGNC = "Financiero", BAC = "Financiero", BBD = "Financiero", BCS = "Financiero",
+  BK = "Financiero", C = "Financiero", CFG = "Financiero", COIN = "Financiero", DB = "Financiero",
+  FHN = "Financiero", FITB = "Financiero", HBAN = "Financiero", HOOD = "Financiero", IBN = "Financiero",
+  ITUB = "Financiero", JPM = "Financiero", KEY = "Financiero", LYG = "Financiero", MS = "Financiero",
+  NMR = "Financiero", NU = "Financiero", FLG = "Financiero", PYPL = "Financiero", RF = "Financiero",
+  SCHW = "Financiero", SOFI = "Financiero", XYZ = "Financiero", SYF = "Financiero", TFC = "Financiero",
+  TOST = "Financiero", UPST = "Financiero", USB = "Financiero", WFC = "Financiero", BBAR = "Financiero",
+  BMA = "Financiero", GGAL = "Financiero", SUPV = "Financiero", V = "Financiero", MA = "Financiero",
+  `BRK-B` = "Financiero", GS = "Financiero", BLK = "Financiero", CRCL = "Financiero", ETOR = "Financiero",
+  KLAR = "Financiero",
+
+  # Energia
+  BKR = "Energia", BP = "Energia", BTE = "Energia", CCJ = "Energia", COP = "Energia",
+  CVE = "Energia", CVX = "Energia", DVN = "Energia", EPD = "Energia", ET = "Energia",
+  HAL = "Energia", KMI = "Energia", NOV = "Energia", NXE = "Energia", OXY = "Energia",
+  PBR = "Energia", PR = "Energia", RIG = "Energia", SLB = "Energia", EXE = "Energia",
+  UEC = "Energia", WMB = "Energia", XOM = "Energia", YPF = "Energia", TGS = "Energia",
+  TS = "Energia", VIST = "Energia",
+
+  # Industria
+  AAL = "Industria", ALIT = "Industria", BA = "Industria", CNH = "Industria", CSX = "Industria",
+  DAL = "Industria", DIDIY = "Industria", GRAB = "Industria", HTZ = "Industria", JCI = "Industria",
+  LUV = "Industria", LYFT = "Industria", PLUG = "Industria", RTX = "Industria", RUN = "Industria",
+  UAL = "Industria", UBER = "Industria", CAT = "Industria", HON = "Industria", GE = "Industria",
+  LMT = "Industria", DE = "Industria", UPS = "Industria", CAAP = "Industria", GEV = "Industria",
+  ETN = "Industria", VRT = "Industria", RKLB = "Industria", SMR = "Industria", SPCX = "Industria",
+  SYM = "Industria",
+
+  # Materiales y mineria
+  AMCR = "Materiales y mineria", BTG = "Materiales y mineria", CLF = "Materiales y mineria", FCX = "Materiales y mineria", GFI = "Materiales y mineria",
+  GOLD = "Materiales y mineria", HL = "Materiales y mineria", KGC = "Materiales y mineria", MOS = "Materiales y mineria", NEM = "Materiales y mineria",
+  SBSW = "Materiales y mineria", VALE = "Materiales y mineria", LOMA = "Materiales y mineria", BIOX = "Materiales y mineria", TX = "Materiales y mineria",
+  LAC = "Materiales y mineria",
+
+  # Servicios publicos
+  NEE = "Servicios publicos", PCG = "Servicios publicos", CEPU = "Servicios publicos", EDN = "Servicios publicos", PAM = "Servicios publicos",
+  CEG = "Servicios publicos", OKLO = "Servicios publicos", VST = "Servicios publicos",
+
+  # Inmobiliario
+  BEKE = "Inmobiliario", HST = "Inmobiliario", KIM = "Inmobiliario", MPW = "Inmobiliario", O = "Inmobiliario",
+  OPEN = "Inmobiliario", DOC = "Inmobiliario", IRS = "Inmobiliario",
+
+  # ETF
+  SPY = "ETF", QQQ = "ETF", XLV = "ETF", GLD = "ETF", EWZ = "ETF",
+
+  # Cripto
+  MARA = "Cripto", RIOT = "Cripto", MSTR = "Cripto", IBIT = "Cripto", ETHA = "Cripto"
+)
+
+data <- data %>%
+  mutate(Rubro = unname(rubros[Especie]),
+         Rubro = ifelse(is.na(Rubro), "Otro", Rubro)) %>%
+  relocate(Rubro, .after = Nombre)
+
 # Correlacion de todas contra todas (pestana "Correlaciones")
 corr_resumen <- calcularCorrResumen(precios_hist, datos)
+corr_resumen <- corr_resumen %>%
+  left_join(data %>% select(Especie, Rubro), by = "Especie") %>%
+  relocate(Rubro, .after = Nombre)
+
+
+# =====================================================================
+#  MI CARTERA (pestanas "Panel General - Cartera" y "Fuerza Relativa - Cartera")
+#  ---------------------------------------------------------------------
+#  Para cambiar la cartera, editar SOLO esta tabla. Todos los tickers tienen
+#  que estar tambien en 'datos' (arriba).
+#
+#  Puntos: lo que "pesa" cada accion para vos. NO hace falta que sumen 100:
+#  para agregar una accion nueva se le ponen sus puntos y listo, sin tocar
+#  las demas. El Peso (%) se calcula solo: Puntos / total de puntos x 100,
+#  asi todas se ajustan en proporcion y la cartera fija siempre suma 100%.
+#  La timba va aparte (sin puntos ni peso).
+# =====================================================================
+mi_cartera <- tibble::tribble(
+  ~Especie, ~Puntos, ~Bloque,               ~Grupo,
+  "MSFT",  10,    "Nube",                 "Fija",
+  "META",  9,     "Nube",                 "Fija",
+  "GOOGL", 8,     "Nube",                 "Fija",
+  "ORCL",  3.5,   "Nube",                 "Fija",
+  "NVDA",  4.5,   "Chips e infra IA",     "Fija",
+  "TSM",   4,     "Chips e infra IA",     "Fija",
+  "AVGO",  4,     "Chips e infra IA",     "Fija",
+  "QCOM",  1.5,   "Chips e infra IA",     "Fija",
+  "ANET",  1.5,   "Chips e infra IA",     "Fija",
+  "VRT",   1,     "Chips e infra IA",     "Fija",
+  "TER",   1,     "Chips e infra IA",     "Fija",
+  "AAPL",  4,     "Plataformas",          "Fija",
+  "PLTR",  2,     "Plataformas",          "Fija",
+  "UBER",  2,     "Plataformas",          "Fija",
+  "NFLX",  2,     "Plataformas",          "Fija",
+  "NOW",   2,     "Plataformas",          "Fija",
+  "TSLA",  1.5,   "Plataformas",          "Fija",
+  "RDDT",  1.5,   "Plataformas",          "Fija",
+  "SPOT",  1,     "Plataformas",          "Fija",
+  "XLV",   4.5,   "Salud",                "Fija",
+  "AZN",   2.5,   "Salud",                "Fija",
+  "NVO",   1.5,   "Salud",                "Fija",
+  "ABBV",  1.5,   "Salud",                "Fija",
+  "PFE",   1.5,   "Salud",                "Fija",
+  "ISRG",  1,     "Salud",                "Fija",
+  "JPM",   3,     "Banca y pagos",        "Fija",
+  "MA",    2,     "Banca y pagos",        "Fija",
+  "NU",    2,     "Banca y pagos",        "Fija",
+  "ETN",   2.5,   "Energia",              "Fija",
+  "CEG",   2.5,   "Energia",              "Fija",
+  "GEV",   2,     "Energia",              "Fija",
+  "WMT",   3,     "Consumo y alimentos",  "Fija",
+  "DE",    1.5,   "Consumo y alimentos",  "Fija",
+  "KO",    1.5,   "Consumo y alimentos",  "Fija",
+  "PEP",   1.5,   "Consumo y alimentos",  "Fija",
+  "MELI",  3,     "Latinoamerica",        "Fija",
+  "YPF",   2,     "Latinoamerica",        "Fija",
+  "EWZ",   1,     "Latinoamerica",        "Fija",
+  "GLD",   2,     "Refugio",              "Fija",
+  "FCX",   1.5,   "Refugio",              "Fija",
+  "SPCX",  2,     "Espacio",              "Fija",
+  "IBIT",  1.5,   "Cripto",               "Fija",
+  "RKLB",  NA,    "Especulativo",         "Timba",
+  "ASTS",  NA,    "Especulativo",         "Timba",
+  "OKLO",  NA,    "Especulativo",         "Timba",
+  "RGTI",  NA,    "Especulativo",         "Timba"
+) %>%
+  mutate(Peso = round(Puntos / sum(Puntos, na.rm = TRUE) * 100, 2)) %>%
+  relocate(Peso, .after = Puntos)
+
+# Datos de la app solo para la cartera (con Puntos, Peso, Bloque y Grupo al principio)
+data_cartera <- mi_cartera %>% inner_join(data, by = "Especie")
+cartera_sin_datos <- setdiff(mi_cartera$Especie, data$Especie)
 
 # Ordenar por fuerza relativa (mayor -> menor). Descomenta la que uses:
 # data <- data[order(-data$IndiceFuerza90), ]
