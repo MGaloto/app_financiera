@@ -857,6 +857,7 @@ datos <- list(
 crear_dataframe <- function(acciones, sp500, min_ruedas = 2) {
   dataframe_final <- data.frame()
   errores <- data.frame(Especie = character(), Nombre = character(), Error = character())
+  historia <- list()   # precios de las ultimas 760 ruedas, para la matriz de correlaciones
 
   for (accion in names(acciones)) {
     print(accion)
@@ -868,6 +869,7 @@ crear_dataframe <- function(acciones, sp500, min_ruedas = 2) {
       data = getData(raw_data, accion, accion_completa, sp500)
 
       dataframe_final <- rbind(dataframe_final, data)
+      historia[[accion]] <- tail(getOrder(raw_data)[, c("fecha", "precio")], 760)
 
     }, error = function(e) {
       cat("Error en la acción:", accion, "\n")
@@ -879,7 +881,57 @@ crear_dataframe <- function(acciones, sp500, min_ruedas = 2) {
 
   rownames(dataframe_final) <- NULL
   errores_tickers <<- errores
+  precios_hist <<- historia
   return(dataframe_final)
+}
+
+
+# =====================================================================
+#  calcularCorrResumen(): correlacion de TODAS las acciones contra todas
+#  ---------------------------------------------------------------------
+#  Igual criterio que CorrSp500: retornos diarios (log) alineados por fecha,
+#  ultimas ~3 anos (750 ruedas). Un par solo cuenta si tiene al menos
+#  120 ruedas en comun. Para cada accion devuelve:
+#    MasParecida / CorrMasParecida : la accion con la que mas se mueve igual
+#    MasDistinta / CorrMasDistinta : la accion con la que menos se parece
+# =====================================================================
+calcularCorrResumen <- function(precios_hist, nombres, ruedas = 750, min_obs = 120) {
+  vacio <- data.frame(Especie = character(), Nombre = character(),
+                      MasParecida = character(), CorrMasParecida = numeric(),
+                      MasDistinta = character(), CorrMasDistinta = numeric())
+  if (length(precios_hist) < 2) return(vacio)
+
+  retornos <- do.call(rbind, lapply(names(precios_hist), function(tk) {
+    d <- tail(precios_hist[[tk]], ruedas + 1)
+    if (nrow(d) < 2) return(NULL)
+    data.frame(fecha = d$fecha[-1], r = diff(log(d$precio)), tk = tk)
+  }))
+  ancho <- tidyr::pivot_wider(retornos, names_from = tk, values_from = r)
+  ancho <- tail(ancho[order(ancho$fecha), ], ruedas)
+  M <- as.matrix(ancho[, -1])
+
+  C <- suppressWarnings(cor(M, use = "pairwise.complete.obs"))
+  N <- crossprod(!is.na(M))          # ruedas en comun de cada par
+  C[N < min_obs] <- NA
+  diag(C) <- NA
+
+  elegir <- function(x, f) {
+    if (all(is.na(x))) return(c(NA, NA))
+    i <- f(x)
+    c(names(x)[i], round(x[i], 2))
+  }
+  max_par <- t(apply(C, 1, elegir, f = which.max))
+  min_par <- t(apply(C, 1, elegir, f = which.min))
+
+  data.frame(
+    Especie = rownames(C),
+    Nombre = unname(unlist(nombres[rownames(C)])),
+    MasParecida = max_par[, 1],
+    CorrMasParecida = as.numeric(max_par[, 2]),
+    MasDistinta = min_par[, 1],
+    CorrMasDistinta = as.numeric(min_par[, 2]),
+    row.names = NULL
+  )
 }
 
 
@@ -897,6 +949,9 @@ crear_dataframe <- function(acciones, sp500, min_ruedas = 2) {
 #  GENERACION DEL DATAFRAME FINAL
 # =====================================================================
 data <- crear_dataframe(datos, sp500)
+
+# Correlacion de todas contra todas (pestana "Correlaciones")
+corr_resumen <- calcularCorrResumen(precios_hist, datos)
 
 # Ordenar por fuerza relativa (mayor -> menor). Descomenta la que uses:
 # data <- data[order(-data$IndiceFuerza90), ]
