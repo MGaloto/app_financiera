@@ -20,6 +20,10 @@ jobs:
     container: 
       image: mgaloto/flexdash_inversiones:02
     steps:
+    # Espera 20 segundos antes de bajar el repo: si en ese lapso se hace otro
+    # commit (por ejemplo, subir dos archivos seguidos), esta corrida ya lo incluye.
+    - name: esperar_20_segundos
+      run: sleep 20
     - name: checkout_repo
       uses: actions/checkout@v3
       with: 
