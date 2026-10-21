@@ -99,6 +99,11 @@ tabla_panel <- function(df) {
         Recomendacion,
         SenalGiro,
         PuntosGiro,
+        TendenciaVentas,
+        VentasYoY,
+        AceleracionVentas,
+        HistVentasYoY,
+        FechaBalance,
         PendMedia200,
         CoefVariationPromedioAnual,
         UltimoPrecioMaximo,
@@ -156,6 +161,21 @@ tabla_panel <- function(df) {
       backgroundColor = styleEqual(
         c("Giro confirmado", "Giro temprano", "Sin senal", "No aplica", "Sin datos"),
         c('#7fd3f7', '#cdeefc', '#f0a35e', '#ffffff', '#d9d9d9'))
+      ) %>%
+    formatStyle(
+      'TendenciaVentas',
+      backgroundColor = styleEqual(
+        c("1 - Acelerando", "2 - Giro a positivo", "3 - Mejorando", "4 - Estable", "5 - Frenando", "6 - Cayendo", "Sin datos"),
+        c('#15e854', '#7fd3f7', '#91bd98', '#f5f5f5', '#f5d76e', '#de1028', '#d9d9d9'))
+      ) %>%
+    formatStyle(
+      'VentasYoY',
+      backgroundColor = styleInterval(c(-10, 0, 10, 25), c('#de1028', '#f0a35e', '#d9e8a0', '#91bd98', '#3bf557'))
+      ) %>%
+    formatStyle('HistVentasYoY', whiteSpace = 'nowrap') %>%
+    formatStyle(
+      'AceleracionVentas',
+      backgroundColor = styleInterval(c(-2, 2), c('#f0a35e', '#f5f5f5', '#68de79'))
       ) %>%
     formatStyle(
       'PendMedia200',
@@ -424,6 +444,16 @@ Referencias {data-orientation=rows}
 * PuntosGiro: Cantidad de condiciones de giro que se cumplen (0 a 4).
 
 * Ajuste por giro en la Recomendacion: con Giro confirmado (y hasta +10% sobre la SMA200) pasa a "2 - Normal (giro)"; con Giro temprano, una accion en "6 - No promediar" pasa a "5 - De a poco". La senal es solo de precio: antes de comprar fuerte, revisar que el negocio no se este deteriorando.
+
+* TendenciaVentas: Hacia donde va el crecimiento de las VENTAS de la empresa, segun sus ultimos balances trimestrales (fuente: SEC EDGAR, el registro oficial de balances de EE.UU.). Es la metrica de balance que mejor anticipa un cambio de rumbo: la accion suele dar vuelta cuando el crecimiento de las ventas deja de empeorar y empieza a mejorar, aunque todavia sea negativo. Se compara el crecimiento interanual del ultimo trimestre con los anteriores. 1 - Acelerando: el crecimiento subio dos trimestres seguidos y es positivo (lo mejor). 2 - Giro a positivo: las ventas volvieron a crecer despues de caer (tipico de cuando una empresa toca fondo). 3 - Mejorando: el crecimiento mejoro mas de 2 puntos en el ultimo trimestre (o cae cada vez menos). 4 - Estable: cambio de menos de 2 puntos. 5 - Frenando: sigue creciendo pero cada vez menos. 6 - Cayendo: las ventas caen y cada vez peor. Sin datos: ETFs y empresas que no presentan balances trimestrales en EE.UU. (la mayoria de las extranjeras: brasileñas, argentinas, europeas). Ojo: una compra de otra empresa infla el crecimiento por un año (por ejemplo Synopsys con Ansys).
+
+* VentasYoY: Crecimiento de las ventas del ultimo trimestre contra el mismo trimestre del año anterior (%).
+
+* AceleracionVentas: Diferencia entre el crecimiento del ultimo trimestre y el del trimestre anterior, en puntos. Positivo = acelera (mejora); negativo = frena.
+
+* HistVentasYoY: Crecimiento interanual de las ventas de los ultimos 4 trimestres, del mas viejo al mas nuevo. Ejemplo de giro de manual: -2% → 16% → 35% → 38%.
+
+* FechaBalance: Fecha de cierre del ultimo trimestre informado. Los balances se bajan una vez por semana (se guardan en _cache/ventas_trimestrales.csv).
 
 * PendMedia200: Variacion porcentual de la SMA200 en las ultimas 20 ruedas. Positivo = la tendencia de fondo sube; negativo = se esta dando vuelta.
 
