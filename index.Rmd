@@ -36,7 +36,6 @@ output:
 
 
 
-
 ```{r setup, include=FALSE}
 
 library(flexdashboard)
@@ -60,9 +59,7 @@ source("R/etl.R")
 
 ```{r funciones, include=FALSE}
 
-# Tablas reutilizables: se usan para todas las acciones y para la cartera.
-# Los colores (cortes de Variacion y barras) se calculan siempre sobre 'data'
-# completo, asi una misma accion se ve igual en las dos pestanas.
+# Tablas del Panel General y de Fuerza Relativa.
 
 # Colores de la columna Rubro (uno por sector, igual en todas las pestanas)
 rubro_niveles <- c("Tecnologia", "Semiconductores", "Comunicacion e internet",
@@ -85,12 +82,10 @@ tabla_panel <- function(df) {
 
   datatable(
     df %>%
-      mutate(EspecieFin = Especie, NombreFin = Nombre) %>%
       select(
         Especie,
         Nombre,
         Rubro,
-        any_of(c("Puntos", "Peso", "Bloque", "Grupo")),
         Variacion,
         InterAnual,
         Cierre,
@@ -114,11 +109,8 @@ tabla_panel <- function(df) {
         Volumen,
         VolumenPromedioMensual,
         VolumenTrendYear,
-        VolumenTrend90Days,
-        EspecieFin,
-        NombreFin
-      
-        ), 
+        VolumenTrend90Days
+        ),
     options = list(
       pageLength = -1,
           scrollY="100vh",
@@ -205,7 +197,6 @@ tabla_fuerza <- function(df) {
         Especie,
         Nombre,
         Rubro,
-        any_of(c("Puntos", "Peso", "Bloque", "Grupo")),
         CorrSp500,
         IndiceFuerza7,
         FuerzaPrecio7,
@@ -301,9 +292,6 @@ tabla_fuerza <- function(df) {
 
 
 
-
-
-
 Panel General {data-orientation=rows}
 =====================================
 
@@ -324,26 +312,6 @@ tabla_panel(data %>% arrange(Recomendacion, PctMedia200))
 
 
 
-Panel General - Cartera {data-orientation=rows}
-=====================================
-
-**Ultima actualización `r todayhms`** · Mi cartera: `r sum(mi_cartera$Grupo == "Fija")` acciones fijas (`r sum(mi_cartera$Peso, na.rm = TRUE)`%) + `r sum(mi_cartera$Grupo == "Timba")` de timba`r if (length(cartera_sin_datos) > 0) paste0(' · Sin datos hoy: ', paste(cartera_sin_datos, collapse = ', ')) else ''`
-
-
-
-Row 
------------------------------------------------------------------------
-
-
-```{r}
-
-tabla_panel(data_cartera %>% arrange(Grupo, Recomendacion, desc(Peso)))
-
-```
-
-
-
-
 Fuerza Relativa {data-orientation=rows}
 =====================================
 
@@ -358,26 +326,6 @@ Row
 ```{r}
 
 tabla_fuerza(data)
-
-```
-
-
-
-
-Fuerza Relativa - Cartera {data-orientation=rows}
-=====================================
-
-**Ultima actualización `r todayhms`**
-
-
-
-Row 
------------------------------------------------------------------------
-
-
-```{r}
-
-tabla_fuerza(data_cartera %>% arrange(Grupo, desc(Peso)))
 
 ```
 
@@ -502,11 +450,6 @@ Referencias {data-orientation=rows}
 * FuerzaPrecio365: Aporte del precio al IndiceFuerza365 (ver FuerzaPrecio90).
 
 * FuerzaVol365: Aporte del volumen al IndiceFuerza365 (ver FuerzaVol90).
-
-
-**Pestañas de Cartera**
-
-* Panel General - Cartera y Fuerza Relativa - Cartera: las mismas tablas que Panel General y Fuerza Relativa, pero solo con las acciones de mi cartera (definida en la tabla 'mi_cartera' al final de R/etl.R). Puntos = lo que pesa cada accion para mi (no tienen que sumar 100: para agregar una accion se le ponen puntos sin tocar las demas); Peso = % real en la cartera fija, calculado como Puntos / total de puntos x 100; Bloque = sector o tema; Grupo = Fija o Timba (la timba no tiene peso).
 
 
 **Pestaña Correlaciones**
