@@ -2100,7 +2100,10 @@ rubros <- c(
 #  no necesita clave, pero la SEC pide un User-Agent con un mail de contacto.
 #
 #  Para cada empresa:
-#   1. Se bajan las ventas trimestrales. El 4to trimestre casi nunca viene
+#   1. Se bajan TODOS sus datos en un solo pedido y se busca la linea de
+#      ventas entre varios nombres posibles (cada rubro la llama distinto:
+#      electricas, bancos, inmobiliarias, petroleras...).
+#      Se bajan las ventas trimestrales. El 4to trimestre casi nunca viene
 #      suelto (va dentro del balance anual), asi que se calcula como
 #      anual - (T1 + T2 + T3).
 #   2. Se calcula el crecimiento interanual de cada trimestre: ventas del
@@ -2118,37 +2121,58 @@ rubros <- c(
 SEC_USER_AGENT    <- "app_financiera maxigaloto@hotmail.com"
 VENTAS_CACHE      <- "_cache/ventas_trimestrales.csv"
 VENTAS_DIAS_CACHE <- 7       # cada cuantos dias se vuelven a bajar los balances
+VENTAS_VERSION    <- 2       # si se cambia el calculo, subir este numero: se vuelve a bajar todo
+VENTAS_MAX_DIAS   <- 400     # si el ultimo trimestre es mas viejo que esto, no se usa
 SEC_PAUSA         <- 0.15    # segundos entre pedidos (la SEC permite hasta 10 por segundo)
 
-# Nombres con los que las empresas informan las ventas (se elige el que de
-# el numero mas alto y mas reciente: el total y no una parte).
-SEC_CONCEPTOS       <- c("RevenueFromContractWithCustomerExcludingAssessedTax",
-                         "Revenues",
-                         "RevenuesNetOfInterestExpense")
-SEC_CONCEPTOS_EXTRA <- c("RevenueFromContractWithCustomerIncludingAssessedTax",
-                         "SalesRevenueNet",
-                         "SalesRevenueGoodsNet")
+# Cada empresa nombra sus ventas a su manera. Se prueban todos estos nombres
+# y se queda con la serie mas reciente (si empatan, la mas grande = el total).
+SEC_CONCEPTOS_VENTAS <- c(
+  "Revenues",                                              # la mayoria
+  "RevenueFromContractWithCustomerExcludingAssessedTax",   # norma contable nueva (2018+)
+  "RevenueFromContractWithCustomerIncludingAssessedTax",   # petroleras, tabacaleras (con impuestos)
+  "RevenuesNetOfInterestExpense",                          # bancos de inversion, brokers
+  "SalesRevenueNet", "SalesRevenueGoodsNet", "SalesRevenueServicesNet",  # nombres viejos
+  "RegulatedAndUnregulatedOperatingRevenue",               # electricas
+  "ElectricUtilityRevenue",
+  "OperatingLeaseLeaseIncome",                             # inmobiliarias (alquileres)
+  "OperatingLeasesIncomeStatementLeaseRevenue",
+  "RealEstateRevenueNet",
+  "OilAndGasRevenue",
+  "HealthCareOrganizationRevenue"
+)
 
-# Pedido a la SEC con reintentos (igual criterio que con Yahoo)
+# Pedido a la SEC con reintentos. Devuelve estado "ok", "no_existe" o "fallo".
 secGET <- function(url) {
   esperas <- c(5, 15)
+  detalle <- "sin respuesta"
   for (i in 1:3) {
     Sys.sleep(SEC_PAUSA)
-    r <- tryCatch(httr::GET(url, httr::user_agent(SEC_USER_AGENT), httr::timeout(30)),
-                  error = function(e) NULL)
-    if (!is.null(r)) {
+    r <- tryCatch(httr::GET(url, httr::user_agent(SEC_USER_AGENT), httr::timeout(60)),
+                  error = function(e) e)
+    if (inherits(r, "error")) {
+      detalle <- conditionMessage(r)
+    } else {
       st <- httr::status_code(r)
-      if (st == 200) return(jsonlite::fromJSON(httr::content(r, as = "text", encoding = "UTF-8")))
-      if (st == 404) return(NULL)   # la empresa no usa ese concepto: no reintentar
+      if (st == 200) {
+        j <- tryCatch(jsonlite::fromJSON(httr::content(r, as = "text", encoding = "UTF-8")),
+                      error = function(e) NULL)
+        if (!is.null(j)) return(list(estado = "ok", datos = j))
+        detalle <- "respuesta ilegible"
+      } else if (st == 404) {
+        return(list(estado = "no_existe", datos = NULL))
+      } else {
+        detalle <- paste("HTTP", st)
+      }
     }
     if (i < 3) Sys.sleep(esperas[i])
   }
-  NULL
+  list(estado = "fallo", datos = NULL, detalle = detalle)
 }
 
 # Ticker -> CIK (numero de empresa en la SEC)
 getMapaCIK <- function() {
-  j <- secGET("https://www.sec.gov/files/company_tickers.json")
+  j <- secGET("https://www.sec.gov/files/company_tickers.json")$datos
   if (is.null(j) || length(j) == 0) return(NULL)
   data.frame(Especie = gsub("\\.", "-", toupper(vapply(j, function(x) as.character(x$ticker), ""))),
              cik     = vapply(j, function(x) as.numeric(x$cik_str), 0),
@@ -2171,39 +2195,63 @@ armarTrimestres <- function(h) {
   q %>% arrange(end) %>% distinct(end, .keep_all = TRUE)
 }
 
-trimestresConcepto <- function(cik, concepto) {
-  url <- sprintf("https://data.sec.gov/api/xbrl/companyconcept/CIK%010d/us-gaap/%s.json",
-                 as.integer(cik), concepto)
-  j <- secGET(url)
-  if (is.null(j) || is.null(j$units$USD)) return(NULL)
-  h <- as.data.frame(j$units$USD)
+# Hechos de un concepto (tabla de la SEC) -> serie trimestral
+hechosATrimestres <- function(u) {
+  if (is.null(u)) return(NULL)
+  h <- as.data.frame(u)
   if (!all(c("start", "end", "val", "form", "filed") %in% names(h))) return(NULL)
   h <- h %>%
-    filter(form %in% c("10-Q", "10-K", "10-Q/A", "10-K/A", "10-QT", "10-KT"), !is.na(start)) %>%
+    filter(form %in% c("10-Q", "10-K", "10-Q/A", "10-K/A", "10-QT", "10-KT"),
+           !is.na(start), !is.na(val)) %>%
     mutate(start = as.Date(start), end = as.Date(end), filed = as.Date(filed),
            val = as.numeric(val), dias = as.numeric(end - start)) %>%
     arrange(desc(filed)) %>%                       # si se corrigio un dato, gana el ultimo
     distinct(start, end, .keep_all = TRUE)
+  if (nrow(h) == 0) return(NULL)
   armarTrimestres(h)
 }
 
-# Elige el concepto con el dato mas reciente (y, si empatan, el mas grande = el total)
-ventasEmpresa <- function(cik) {
-  mejor <- NULL
-  evaluar <- function(conceptos) {
-    for (cc in conceptos) {
-      q <- tryCatch(trimestresConcepto(cik, cc), error = function(e) NULL)
-      if (is.null(q) || nrow(q) == 0) next
-      if (max(q$end) < Sys.Date() - 200) next        # concepto que la empresa dejo de usar
-      if (is.null(mejor) || max(q$end) > max(mejor$end) ||
-          (max(q$end) == max(mejor$end) && tail(q$val, 1) > tail(mejor$val, 1))) {
-        mejor <<- q
-      }
+# Todas las series de ventas posibles de una empresa
+seriesVentas <- function(gaap) {
+  series <- list()
+  for (cc in intersect(SEC_CONCEPTOS_VENTAS, names(gaap))) {
+    q <- tryCatch(hechosATrimestres(gaap[[cc]]$units$USD), error = function(e) NULL)
+    if (!is.null(q) && nrow(q) >= 5) series[[cc]] <- q
+  }
+  # Bancos: no informan "ventas"; sus ingresos son intereses netos + otros ingresos
+  if (all(c("InterestIncomeExpenseNet", "NoninterestIncome") %in% names(gaap))) {
+    a <- tryCatch(hechosATrimestres(gaap$InterestIncomeExpenseNet$units$USD), error = function(e) NULL)
+    b <- tryCatch(hechosATrimestres(gaap$NoninterestIncome$units$USD), error = function(e) NULL)
+    if (!is.null(a) && !is.null(b)) {
+      ab <- inner_join(a, b, by = "end", suffix = c(".a", ".b")) %>%
+        transmute(start = start.a, end, val = val.a + val.b)
+      if (nrow(ab) >= 5) series[["Banco: intereses netos + otros ingresos"]] <- ab
     }
   }
-  evaluar(SEC_CONCEPTOS)
-  if (is.null(mejor)) evaluar(SEC_CONCEPTOS_EXTRA)
-  mejor
+  series
+}
+
+# Baja TODOS los datos de la empresa en un solo pedido y elige la mejor serie
+ventasEmpresa <- function(cik) {
+  sin <- function(motivo, concepto = "") list(q = NULL, concepto = concepto, motivo = motivo)
+  r <- secGET(sprintf("https://data.sec.gov/api/xbrl/companyfacts/CIK%010d.json", as.integer(cik)))
+  if (r$estado == "fallo")     return(sin(paste("la SEC no respondio:", r$detalle)))
+  if (r$estado == "no_existe") return(sin("no tiene balances cargados en la SEC"))
+  hechos <- r$datos$facts
+  if (is.null(hechos$`us-gaap`)) {
+    if (!is.null(hechos$`ifrs-full`)) return(sin("extranjera: presenta en formato internacional (IFRS), sin trimestrales"))
+    return(sin("no tiene balances en formato EE.UU."))
+  }
+  series <- seriesVentas(hechos$`us-gaap`)
+  if (length(series) == 0) return(sin("no se encontro la linea de ventas trimestral"))
+  fin   <- vapply(series, function(q) as.numeric(max(q$end)), 0)
+  ult   <- vapply(series, function(q) as.numeric(tail(q$val, 1)), 0)
+  mejor <- names(series)[order(-fin, -ult)[1]]
+  q     <- series[[mejor]]
+  if (max(q$end) < Sys.Date() - VENTAS_MAX_DIAS) {
+    return(sin(paste("ultimo trimestre informado:", max(q$end)), mejor))
+  }
+  list(q = q, concepto = mejor, motivo = "")
 }
 
 # Crecimiento interanual de cada trimestre (contra el mismo trimestre del año anterior)
@@ -2215,7 +2263,7 @@ crecimientoInteranual <- function(q) {
     j <- which(dif <= 20)
     if (length(j) == 0) next
     j <- j[which.min(dif[j])]
-    if (q$val[j] > 0) q$yoy[i] <- (q$val[i] / q$val[j] - 1) * 100
+    if (isTRUE(q$val[j] > 0)) q$yoy[i] <- (q$val[i] / q$val[j] - 1) * 100
   }
   q
 }
@@ -2234,37 +2282,52 @@ clasificarVentas <- function(g) {
   "4 - Estable"
 }
 
-resumenVentas <- function(q) {
-  vacio <- data.frame(TendenciaVentas = "Sin datos", VentasYoY = NA_real_,
-                      AceleracionVentas = NA_real_, HistVentasYoY = "",
-                      FechaBalance = NA_character_, stringsAsFactors = FALSE)
-  q <- crecimientoInteranual(q)
-  if (is.null(q)) return(vacio)
+resumenVentas <- function(v) {
+  vacio <- function(motivo) data.frame(TendenciaVentas = "Sin datos", VentasYoY = NA_real_,
+                                       AceleracionVentas = NA_real_, HistVentasYoY = "",
+                                       FechaBalance = NA_character_, ConceptoVentas = v$concepto,
+                                       MotivoSinDatos = motivo, stringsAsFactors = FALSE)
+  if (is.null(v$q)) return(vacio(v$motivo))
+  q <- crecimientoInteranual(v$q)
+  if (is.null(q)) return(vacio("menos de 5 trimestres de historia"))
   ult <- tail(q[!is.na(q$yoy), ], 4)
-  if (nrow(ult) == 0) return(vacio)
+  if (nrow(ult) < 2) return(vacio("menos de 2 trimestres comparables con el año anterior"))
   g <- ult$yoy
   data.frame(TendenciaVentas   = clasificarVentas(g),
              VentasYoY         = round(g[length(g)], 1),
-             AceleracionVentas = if (length(g) >= 2) round(g[length(g)] - g[length(g) - 1], 1) else NA_real_,
+             AceleracionVentas = round(g[length(g)] - g[length(g) - 1], 1),
              HistVentasYoY     = paste(sprintf("%.0f%%", g), collapse = " | "),   # la flecha se pone al mostrar
              FechaBalance      = as.character(max(ult$end)),
+             ConceptoVentas    = v$concepto,
+             MotivoSinDatos    = "",
              stringsAsFactors = FALSE)
 }
 
+leerCacheVentas <- function() {
+  if (!file.exists(VENTAS_CACHE)) return(NULL)
+  cache <- tryCatch(read.csv(VENTAS_CACHE, stringsAsFactors = FALSE, fileEncoding = "UTF-8",
+                             colClasses = "character", na.strings = c("NA", "")),
+                    error = function(e) NULL)
+  if (is.null(cache) || nrow(cache) == 0) return(NULL)
+  for (col in c("ConceptoVentas", "MotivoSinDatos", "Version", "HistVentasYoY"))
+    if (!col %in% names(cache)) cache[[col]] <- NA_character_
+  cache %>% mutate(VentasYoY = as.numeric(VentasYoY),
+                   AceleracionVentas = as.numeric(AceleracionVentas),
+                   HistVentasYoY = coalesce(HistVentasYoY, ""),
+                   MotivoSinDatos = coalesce(MotivoSinDatos, ""),
+                   ConceptoVentas = coalesce(ConceptoVentas, ""))
+}
+
 calcularVentas <- function(especies) {
-  cache <- NULL
-  if (file.exists(VENTAS_CACHE)) {
-    cache <- tryCatch(read.csv(VENTAS_CACHE, stringsAsFactors = FALSE, fileEncoding = "UTF-8",
-                               colClasses = c(Especie = "character", TendenciaVentas = "character",
-                                              VentasYoY = "numeric", AceleracionVentas = "numeric",
-                                              HistVentasYoY = "character", FechaBalance = "character",
-                                              FechaDescarga = "character")),
-                      error = function(e) NULL)
-  }
-  fresco <- !is.null(cache) && nrow(cache) > 0 &&
+  cache  <- leerCacheVentas()
+  fresco <- !is.null(cache) &&
+    all(cache$Version %in% as.character(VENTAS_VERSION)) &&
     as.numeric(Sys.Date() - min(as.Date(cache$FechaDescarga))) < VENTAS_DIAS_CACHE
   faltan <- if (fresco) setdiff(especies, cache$Especie) else especies
-  if (length(faltan) == 0) return(cache)
+  if (length(faltan) == 0) {
+    log_consola("Balances: se usan los guardados del", min(cache$FechaDescarga))
+    return(cache)
+  }
 
   log_consola("Bajando balances de la SEC para", length(faltan), "tickers")
   mapa <- getMapaCIK()
@@ -2276,16 +2339,23 @@ calcularVentas <- function(especies) {
   nuevos <- bind_rows(lapply(seq_along(faltan), function(i) {
     esp <- faltan[i]
     cik <- mapa$cik[match(esp, mapa$Especie)]
-    res <- NULL
+    v <- if (is.na(cik)) list(q = NULL, concepto = "", motivo = "no figura en la SEC (extranjera)")
+         else tryCatch(ventasEmpresa(cik),
+                       error = function(e) list(q = NULL, concepto = "", motivo = paste("error:", conditionMessage(e))))
+    res <- tryCatch(resumenVentas(v), error = function(e)
+      resumenVentas(list(q = NULL, concepto = "", motivo = paste("error:", conditionMessage(e)))))
     log_progreso(i, length(faltan), inicio,
-                 paste("balance", esp, if (is.na(cik)) "(no presenta en la SEC)" else ""))
-    if (!is.na(cik)) {
-      res <- tryCatch(resumenVentas(ventasEmpresa(cik)), error = function(e) NULL)
-    }
-    if (is.null(res)) res <- resumenVentas(NULL)
+                 paste0("balance ", esp, ": ", res$TendenciaVentas,
+                        if (res$MotivoSinDatos != "") paste0(" (", res$MotivoSinDatos, ")")
+                        else paste0(" [", res$ConceptoVentas, "]")))
     cbind(data.frame(Especie = esp, stringsAsFactors = FALSE), res)
   })) %>%
-    mutate(FechaDescarga = as.character(Sys.Date()))
+    mutate(FechaDescarga = as.character(Sys.Date()), Version = as.character(VENTAS_VERSION))
+
+  # Resumen en el log: cuantas con datos y por que faltan las demas
+  log_consola("Balances listos:", sum(nuevos$TendenciaVentas != "Sin datos"), "con datos de", nrow(nuevos))
+  motivos <- sort(table(sub(":.*", "", nuevos$MotivoSinDatos[nuevos$MotivoSinDatos != ""])), decreasing = TRUE)
+  for (m in names(motivos)) log_consola("   Sin datos -", m, ":", motivos[[m]])
 
   con_datos <- function(df) sum(df$TendenciaVentas != "Sin datos", na.rm = TRUE)
   if (fresco) {
