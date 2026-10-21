@@ -7,6 +7,28 @@ library(lubridate)
 library(tidyverse)
 
 
+# =====================================================================
+#  LOG en la consola de GitHub Actions
+#  ---------------------------------------------------------------------
+#  R Markdown se queda con todo lo que se imprime con print()/cat() dentro
+#  del documento, por eso no se ve en el log de Actions. Escribiendo en
+#  stderr() si aparece, en vivo.
+# =====================================================================
+log_consola <- function(...) {
+  cat(format(with_tz(Sys.time(), "America/Argentina/Buenos_Aires"), "%H:%M:%S"), "|", ..., "\n",
+      file = stderr())
+}
+
+# Progreso con contador y tiempo estimado: [ 123/838 ] AAPL - Apple Inc. | faltan 715 | ~12 min
+log_progreso <- function(i, n, inicio, texto) {
+  transcurrido <- as.numeric(difftime(Sys.time(), inicio, units = "secs"))
+  restante <- if (i > 1) transcurrido / (i - 1) * (n - i + 1) else NA
+  eta <- if (is.na(restante)) "calculando..." else if (restante < 60) sprintf("~%.0f seg", restante)
+         else sprintf("~%.0f min", restante / 60)
+  log_consola(sprintf("[ %*d/%d ] %s | faltan %d | %s", nchar(n), i, n, texto, n - i, eta))
+}
+
+
 
 
 fecha_hoy <- Sys.Date()
@@ -40,8 +62,8 @@ descargarYahoo = function(accion) {
     )
     if (!inherits(resultado, "error")) return(resultado)
     if (i < intentos) {
-      cat("  Reintento", i, "de", accion, "en", ESPERAS_REINTENTO[i], "s:",
-          conditionMessage(resultado), "\n")
+      log_consola("    reintento", i, "de", accion, "en", ESPERAS_REINTENTO[i], "s:",
+                  conditionMessage(resultado))
       Sys.sleep(ESPERAS_REINTENTO[i])
     }
   }
@@ -394,7 +416,6 @@ getCorr = function(data_uno, data_dos, ruedas = 750, min_obs = 120){
 
 
 
-sp500 = getOrder(getRawData('^GSPC'))
 
 
 
@@ -1265,7 +1286,7 @@ datos <- list(
   CAAP = "Corporación América Airports S.A.",
   TX = "Ternium",
 
-  # --- Cartera preferida: los que faltaban ---
+  # --- Agregados: energia, infraestructura IA, salud y otros ---
   CEG = "Constellation Energy Corporation",
   GEV = "GE Vernova Inc.",
   ETN = "Eaton Corporation plc",
@@ -1348,10 +1369,15 @@ crear_dataframe <- function(acciones, sp500, min_ruedas = 2) {
   errores <- data.frame(Especie = character(), Nombre = character(), Error = character())
   historia <- list()   # precios de las ultimas 760 ruedas, para la matriz de correlaciones
 
-  for (accion in names(acciones)) {
-    print(accion)
-    Sys.sleep(PAUSA_ENTRE_TICKERS)   # pausa para no saturar a Yahoo
+  n_total <- length(acciones)
+  inicio  <- Sys.time()
+  log_consola("Bajando precios de Yahoo para", n_total, "tickers")
+
+  for (i in seq_along(acciones)) {
+    accion <- names(acciones)[i]
     accion_completa = acciones[[accion]]
+    log_progreso(i, n_total, inicio, paste(accion, "-", accion_completa))
+    Sys.sleep(PAUSA_ENTRE_TICKERS)   # pausa para no saturar a Yahoo
 
     tryCatch({
       raw_data = getRawData(accion)
@@ -1362,13 +1388,14 @@ crear_dataframe <- function(acciones, sp500, min_ruedas = 2) {
       historia[[accion]] <- tail(getOrder(raw_data)[, c("fecha", "precio")], 760)
 
     }, error = function(e) {
-      cat("Error en la acción:", accion, "\n")
-      cat("Mensaje de error:", conditionMessage(e), "\n")
+      log_consola("    ERROR en", accion, ":", conditionMessage(e))
       errores <<- rbind(errores, data.frame(Especie = accion, Nombre = accion_completa,
                                             Error = conditionMessage(e)))
     })
   }
 
+  log_consola("Precios listos:", nrow(dataframe_final), "tickers OK,", nrow(errores), "con error. Tardo",
+              round(as.numeric(difftime(Sys.time(), inicio, units = "mins")), 1), "min")
   rownames(dataframe_final) <- NULL
   errores_tickers <<- errores
   precios_hist <<- historia
@@ -1435,10 +1462,6 @@ calcularCorrResumen <- function(precios_hist, nombres, ruedas = 750, min_obs = 1
 # getIndiceFuerzaDetalle(raw_csx, 365)
 
 
-# =====================================================================
-#  GENERACION DEL DATAFRAME FINAL
-# =====================================================================
-data <- crear_dataframe(datos, sp500)
 
 # =====================================================================
 #  RUBRO de cada accion (clasificacion GICS de S&P / MSCI, agrupada en 14
@@ -2067,16 +2090,6 @@ rubros <- c(
   MARA = "Cripto", RIOT = "Cripto", MSTR = "Cripto", IBIT = "Cripto", ETHA = "Cripto"
 )
 
-data <- data %>%
-  mutate(Rubro = unname(rubros[Especie]),
-         Rubro = ifelse(is.na(Rubro), "Otro", Rubro)) %>%
-  relocate(Rubro, .after = Nombre)
-
-# Correlacion de todas contra todas (pestana "Correlaciones")
-corr_resumen <- calcularCorrResumen(precios_hist, datos)
-corr_resumen <- corr_resumen %>%
-  left_join(data %>% select(Especie, Rubro), by = "Especie") %>%
-  relocate(Rubro, .after = Nombre)
 
 
 # =====================================================================
@@ -2253,17 +2266,20 @@ calcularVentas <- function(especies) {
   faltan <- if (fresco) setdiff(especies, cache$Especie) else especies
   if (length(faltan) == 0) return(cache)
 
-  cat("Bajando balances de la SEC para", length(faltan), "tickers...\n")
+  log_consola("Bajando balances de la SEC para", length(faltan), "tickers")
   mapa <- getMapaCIK()
   if (is.null(mapa)) {
-    cat("No se pudo leer la lista de empresas de la SEC: se usan los balances guardados\n")
+    log_consola("No se pudo leer la lista de empresas de la SEC: se usan los balances guardados")
     return(cache)
   }
-  nuevos <- bind_rows(lapply(faltan, function(esp) {
+  inicio <- Sys.time()
+  nuevos <- bind_rows(lapply(seq_along(faltan), function(i) {
+    esp <- faltan[i]
     cik <- mapa$cik[match(esp, mapa$Especie)]
     res <- NULL
+    log_progreso(i, length(faltan), inicio,
+                 paste("balance", esp, if (is.na(cik)) "(no presenta en la SEC)" else ""))
     if (!is.na(cik)) {
-      cat("  balance:", esp, "\n")
       res <- tryCatch(resumenVentas(ventasEmpresa(cik)), error = function(e) NULL)
     }
     if (is.null(res)) res <- resumenVentas(NULL)
@@ -2276,7 +2292,7 @@ calcularVentas <- function(especies) {
     resultado <- bind_rows(cache, nuevos)
   } else if (!is.null(cache) && con_datos(nuevos) < 0.5 * con_datos(cache)) {
     # La SEC fallo a mitad de camino: mejor quedarse con lo guardado
-    cat("La descarga de la SEC vino incompleta: se usan los balances guardados\n")
+    log_consola("La descarga de la SEC vino incompleta: se usan los balances guardados")
     return(cache)
   } else {
     resultado <- nuevos
@@ -2286,93 +2302,100 @@ calcularVentas <- function(especies) {
   resultado
 }
 
-ventas <- tryCatch(calcularVentas(data$Especie[data$Rubro != "ETF"]),
-                   error = function(e) { cat("Error en balances:", conditionMessage(e), "\n"); NULL })
-if (is.null(ventas) || nrow(ventas) == 0) {
-  ventas <- data.frame(Especie = character(), TendenciaVentas = character(), VentasYoY = numeric(),
-                       AceleracionVentas = numeric(), HistVentasYoY = character(),
-                       FechaBalance = character(), stringsAsFactors = FALSE)
-}
-data <- data %>%
-  left_join(ventas %>%
-              mutate(VentasYoY = as.numeric(VentasYoY),
-                     AceleracionVentas = as.numeric(AceleracionVentas),
-                     FechaBalance = as.character(FechaBalance)) %>%
-              select(Especie, TendenciaVentas, VentasYoY, AceleracionVentas,
-                     HistVentasYoY, FechaBalance) %>%
-              distinct(Especie, .keep_all = TRUE),
-            by = "Especie") %>%
-  mutate(TendenciaVentas = coalesce(TendenciaVentas, "Sin datos"),
-         HistVentasYoY   = gsub(" | ", " \u2192 ", coalesce(HistVentasYoY, ""), fixed = TRUE))
 
 
 # =====================================================================
-#  MI CARTERA (pestanas "Panel General - Cartera" y "Fuerza Relativa - Cartera")
+#  EJECUCION (con cache del dia)
 #  ---------------------------------------------------------------------
-#  Para cambiar la cartera, editar SOLO esta tabla. Todos los tickers tienen
-#  que estar tambien en 'datos' (arriba).
+#  Bajar las ~840 acciones tarda 25-30 minutos. Si ya se bajaron para el
+#  ultimo cierre de Wall Street y R/etl.R no cambio, se reusa lo guardado en
+#  _cache/datos_dia.rds y la pagina se arma en 1-2 minutos. Sirve para los
+#  commits del mismo dia (por ejemplo, cambiar index.Rmd).
 #
-#  Puntos: lo que "pesa" cada accion para vos. NO hace falta que sumen 100:
-#  para agregar una accion nueva se le ponen sus puntos y listo, sin tocar
-#  las demas. El Peso (%) se calcula solo: Puntos / total de puntos x 100,
-#  asi todas se ajustan en proporcion y la cartera fija siempre suma 100%.
-#  La timba va aparte (sin puntos ni peso).
+#  Se vuelve a bajar todo cuando:
+#   - hay un cierre nuevo (la actualizacion diaria de las 19:30), o
+#   - cambio R/etl.R (tickers nuevos, otro calculo, etc.), o
+#   - FORZAR_DESCARGA es TRUE.
 # =====================================================================
-mi_cartera <- tibble::tribble(
-  ~Especie, ~Puntos, ~Bloque,               ~Grupo,
-  "MSFT",  10,    "Nube",                 "Fija",
-  "META",  9,     "Nube",                 "Fija",
-  "GOOGL", 8,     "Nube",                 "Fija",
-  "ORCL",  3.5,   "Nube",                 "Fija",
-  "NVDA",  4.5,   "Chips e infra IA",     "Fija",
-  "TSM",   4,     "Chips e infra IA",     "Fija",
-  "AVGO",  4,     "Chips e infra IA",     "Fija",
-  "QCOM",  1.5,   "Chips e infra IA",     "Fija",
-  "ANET",  1.5,   "Chips e infra IA",     "Fija",
-  "VRT",   1,     "Chips e infra IA",     "Fija",
-  "TER",   1,     "Chips e infra IA",     "Fija",
-  "AAPL",  4,     "Plataformas",          "Fija",
-  "PLTR",  2,     "Plataformas",          "Fija",
-  "UBER",  2,     "Plataformas",          "Fija",
-  "NFLX",  2,     "Plataformas",          "Fija",
-  "NOW",   2,     "Plataformas",          "Fija",
-  "TSLA",  1.5,   "Plataformas",          "Fija",
-  "RDDT",  1.5,   "Plataformas",          "Fija",
-  "SPOT",  1,     "Plataformas",          "Fija",
-  "XLV",   4.5,   "Salud",                "Fija",
-  "AZN",   2.5,   "Salud",                "Fija",
-  "NVO",   1.5,   "Salud",                "Fija",
-  "ABBV",  1.5,   "Salud",                "Fija",
-  "PFE",   1.5,   "Salud",                "Fija",
-  "ISRG",  1,     "Salud",                "Fija",
-  "JPM",   3,     "Banca y pagos",        "Fija",
-  "MA",    2,     "Banca y pagos",        "Fija",
-  "NU",    2,     "Banca y pagos",        "Fija",
-  "ETN",   2.5,   "Energia",              "Fija",
-  "CEG",   2.5,   "Energia",              "Fija",
-  "GEV",   2,     "Energia",              "Fija",
-  "WMT",   3,     "Consumo y alimentos",  "Fija",
-  "DE",    1.5,   "Consumo y alimentos",  "Fija",
-  "KO",    1.5,   "Consumo y alimentos",  "Fija",
-  "PEP",   1.5,   "Consumo y alimentos",  "Fija",
-  "MELI",  3,     "Latinoamerica",        "Fija",
-  "YPF",   2,     "Latinoamerica",        "Fija",
-  "EWZ",   1,     "Latinoamerica",        "Fija",
-  "GLD",   2,     "Refugio",              "Fija",
-  "FCX",   1.5,   "Refugio",              "Fija",
-  "SPCX",  2,     "Espacio",              "Fija",
-  "IBIT",  1.5,   "Cripto",               "Fija",
-  "RKLB",  NA,    "Especulativo",         "Timba",
-  "ASTS",  NA,    "Especulativo",         "Timba",
-  "OKLO",  NA,    "Especulativo",         "Timba",
-  "RGTI",  NA,    "Especulativo",         "Timba"
-) %>%
-  mutate(Peso = round(Puntos / sum(Puntos, na.rm = TRUE) * 100, 2)) %>%
-  relocate(Peso, .after = Puntos)
+FORZAR_DESCARGA <- FALSE
+CACHE_DIA       <- "_cache/datos_dia.rds"
 
-# Datos de la app solo para la cartera (con Puntos, Peso, Bloque y Grupo al principio)
-data_cartera <- mi_cartera %>% inner_join(data, by = "Especie")
-cartera_sin_datos <- setdiff(mi_cartera$Especie, data$Especie)
+# Fecha del ultimo cierre de Wall Street (16:30 NY con margen; fin de semana -> viernes)
+fechaMercado <- function() {
+  ny <- with_tz(Sys.time(), "America/New_York")
+  d  <- as.Date(format(ny, "%Y-%m-%d"))
+  if (hour(ny) * 60 + minute(ny) < 16 * 60 + 30) d <- d - 1
+  while (format(d, "%u") %in% c("6", "7")) d <- d - 1
+  d
+}
+
+procesarTodo <- function() {
+  sp500 <- getOrder(getRawData('^GSPC'))
+  data  <- crear_dataframe(datos, sp500)
+
+  data <- data %>%
+    mutate(Rubro = unname(rubros[Especie]),
+           Rubro = ifelse(is.na(Rubro), "Otro", Rubro)) %>%
+    relocate(Rubro, .after = Nombre)
+
+  # Correlacion de todas contra todas (pestana "Correlaciones")
+  log_consola("Calculando correlaciones de todas contra todas...")
+  corr_resumen <- calcularCorrResumen(precios_hist, datos)
+  corr_resumen <- corr_resumen %>%
+    left_join(data %>% select(Especie, Rubro), by = "Especie") %>%
+    relocate(Rubro, .after = Nombre)
+
+  ventas <- tryCatch(calcularVentas(data$Especie[data$Rubro != "ETF"]),
+                     error = function(e) { log_consola("Error en balances:", conditionMessage(e)); NULL })
+  if (is.null(ventas) || nrow(ventas) == 0) {
+    ventas <- data.frame(Especie = character(), TendenciaVentas = character(), VentasYoY = numeric(),
+                         AceleracionVentas = numeric(), HistVentasYoY = character(),
+                         FechaBalance = character(), stringsAsFactors = FALSE)
+  }
+  data <- data %>%
+    left_join(ventas %>%
+                mutate(VentasYoY = as.numeric(VentasYoY),
+                       AceleracionVentas = as.numeric(AceleracionVentas),
+                       FechaBalance = as.character(FechaBalance)) %>%
+                select(Especie, TendenciaVentas, VentasYoY, AceleracionVentas,
+                       HistVentasYoY, FechaBalance) %>%
+                distinct(Especie, .keep_all = TRUE),
+              by = "Especie") %>%
+    mutate(TendenciaVentas = coalesce(TendenciaVentas, "Sin datos"),
+           HistVentasYoY   = gsub(" | ", " \u2192 ", coalesce(HistVentasYoY, ""), fixed = TRUE))
+
+  list(data = data, corr_resumen = corr_resumen, errores_tickers = errores_tickers)
+}
+
+huella_etl <- unname(tools::md5sum("R/etl.R"))
+fecha_merc <- fechaMercado()
+cache_dia  <- NULL
+if (!FORZAR_DESCARGA && file.exists(CACHE_DIA)) {
+  cache_dia <- tryCatch(readRDS(CACHE_DIA), error = function(e) NULL)
+}
+
+if (!is.null(cache_dia) && identical(cache_dia$fecha_mercado, fecha_merc) &&
+    identical(cache_dia$huella, huella_etl)) {
+  log_consola("Usando los datos guardados del cierre", format(fecha_merc), "(bajados el",
+              cache_dia$guardado, "): no se baja nada")
+  res <- cache_dia
+} else {
+  res <- procesarTodo()
+  # Solo se guarda si la descarga salio bien (al menos la mitad de los tickers)
+  if (nrow(res$data) >= 0.5 * length(datos)) {
+    res$fecha_mercado <- fecha_merc
+    res$huella        <- huella_etl
+    res$guardado      <- format(with_tz(Sys.time(), "America/Argentina/Buenos_Aires"), "%Y-%m-%d %H:%M")
+    dir.create(dirname(CACHE_DIA), showWarnings = FALSE, recursive = TRUE)
+    saveRDS(res, CACHE_DIA)
+  }
+}
+
+data            <- res$data
+corr_resumen    <- res$corr_resumen
+errores_tickers <- res$errores_tickers
+log_consola("Datos listos:", nrow(data), "tickers. Armando las tablas del dashboard...")
+
 
 # Ordenar por fuerza relativa (mayor -> menor). Descomenta la que uses:
 # data <- data[order(-data$IndiceFuerza90), ]
