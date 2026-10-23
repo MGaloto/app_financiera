@@ -420,6 +420,15 @@ getCorr = function(data_uno, data_dos, ruedas = 750, min_obs = 120){
 
 
 
+# % del precio actual contra el maximo de las ultimas 52 semanas (252 ruedas).
+# 0 = en maximos del año; -20 = 20% abajo del pico del ultimo año.
+getPctMax52 = function(data) {
+  data <- getOrder(data)
+  ult  <- tail(data$precio, 252)
+  round((tail(ult, 1) / max(ult, na.rm = TRUE) - 1) * 100, 2)
+}
+
+
 getData = function(data, especie, accion_completa, sp500) {
 
   data <- getOrder(data)
@@ -449,6 +458,7 @@ getData = function(data, especie, accion_completa, sp500) {
     InterAnual = getVariationInterAnual(data),
     PorcentajeRespectoAlMax = getVariationUltimoMaximo(data),
     PorcentajeRespectoAlMin = getVariationUltimoMinimo(data),
+    PctMax52 = getPctMax52(data),
     DiasUltMax = getDiasUtimoMaximo(
       fecha_ultimo_maximo, today
     ),
@@ -2372,6 +2382,63 @@ calcularVentas <- function(especies) {
   resultado
 }
 
+# =====================================================================
+#  CORRECCION EN ALZA
+#  ---------------------------------------------------------------------
+#  Detecta acciones que VENIAN SUBIENDO FUERTE y estan CORRIGIENDO (caso
+#  CAT: +42% en el año y -30% desde el pico), para separarlas de las que se
+#  estan cayendo de verdad.
+#
+#  Solo se calcula si se cumplen las dos condiciones (si no: "No aplica"):
+#   - Venia bien:   IndiceFuerza365 > 0 y la media de 200 sigue subiendo.
+#   - Esta corrigiendo: entre 8% y 40% abajo del maximo de 52 semanas, y el
+#     ultimo mes o trimestre en baja (IndiceFuerza30 o IndiceFuerza90 < 0).
+#
+#  Puntaje de 0 a 100:
+#   - Tendencia previa (30): que tan fuerte venia (IndiceFuerza365, tope 60).
+#   - Profundidad (25): maximo si corrigio entre 12% y 25%; baja a 0 en 8% y 40%.
+#   - Soporte (20): maximo si el precio esta entre -8% y +8% de la media de 200
+#     (donde suelen rebotar); baja a 0 en -18% y +25%.
+#   - Ventas (15): Acelerando 15, Giro a positivo 12, Mejorando 10, Estable 7,
+#     Sin datos 5, Frenando 3, Cayendo 0.
+#   - Rebote (10): IndiceFuerza7 > 0 -> 10; entre -2 y 0 -> 5; menos -> 0.
+#  Clase: 80+ "1 - Oportunidad", 65-79 "2 - Vigilar", menos "3 - Debil".
+# =====================================================================
+puntajeTrapecio <- function(x, a0, a1, b1, b0) {
+  # 0 hasta a0, sube hasta 1 en a1, 1 entre a1 y b1, baja a 0 en b0
+  y <- ifelse(x <= a0 | x >= b0, 0,
+       ifelse(x >= a1 & x <= b1, 1,
+       ifelse(x < a1, (x - a0) / (a1 - a0), (b0 - x) / (b0 - b1))))
+  ifelse(is.na(y), 0, y)
+}
+
+agregarIndiceCorreccion <- function(data) {
+  caida <- -data$PctMax52
+  venia <- !is.na(data$IndiceFuerza365) & data$IndiceFuerza365 > 0 &
+           !is.na(data$PendMedia200) & data$PendMedia200 > 0
+  corrige <- !is.na(caida) & caida >= 8 & caida <= 40 &
+             ((!is.na(data$IndiceFuerza30) & data$IndiceFuerza30 < 0) |
+              (!is.na(data$IndiceFuerza90) & data$IndiceFuerza90 < 0))
+  aplica <- venia & corrige & data$Rubro != "ETF"
+
+  p_tendencia   <- pmin(pmax(data$IndiceFuerza365, 0), 60) / 60 * 30
+  p_profundidad <- puntajeTrapecio(caida, 8, 12, 25, 40) * 25
+  p_soporte     <- puntajeTrapecio(data$PctMedia200, -18, -8, 8, 25) * 20
+  p_ventas      <- unname(c("1 - Acelerando" = 15, "2 - Giro a positivo" = 12, "3 - Mejorando" = 10,
+                            "4 - Estable" = 7, "5 - Frenando" = 3, "6 - Cayendo" = 0,
+                            "Sin datos" = 5)[data$TendenciaVentas])
+  p_ventas[is.na(p_ventas)] <- 5
+  p_rebote      <- ifelse(!is.na(data$IndiceFuerza7) & data$IndiceFuerza7 > 0, 10,
+                   ifelse(!is.na(data$IndiceFuerza7) & data$IndiceFuerza7 > -2, 5, 0))
+
+  total <- round(p_tendencia + p_profundidad + p_soporte + p_ventas + p_rebote)
+  data$IndiceCorreccion <- ifelse(aplica, total, NA_real_)
+  data$CorreccionAlza   <- ifelse(!aplica, "No aplica",
+                           ifelse(total >= 80, "1 - Oportunidad",
+                           ifelse(total >= 65, "2 - Vigilar", "3 - Debil")))
+  data
+}
+
 
 
 # =====================================================================
@@ -2433,6 +2500,9 @@ procesarTodo <- function() {
               by = "Especie") %>%
     mutate(TendenciaVentas = coalesce(TendenciaVentas, "Sin datos"),
            HistVentasYoY   = gsub(" | ", " \u2192 ", coalesce(HistVentasYoY, ""), fixed = TRUE))
+
+  # Correccion en alza (usa precios + ventas, por eso va al final)
+  data <- agregarIndiceCorreccion(data)
 
   list(data = data, corr_resumen = corr_resumen, errores_tickers = errores_tickers)
 }
