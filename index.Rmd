@@ -91,6 +91,9 @@ tabla_panel <- function(df) {
         Cierre,
         PctMedia200,
         Tendencia,
+        CorreccionAlza,
+        IndiceCorreccion,
+        PctMax52,
         Recomendacion,
         SenalGiro,
         PuntosGiro,
@@ -141,6 +144,23 @@ tabla_panel <- function(df) {
       backgroundColor = styleEqual(
         c("1 - Alcista fuerte", "2 - Retroceso en alza", "3 - Recuperacion", "4 - Bajista", "Sin datos"),
         c('#15e854', '#5cbd79', '#f5d76e', '#de1028', '#d9d9d9'))
+      ) %>%
+    formatStyle(
+      'CorreccionAlza',
+      backgroundColor = styleEqual(
+        c("1 - Oportunidad", "2 - Vigilar", "3 - Debil", "No aplica"),
+        c('#15e854', '#f5d76e', '#f0a35e', '#ffffff'))
+      ) %>%
+    formatStyle(
+      'IndiceCorreccion',
+      background = styleColorBar(c(0, 100), '#93badb'),
+      backgroundSize = '100% 90%',
+      backgroundRepeat = 'no-repeat',
+      backgroundPosition = 'center'
+      ) %>%
+    formatStyle(
+      'PctMax52',
+      backgroundColor = styleInterval(c(-40, -25, -12, -8), c('#de1028', '#f0a35e', '#91bd98', '#d9e8a0', '#f5f5f5'))
       ) %>%
     formatStyle(
       'Recomendacion',
@@ -384,6 +404,12 @@ Referencias {data-orientation=rows}
 * PctMedia200: Distancia porcentual del precio (ajustado) contra su media movil simple de 200 ruedas: (precio / SMA200 - 1) x 100. Positivo = el precio esta por encima de la media; mas de +20% = muy estirada.
 
 * Tendencia: Alineacion de medias moviles simples de 50 y 200 ruedas. 1 - Alcista fuerte: precio > SMA50 > SMA200. 2 - Retroceso en alza: SMA50 > SMA200 pero el precio bajo de la SMA50 (correccion dentro de una tendencia alcista). 3 - Recuperacion: precio > SMA50 pero SMA50 <= SMA200 (rebote sin confirmar). 4 - Bajista: precio <= SMA50 <= SMA200.
+
+* CorreccionAlza: Detecta acciones que VENIAN SUBIENDO FUERTE y estan CORRIGIENDO, para separarlas de las que se estan cayendo de verdad (por ejemplo, una accion que subio 40% en el año y bajo 25% desde el pico puede figurar como Bajista en Tendencia, pero es una correccion dentro de una suba). Solo se calcula si se cumplen dos condiciones: (1) Venia bien: IndiceFuerza365 positivo y la media de 200 todavia subiendo; (2) Esta corrigiendo: entre 8% y 40% abajo del maximo de 52 semanas y el ultimo mes o trimestre en baja. Si no se cumplen: No aplica. 1 - Oportunidad: IndiceCorreccion de 80 o mas. 2 - Vigilar: de 65 a 79. 3 - Debil: menos de 65.
+
+* IndiceCorreccion: Puntaje de 0 a 100 de la correccion. Tendencia previa (hasta 30 puntos): que tan fuerte venia subiendo (IndiceFuerza365). Profundidad (hasta 25): maximo si corrigio entre 12% y 25%; menos de 8% es ruido y mas de 40% puede ser que se rompio la tendencia. Soporte (hasta 20): maximo si el precio esta entre -8% y +8% de la media de 200, que es donde suelen rebotar las acciones en tendencia alcista (si sigue muy arriba, todavia no llego al soporte; si esta muy abajo, se puede estar rompiendo). Ventas (hasta 15): que el negocio acompañe (Acelerando 15, Giro a positivo 12, Mejorando 10, Estable 7, Sin datos 5, Frenando 3, Cayendo 0). Rebote (hasta 10): si en la ultima semana ya empezo a subir (IndiceFuerza7). Los cortes son razonables pero todavia no estan probados con datos historicos.
+
+* PctMax52: Distancia porcentual del precio contra su maximo de las ultimas 52 semanas (252 ruedas). 0 = en maximos del año; -20 = 20% abajo del pico del ultimo año. A diferencia de PorcentajeRespectoAlMax (maximo historico), mide la correccion desde el pico reciente.
 
 * Recomendacion: Combina Tendencia, PctMedia200 y PendMedia200. 1 - Prioridad: Retroceso en alza, hasta +10% sobre la SMA200 y con la SMA200 subiendo. 2 - Normal: Alcista fuerte hasta +10%, Recuperacion, o Retroceso en alza con la SMA200 bajando. 3 - Mitad: entre +10% y +20% sobre la SMA200 (comprar la mitad). 4 - Esperar: mas de +20% (esperar un retroceso). 5 - De a poco: Bajista hasta -30% (comprar en escalera y revisar que el negocio este sano). 6 - No promediar: Bajista con mas de -30% (esperar senal de despegue). Historia corta: si la accion tiene entre 50 y 199 ruedas, la media de 200 se calcula con todos los precios desde su primera cotizacion (y nunca da Prioridad porque no hay pendiente). Sin datos: menos de 50 ruedas.
 
