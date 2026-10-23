@@ -97,6 +97,7 @@ tabla_panel <- function(df) {
         Recomendacion,
         SenalGiro,
         PuntosGiro,
+        IndiceRuptura,
         TendenciaVentas,
         VentasYoY,
         AceleracionVentas,
@@ -161,6 +162,10 @@ tabla_panel <- function(df) {
     formatStyle(
       'PctMax52',
       backgroundColor = styleInterval(c(-40, -25, -12, -8), c('#de1028', '#f0a35e', '#91bd98', '#d9e8a0', '#f5f5f5'))
+      ) %>%
+    formatStyle(
+      'IndiceRuptura',
+      backgroundColor = styleInterval(c(0.5, 39.5, 69.5), c('#ffffff', '#dbe9f6', '#f5d76e', '#15e854'))
       ) %>%
     formatStyle(
       'Recomendacion',
@@ -428,6 +433,8 @@ Referencias {data-orientation=rows}
 * HistVentasYoY: Crecimiento interanual de las ventas de los ultimos 4 trimestres, del mas viejo al mas nuevo. Ejemplo de giro de manual: -2% → 16% → 35% → 38%.
 
 * FechaBalance: Fecha de cierre del ultimo trimestre informado. Los balances se bajan una vez por semana (se guardan en _cache/ventas_trimestrales.csv).
+
+* IndiceRuptura: Busca acciones que CAYERON FUERTE, armaron una BASE (el precio se comprime en un rango mientras alguien acumula) y ROMPEN el techo de esa base con volumen (patron de acumulacion de Wyckoff / paso de Etapa 1 a Etapa 2 de Weinstein). Un solo numero de 0 a 100: cuanto mas alto, mejor momento para entrar. 0 = No aplica: no cayo 35% o mas en el ultimo año, sigue cayendo (el piso fue hace menos de 30 ruedas) o ya disparo (mas de 20% arriba del techo de la base, tarde para entrar). 1 a 39 = Formando base: dejo de hacer minimos pero todavia oscila mucho o no se ve acumulacion (lista de vigilancia, no es señal de compra). 40 a 69 = Base lista: rango de 25% o menos, con acumulacion (mas volumen en los dias de suba que en los de baja) y el precio en el tercio de arriba del rango, a punto de romper. 70 a 100 = Ruptura: en las ultimas 10 ruedas cerro arriba del techo de la base con un volumen de al menos 1,5 veces el promedio de 50 ruedas, y sigue arriba. Dentro de cada fase suman puntos una caida previa mas profunda, una base mas apretada, mas acumulacion, volatilidad que se achica y, en la ruptura, mas volumen y que sea FRESCA: una ruptura de hace varios dias o que ya se alejo del techo puntua menos. Ojo: hay rupturas falsas (rompe y vuelve a caer al rango); conviene cruzarlo con TendenciaVentas. Los cortes son razonables pero todavia no estan probados con datos historicos.
 
 * PendMedia200: Variacion porcentual de la SMA200 en las ultimas 20 ruedas. Positivo = la tendencia de fondo sube; negativo = se esta dando vuelta.
 
