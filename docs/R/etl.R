@@ -429,6 +429,94 @@ getPctMax52 = function(data) {
 }
 
 
+# =====================================================================
+#  INDICE DE RUPTURA (caida fuerte -> base -> descompresion)
+#  ---------------------------------------------------------------------
+#  Busca acciones que cayeron fuerte, armaron una base (el precio se
+#  comprime en un rango mientras alguien acumula) y rompen el techo de esa
+#  base con volumen. Un solo numero de 0 a 100: cuanto mas alto, mejor
+#  momento para entrar.
+#
+#    0      No aplica: no cayo fuerte, sigue cayendo (piso hace < 30 ruedas)
+#           o ya disparo (mas de 20% arriba del techo de la base: tarde para entrar)
+#    1-39   Formando base: cayo 35%+ y dejo de hacer minimos, pero todavia
+#           oscila mucho o no se ve acumulacion
+#    40-69  Base lista: rango apretado (<= 25%), con acumulacion y el precio
+#           en el tercio de arriba del rango
+#    70-100 Ruptura: en las ultimas 10 ruedas cerro arriba del techo de la
+#           base con volumen >= 1,5 veces el promedio, y sigue arriba
+#
+#  Dentro de cada fase suma calidad: caida previa mas profunda, base mas
+#  apretada, mas acumulacion (volumen de dias de suba vs dias de baja),
+#  volatilidad que se contrae y, en la ruptura, mas volumen y que sea
+#  FRESCA (una ruptura vieja o que ya se escapo mucho del techo puntua menos).
+# =====================================================================
+entre01 <- function(x) { x <- ifelse(is.na(x) | is.nan(x), 0, x); pmin(pmax(x, 0), 1) }
+
+getIndiceRuptura = function(data) {
+  data <- getOrder(data)
+  if (nrow(data) < 60) return(0)
+  w <- tail(data, 252)                          # ultimo año (o desde que cotiza)
+  p <- w$precio; v <- w$volumen; m <- length(p)
+  v[is.na(v)] <- 0
+
+  # 1) Caida fuerte: del pico (antes del piso) al piso
+  i_min <- which.min(p)
+  if (i_min < 2) return(0)                      # el piso es el primer dia: no hubo caida
+  caida <- 1 - p[i_min] / max(p[1:i_min])
+  if (caida < 0.35) return(0)
+  if (m - i_min < 30) return(0)                 # piso muy reciente: sigue cayendo
+
+  # 2) Base: desde el piso (como mucho las ultimas 60 ruedas), sin las ultimas 10
+  base_ini <- max(i_min, m - 70)
+  base_fin <- m - 10
+  if (base_fin - base_ini < 15) return(0)
+  techo <- max(p[base_ini:base_fin]); piso <- min(p[base_ini:base_fin])
+  ancho <- techo / piso - 1
+
+  # Acumulacion: volumen promedio de los dias de suba / de los dias de baja (desde el piso)
+  ret_b <- diff(p[i_min:m]); vol_b <- v[(i_min + 1):m]
+  acum <- if (sum(ret_b > 0) > 0 && sum(ret_b < 0) > 0 && mean(vol_b[ret_b < 0]) > 0)
+            mean(vol_b[ret_b > 0]) / mean(vol_b[ret_b < 0]) else NA
+
+  # Contraccion de la volatilidad: ultimas 20 ruedas vs la caida
+  r <- diff(log(p))
+  ini_caida <- which.max(p[1:i_min])
+  vol_caida <- if (i_min - ini_caida >= 5) sd(r[ini_caida:(i_min - 1)]) else NA
+  contraccion <- 1 - sd(tail(r, 20)) / vol_caida   # 0.5 = la volatilidad bajo a la mitad
+
+  q_caida   <- entre01((caida - 0.35) / 0.25)       # 35% -> 0, 60%+ -> 1
+  q_ancho   <- entre01((0.25 - ancho) / 0.15)       # 25% -> 0, 10% o menos -> 1
+  q_acum    <- entre01((acum - 1) / 0.5)            # 1,0 -> 0, 1,5+ -> 1
+  q_contrac <- entre01(contraccion / 0.5)
+
+  # 3) Ruptura en las ultimas 10 ruedas: cierre arriba del techo con volumen
+  k_rup <- NA; vol_rup <- NA
+  for (k in (m - 9):m) {
+    prom50 <- mean(v[max(1, k - 50):(k - 1)])
+    if (p[k] > techo && prom50 > 0 && v[k] >= 1.5 * prom50) { k_rup <- k; vol_rup <- v[k] / prom50; break }
+  }
+  if (!is.na(k_rup) && p[m] > techo) {
+    extension <- p[m] / techo - 1
+    if (extension > 0.20) return(0)                               # ya disparo: tarde para entrar
+    q_vol    <- entre01((vol_rup - 1.5) / 1.5)                    # 1,5x -> 0, 3x+ -> 1
+    q_fresca <- entre01(1 - (m - k_rup) / 10) *                   # hoy -> 1, hace 10 ruedas -> 0
+                entre01(1 - (extension - 0.05) / 0.15)            # hasta 5% arriba -> 1, 20% -> 0
+    calidad <- 0.35 * q_vol + 0.25 * q_ancho + 0.20 * q_acum + 0.20 * q_caida
+    # La frescura multiplica: una ruptura vieja o alejada del techo queda cerca de 70
+    return(round(70 + 30 * (0.25 + 0.75 * q_fresca) * calidad))
+  }
+
+  # Base lista: apretada, con acumulacion, precio en el tercio de arriba
+  if (ancho <= 0.25 && !is.na(acum) && acum >= 1.1 && p[m] >= piso + 2/3 * (techo - piso)) {
+    return(round(40 + 29 * (0.35 * q_ancho + 0.30 * q_acum + 0.20 * q_contrac + 0.15 * q_caida)))
+  }
+
+  # Formando base
+  round(1 + 38 * (0.30 * q_ancho + 0.30 * q_acum + 0.20 * q_contrac + 0.20 * q_caida))
+}
+
+
 getData = function(data, especie, accion_completa, sp500) {
 
   data <- getOrder(data)
@@ -470,6 +558,7 @@ getData = function(data, especie, accion_completa, sp500) {
     Recomendacion = reco,
     SenalGiro = giro$SenalGiro,
     PuntosGiro = giro$PuntosGiro,
+    IndiceRuptura = tryCatch(getIndiceRuptura(data), error = function(e) 0),
     SMA50 = med$SMA50,
     SMA200 = med$SMA200,
     CoefVariationPromedioAnual = getAnualVariationCoeff(data),
