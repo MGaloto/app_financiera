@@ -7,7 +7,7 @@ on:
     # Lunes a viernes 22:30 UTC (19:30 hora Argentina): despues del cierre de
     # Wall Street todo el año (cierra 20:00 UTC en verano y 21:00 UTC en invierno),
     # asi los datos son del cierre completo del dia.
-    - cron: '0 06 * * 1-6'
+    - cron: '0 06,21 * * 1-6'
 
 jobs:
   refresh-the-dashboard:
