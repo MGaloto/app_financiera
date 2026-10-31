@@ -55,7 +55,10 @@ descargarYahoo = function(accion) {
         src = 'yahoo',
         auto.assign = F,
         from = "2002-01-01",
-        to = Sys.Date(),
+        # +1: Yahoo toma 'to' como limite EXCLUSIVO y el servidor de GitHub usa la fecha
+        # UTC. Sin el +1, una corrida a las 20:00 de Buenos Aires (23:00 UTC) no traia el
+        # dia de hoy. La vela incompleta (mercado abierto) se descarta mas abajo.
+        to = Sys.Date() + 1,
         periodicity = "daily"
       ),
       error = function(e) e
@@ -2593,7 +2596,8 @@ procesarTodo <- function() {
   # Correccion en alza (usa precios + ventas, por eso va al final)
   data <- agregarIndiceCorreccion(data)
 
-  list(data = data, corr_resumen = corr_resumen, errores_tickers = errores_tickers)
+  list(data = data, corr_resumen = corr_resumen, errores_tickers = errores_tickers,
+       fecha_cierre = max(sp500$fecha))   # ultima rueda completa que trajo Yahoo
 }
 
 huella_etl <- unname(tools::md5sum("R/etl.R"))
@@ -2611,7 +2615,11 @@ if (!is.null(cache_dia) && identical(cache_dia$fecha_mercado, fecha_merc) &&
 } else {
   res <- procesarTodo()
   # Solo se guarda si la descarga salio bien (al menos la mitad de los tickers)
-  if (nrow(res$data) >= 0.5 * length(datos)) {
+  if (res$fecha_cierre < fecha_merc) {
+    # Yahoo todavia no publico el cierre esperado: no se guarda, asi la proxima corrida reintenta
+    log_consola("ATENCION: se esperaba el cierre del", format(fecha_merc), "pero Yahoo trajo hasta el",
+                format(res$fecha_cierre), "-> no se guarda en el cache")
+  } else if (nrow(res$data) >= 0.5 * length(datos)) {
     res$fecha_mercado <- fecha_merc
     res$huella        <- huella_etl
     res$guardado      <- format(with_tz(Sys.time(), "America/Argentina/Buenos_Aires"), "%Y-%m-%d %H:%M")
@@ -2623,6 +2631,8 @@ if (!is.null(cache_dia) && identical(cache_dia$fecha_mercado, fecha_merc) &&
 data            <- res$data
 corr_resumen    <- res$corr_resumen
 errores_tickers <- res$errores_tickers
+fecha_cierre    <- if (is.null(res$fecha_cierre)) as.Date(NA) else res$fecha_cierre
+log_consola("Datos al cierre del", format(fecha_cierre))
 log_consola("Datos listos:", nrow(data), "tickers. Armando las tablas del dashboard...")
 
 
