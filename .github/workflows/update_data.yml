@@ -4,10 +4,15 @@ on:
   push:
     branches: [main, master]
   schedule:
-    # Lunes a viernes 22:30 UTC (19:30 hora Argentina): despues del cierre de
-    # Wall Street todo el año (cierra 20:00 UTC en verano y 21:00 UTC en invierno),
-    # asi los datos son del cierre completo del dia.
-    - cron: '0 06,21 * * 1-6'
+    # GitHub usa hora UTC. Buenos Aires = UTC - 3 (sin horario de verano).
+    # Se usa el minuto 17 y no el 00: a la hora en punto GitHub tiene mucha
+    # carga y demora (o saltea) las corridas programadas.
+    #
+    # Mañana: 10:17 UTC = 07:17 Buenos Aires -> muestra el cierre del dia anterior.
+    - cron: '17 10 * * 1-5'
+    # Noche: 23:17 UTC = 20:17 Buenos Aires -> muestra el cierre del dia.
+    # (Wall Street cierra 17:00 ARG con horario de verano de EE.UU. y 18:00 ARG sin el.)
+    - cron: '17 23 * * 1-5'
 
 jobs:
   refresh-the-dashboard:
